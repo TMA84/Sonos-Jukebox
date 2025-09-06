@@ -1,0 +1,37 @@
+.pin-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+.pin-display {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.pin-dot {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--ion-color-primary);
+  border-radius: 50%;
+  background: transparent;
+  
+  &.filled {
+    background: var(--ion-color-primary);
+  }
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 300px;
+  
+  ion-button {
+    width: 80px;
+    height: 80px;
+    --border-radius: 50%;
+  }
+}

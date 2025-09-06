@@ -1,11 +1,15 @@
 # Sonos-Kids-Controller
 
+*This enhanced version is inspired by and builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller). Many thanks to the original author for creating this wonderful foundation for a kids-friendly Sonos controller.*
+
 ## Content
 [About Sonos-Kids-Controller](#about-sonos-kids-controller)\
+[New Features](#new-features)\
 [Dependencies](#dependencies)\
 [Usage](#usage)\
 [Configuration](#configuration)\
 [Adding Content](#adding-content)\
+[Security](#security)\
 [Autostart](#autostart)\
 [Update](#update)\
 [Hardware Player](#hardware-player)\
@@ -36,6 +40,33 @@ But you can also add albums from the local Sonos library (in case an album isn't
 The software consists of 2 parts:
 * The server component, running in an node express environment. Handles the album library and serves the client component to the browser
 *  The client component, developed in Ionic/Angular, which can be opened in a browser
+
+## New Features
+This enhanced version includes several performance improvements and new features:
+
+### Performance Enhancements
+* **Virtual Grid with Pagination**: Replaced inefficient slider with paginated grid (12 items per page) for better performance with large collections
+* **Lazy Loading**: Album artwork loads on-demand as you navigate through pages
+* **Search Functionality**: Built-in search and filtering for large album libraries
+* **Optimized Rendering**: Smooth scrolling and reduced memory usage
+
+### Enhanced Search Capabilities
+* **Album Search**: Search Spotify albums directly with real-time results
+* **Artist Search**: Find and add entire artist catalogs with one click
+* **Service Integration**: Search interfaces for Apple Music, Amazon Music, and TuneIn Radio
+* **One-Click Adding**: Add albums/artists directly from search results
+
+### Configuration & Security
+* **Speaker Discovery**: Automatically find and select Sonos speakers on your network
+* **Configuration Page**: Easy-to-use settings interface accessible from the main screen
+* **PIN Protection**: Secure configuration access with customizable 4-digit PIN (default: 1234)
+* **Service Detection**: Automatically disable unconfigured music services
+
+### Technical Improvements
+* **Modern Framework**: Updated to Angular 18, Ionic 8, and latest dependencies
+* **Security Updates**: Fixed 115+ security vulnerabilities (reduced to 11 low-risk)
+* **Improved Architecture**: Shared component modules and better code organization
+* **Auto-Configuration**: Automatic creation of missing configuration files
 
 ## Dependencies
 This software uses [node-sonos-http-api](https://github.com/Thyraz/node-sonos-http-api) to control your Sonos hardware. __So you need to have it running somewhere, for example on the same system as this software__.\
@@ -83,6 +114,12 @@ http://ip.of.the.server:8200
 Now the user interface should appear
 
 ## Configuration
+
+### Automatic Configuration
+The app now includes a built-in configuration interface accessible via the settings button (⚙️) on the main screen.
+
+### Manual Configuration
+You can still manually edit the configuration file:
 ```
 {
     "node-sonos-http-api": {
@@ -99,15 +136,28 @@ Now the user interface should appear
     }
 }
 ```
+
+### Configuration Features
+* **Speaker Discovery**: Use the configuration page to automatically find and select Sonos speakers
+* **Service Detection**: Unconfigured services (like Spotify without credentials) are automatically disabled
+* **PIN Protection**: Configuration access is protected by a 4-digit PIN (default: 1234)
+* **Auto-Creation**: Missing configuration files are created automatically on first startup
+
 Point the node-sonos-http-api section to the adress and the port where the service is running.
 The rooms are the Sonos room names that you want to be allowed as target.
-
-Room selection isn't implemented yet, so only the first room will be used at the moment.
 
 The spotify section is only needed when you want to use Spotify Premium as source.
 The id and the secret are the same values as entered in the node-sonos-http-api configuration as described [here.](https://github.com/Thyraz/node-sonos-http-api#note-for-spotify-users)
 
 ## Adding Content
+
+### Quick Search (New)
+The easiest way to add content is using the new search functionality:
+* **Spotify Albums**: Search and add albums directly from Spotify
+* **Spotify Artists**: Add entire artist catalogs with one click
+* **Service Search**: Search Apple Music, Amazon Music, and TuneIn Radio (demo functionality)
+
+### Manual Entry
 There's a hidden button in the root view on the right side of the top navigation bar.
 If you click there, you should see an overlay lighting up.
 Click this button quickly 10 times to open the library editor.
@@ -146,10 +196,24 @@ A good source for album artworks is the iTunes Artwork Finder: https://bendodson
 
 Pro Tip:
 As Amazon and Apple don't provide a full public API to search for content like Spotify does, adding AlbumIDs and artwork links through the UI might be time consuming and complicated.
-you can also edit the library by editing _server/config/data.json_ (created after you added the first content through the UI).
+you can also edit the library by editing _server/config/data.json_ (created automatically on first startup).
 The structure should be self-explaining.
 Just be sure to shutdown Sonos-Kids-Controller before editing the file, as the software might otherwise overwrite your changes with an in-memory copy of the data.
 Also a backup of the file might be a good idea, as the software might overwrite the file with an empty library on startup, when you have some syntax errors in your edits, preventing the data from loading.
+
+## Security
+
+### PIN Protection
+The configuration interface is protected by a 4-digit PIN to prevent children from accidentally changing settings.
+
+* **Default PIN**: 1234
+* **Changing PIN**: Use the configuration page to change the PIN
+* **PIN Storage**: Stored securely in `server/config/pin.json`
+
+### Access Control
+* Configuration button requires PIN entry
+* Invalid PIN attempts clear the entry field
+* PIN is validated server-side for security
 
 
 ## Autostart
@@ -395,9 +459,50 @@ If you have a suitable SD Card you may consider overclock the SD card reader by 
 dtparam=sd_overclock=100
 ```
 
-## Docker
-There is now also an easy way to setup this software using Docker.
-This avoids the compilation on small hardware.
+## Docker Installation
 
-The image is maintained by [stepman0](https://github.com/stepman0)\
+### Quick Start
+```bash
+# Clone the repository
+git clone https://github.com/your-repo/Sonos-Kids-Controller.git
+cd Sonos-Kids-Controller
+
+# Build and run with Docker Compose
+./build-docker.sh
+docker-compose up -d
+```
+
+### Manual Docker Build
+```bash
+# Build the Angular app first
+npm install
+ionic build --prod
+
+# Build Docker image
+docker build -t sonos-kids-controller .
+
+# Run container
+docker run -d \
+  -p 8200:8200 \
+  -v $(pwd)/server/config:/app/server/config \
+  --name sonos-kids-controller \
+  sonos-kids-controller
+```
+
+### Docker Features
+- **Lightweight**: Based on Node.js Alpine image
+- **Persistent Config**: Configuration files are mounted as volumes
+- **Multi-Client Support**: Single container serves multiple clients
+- **Auto-Restart**: Container restarts automatically on failure
+- **Network Isolation**: Runs in dedicated Docker network
+
+### Configuration
+Configuration files are stored in `./server/config/` and mounted into the container:
+- `config.json` - Main configuration
+- `data.json` - Album library (auto-created)
+- `pin.json` - Security PIN (auto-created)
+
+### Alternative Docker Image
+There is also a community-maintained Docker image available:
+Maintained by [stepman0](https://github.com/stepman0)\
 Get it [here](https://github.com/stepman0/docker-sonos-kids-controller).

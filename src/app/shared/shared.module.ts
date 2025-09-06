@@ -7,6 +7,7 @@ import { SearchFilterComponent } from '../search-filter/search-filter.component'
 import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
 import { ArtistSearchComponent } from '../artist-search/artist-search.component';
+import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { ArtistSearchComponent } from '../artist-search/artist-search.component'
     SearchFilterComponent,
     AlbumSearchComponent,
     ServiceSearchComponent,
-    ArtistSearchComponent
+    ArtistSearchComponent,
+    PinDialogComponent
   ],
   imports: [
     CommonModule,
@@ -26,7 +28,8 @@ import { ArtistSearchComponent } from '../artist-search/artist-search.component'
     SearchFilterComponent,
     AlbumSearchComponent,
     ServiceSearchComponent,
-    ArtistSearchComponent
+    ArtistSearchComponent,
+    PinDialogComponent
   ]
 })
 export class SharedModule {}

@@ -1,0 +1,13 @@
+node_modules
+src
+.git
+.gitignore
+README.md
+*.md
+.angular
+.vscode
+e2e
+karma.conf.js
+protractor.conf.js
+tsconfig.json
+angular.json

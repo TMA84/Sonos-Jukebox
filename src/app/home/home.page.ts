@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import { MediaService } from '../media.service';
 import { ArtworkService } from '../artwork.service';
 import { PlayerService } from '../player.service';
 import { ActivityIndicatorService } from '../activity-indicator.service';
+import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { Artist } from '../artist';
 import { Media } from '../media';
 
@@ -27,7 +29,8 @@ export class HomePage implements OnInit {
     private artworkService: ArtworkService,
     private playerService: PlayerService,
     private activityIndicatorService: ActivityIndicatorService,
-    private router: Router
+    private router: Router,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {
@@ -136,6 +139,21 @@ export class HomePage implements OnInit {
 
   loadMoreArtistArtwork(items: Artist[]) {
     this.loadArtistArtworkBatch(items);
+  }
+
+  async configButtonPressed() {
+    const modal = await this.modalController.create({
+      component: PinDialogComponent,
+      cssClass: 'pin-dialog-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data === true) {
+        this.router.navigate(['/config']);
+      }
+    });
+
+    return await modal.present();
   }
 
   editButtonPressed() {

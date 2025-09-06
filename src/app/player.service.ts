@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Media } from './media';
 import { SonosApiConfig } from './sonos-api';
+import { ClientService } from './client.service';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { publishReplay, refCount } from 'rxjs/operators';
@@ -24,7 +25,10 @@ export class PlayerService {
 
   private config: Observable<SonosApiConfig> = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private clientService: ClientService
+  ) {}
 
   getConfig() {
     // Observable with caching:
@@ -33,7 +37,9 @@ export class PlayerService {
     if (!this.config) {
       const url = (environment.production) ? '../api/sonos' : 'http://localhost:8200/api/sonos';
 
-      this.config = this.http.get<SonosApiConfig>(url).pipe(
+      this.config = this.http.get<SonosApiConfig>(url, {
+        params: { clientId: this.clientService.getClientId() }
+      }).pipe(
         publishReplay(1), // cache result
         refCount()
       );

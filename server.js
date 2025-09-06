@@ -17,11 +17,18 @@ var spotifyApi = new SpotifyWebApi({
 
 // Configuration
 const dataFile = './server/config/data.json'
+const pinFile = './server/config/pin.json'
 
 // Create data.json if it doesn't exist
 if (!fs.existsSync(dataFile)) {
     jsonfile.writeFileSync(dataFile, [], { spaces: 4 });
     console.log('Created empty data.json file');
+}
+
+// Create pin.json if it doesn't exist
+if (!fs.existsSync(pinFile)) {
+    jsonfile.writeFileSync(pinFile, { pin: '1234' }, { spaces: 4 });
+    console.log('Created default PIN file');
 }
 
 app.use(express.json());
@@ -80,8 +87,73 @@ app.get('/api/token', (req, res) => {
 });
 
 app.get('/api/sonos', (req, res) => {
-    // Send server address and port of the node-sonos-http-api instance to the client
-    res.status(200).send(config['node-sonos-http-api']);
+    const clientId = req.query.clientId || 'default';
+    const clientRoom = config.clients?.[clientId]?.room || config['node-sonos-http-api']?.rooms?.[0] || '';
+    
+    res.status(200).send({
+        ...config['node-sonos-http-api'],
+        rooms: [clientRoom]
+    });
+});
+
+app.get('/api/config', (req, res) => {
+    const clientId = req.query.clientId || 'default';
+    const clientConfig = {
+        spotify: {
+            configured: !!(config.spotify?.clientId && config.spotify?.clientSecret)
+        },
+        currentRoom: config.clients?.[clientId]?.room || config['node-sonos-http-api']?.rooms?.[0] || '',
+        clientId: clientId
+    };
+    res.status(200).send(clientConfig);
+});
+
+app.get('/api/speakers', (req, res) => {
+    const sonosUrl = `http://${config['node-sonos-http-api'].server}:${config['node-sonos-http-api'].port}/zones`;
+    
+    require('http').get(sonosUrl, (response) => {
+        let data = '';
+        response.on('data', chunk => data += chunk);
+        response.on('end', () => {
+            try {
+                res.json(JSON.parse(data));
+            } catch {
+                res.status(500).json([]);
+            }
+        });
+    }).on('error', () => res.status(500).json([]));
+});
+
+app.post('/api/config/speaker', (req, res) => {
+    const clientId = req.body.clientId || 'default';
+    
+    if (!config.clients) config.clients = {};
+    config.clients[clientId] = { room: req.body.speaker };
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to save configuration' : 'Speaker configuration saved');
+    });
+});
+
+app.post('/api/config/pin', (req, res) => {
+    jsonfile.readFile(pinFile, (error, pinData) => {
+        if (error) pinData = { pin: '1234' };
+        
+        if (pinData.pin !== req.body.currentPin) {
+            return res.status(401).send('Current PIN incorrect');
+        }
+        
+        pinData.pin = req.body.newPin;
+        jsonfile.writeFile(pinFile, pinData, { spaces: 4 }, (writeError) => {
+            res.status(writeError ? 500 : 200).send(writeError ? 'Failed to save PIN' : 'PIN changed successfully');
+        });
+    });
+});
+
+app.get('/api/pin', (req, res) => {
+    jsonfile.readFile(pinFile, (error, pinData) => {
+        res.send((pinData || { pin: '1234' }).pin);
+    });
 });
 
 // Catch all other routes and return the index file from Ionic app
