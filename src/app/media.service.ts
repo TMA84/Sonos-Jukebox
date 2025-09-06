@@ -4,6 +4,7 @@ import { Observable, from, of, iif, Subject } from 'rxjs';
 import { map, mergeMap, tap, toArray, mergeAll } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { SpotifyService } from './spotify.service';
+import { ClientService } from './client.service';
 import { Media } from './media';
 import { Artist } from './artist';
 
@@ -23,6 +24,7 @@ export class MediaService {
   constructor(
     private http: HttpClient,
     private spotifyService: SpotifyService,
+    private clientService: ClientService
   ) { }
 
   // --------------------------------------------
@@ -35,7 +37,9 @@ export class MediaService {
 
   updateRawMedia() {
     const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
-    this.http.get<Media[]>(url).subscribe(media => {
+    this.http.get<Media[]>(url, {
+      params: { clientId: this.clientService.getClientId() }
+    }).subscribe(media => {
         this.rawMediaSubject.next(media);
     });
   }
@@ -43,7 +47,8 @@ export class MediaService {
   deleteRawMediaAtIndex(index: number) {
     const url = (environment.production) ? '../api/delete' : 'http://localhost:8200/api/delete';
     const body = {
-      index
+      index,
+      clientId: this.clientService.getClientId()
     };
 
     this.http.post(url, body).subscribe(response => {
@@ -53,8 +58,9 @@ export class MediaService {
 
   addRawMedia(media: Media) {
     const url = (environment.production) ? '../api/add' : 'http://localhost:8200/api/add';
+    const mediaWithClient = { ...media, clientId: this.clientService.getClientId() };
 
-    this.http.post(url, media).subscribe(response => {
+    this.http.post(url, mediaWithClient).subscribe(response => {
       this.updateRawMedia();
     });
   }
@@ -63,7 +69,9 @@ export class MediaService {
   private updateMedia() {
     const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
 
-    return this.http.get<Media[]>(url).pipe(
+    return this.http.get<Media[]>(url, {
+      params: { clientId: this.clientService.getClientId() }
+    }).pipe(
       map(items => { // Filter to get only items for the chosen category
         items.forEach(item => item.category = (item.category === undefined) ? 'audiobook' : item.category); // default category
         items = items.filter(item => item.category === this.category);

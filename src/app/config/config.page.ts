@@ -15,6 +15,8 @@ export class ConfigPage implements OnInit {
   currentPin = '';
   newPin = '';
   clientId = '';
+  spotifyConfig = { clientId: '', clientSecret: '' };
+  sonosConfig = { server: '', port: '' };
 
   constructor(
     private http: HttpClient,
@@ -24,6 +26,7 @@ export class ConfigPage implements OnInit {
   ngOnInit() {
     this.clientId = this.clientService.getClientId();
     this.loadCurrentConfig();
+    this.loadFullConfig();
   }
 
   loadCurrentConfig() {
@@ -82,6 +85,47 @@ export class ConfigPage implements OnInit {
         this.currentPin = '';
         this.newPin = '';
       }
+    });
+  }
+
+  getSpeakerName(speaker: any): string {
+    return speaker.roomName || speaker.coordinator?.roomName || speaker.coordinator?.playerName || 'Unknown Speaker';
+  }
+
+  getSpeakerDetails(speaker: any): string {
+    const playerName = speaker.coordinator?.playerName || 'Unknown Player';
+    const currentTrack = speaker.coordinator?.state?.currentTrack;
+    const trackInfo = currentTrack?.artist ? `${currentTrack.artist} - ${currentTrack.title}` : 'No track playing';
+    return `${playerName} - ${trackInfo}`;
+  }
+
+  loadFullConfig() {
+    const configUrl = environment.production ? '../api/config/full' : 'http://localhost:8200/api/config/full';
+    this.http.get<any>(configUrl).subscribe(config => {
+      this.spotifyConfig = {
+        clientId: config.spotify?.clientId || '',
+        clientSecret: config.spotify?.clientSecret || ''
+      };
+      this.sonosConfig = {
+        server: config['node-sonos-http-api']?.server || '',
+        port: config['node-sonos-http-api']?.port || ''
+      };
+    });
+  }
+
+  saveSpotifyConfig() {
+    const saveUrl = environment.production ? '../api/config/spotify' : 'http://localhost:8200/api/config/spotify';
+    this.http.post(saveUrl, this.spotifyConfig).subscribe({
+      next: () => console.log('Spotify configuration saved'),
+      error: (err) => console.error('Failed to save Spotify config:', err)
+    });
+  }
+
+  saveSonosConfig() {
+    const saveUrl = environment.production ? '../api/config/sonos' : 'http://localhost:8200/api/config/sonos';
+    this.http.post(saveUrl, this.sonosConfig).subscribe({
+      next: () => console.log('Sonos configuration saved'),
+      error: (err) => console.error('Failed to save Sonos config:', err)
     });
   }
 }
