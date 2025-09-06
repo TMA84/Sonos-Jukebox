@@ -1,16 +1,22 @@
 <ion-header>
     <ion-toolbar color="light">
+        <ion-buttons slot="start">
+            <ion-back-button></ion-back-button>
+        </ion-buttons>
+        <ion-title>Add Content</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="categoryButtonPressed($event)">
+                <ion-icon slot="start" name="{{this.categoryIcons[this.category]}}" color="primary"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar color="light">
         <ion-select #select interface="popover" [(ngModel)]="category" (ionChange)="categoryChanged()" cancelText="Cancel" okText="Ok">
             <ion-select-option value="audiobook">Radio Play / Audio Book</ion-select-option>
             <ion-select-option value="music">Music</ion-select-option>
             <ion-select-option value="playlist">Playlist</ion-select-option>
             <ion-select-option value="radio">Radio</ion-select-option>
         </ion-select>
-        <ion-buttons slot="start">
-            <ion-button (click)="categoryButtonPressed($event)">
-                <ion-icon slot="start" name="{{this.categoryIcons[this.category]}}" color="primary"></ion-icon>
-            </ion-button>
-        </ion-buttons>
         <ion-segment #segment value="{{this.source}}" (ionChange)="segmentChanged($event)">
             <ion-segment-button #library_segment value="library">
                 <ion-label>Library</ion-label>
