@@ -9,58 +9,14 @@ ion-toolbar {
     }
 }
 
-ion-card {
-    margin: 0px auto;
-}
-
-.circle-card {
-    width: 240px;
-    height: 240px;
-    border-radius: 120px;
-    border: 6px solid var(--ion-color-dark);
-    margin-top: 32px;
-}
-
-.title-card {
-    margin-top: 20px;
-    ion-card {
-        width: 200px;
-        height: 56px;
-        --background: #262626;
-    }
-    padding-bottom: 21px;
-}
-
-ion-row.media-card {
-    padding-top: 35px;
-    padding-bottom: 42px;
-
-    ion-card {
-        width: 230px;
-        --background: #262626;
-
-        ion-card-title {
-            padding-bottom: 5px;
-        }
-    }
+ion-content {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --padding-top: 8px;
 }
 
 .truncate-text {
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.button-container {
-    margin-top: -15px;
-    ion-button {
-        --padding-start: 50px;
-        --padding-end: 50px;
-        --border-radius: 6px;
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-}
-
-.swiper-slide {
-    touch-action: none;
+    white-space: nowrap;
 }

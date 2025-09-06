@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild } from '@angular/core';
-import { NavController, IonSelect, IonInput, IonSegment } from '@ionic/angular';
+import { NavController, IonSelect, IonInput, IonSegment, ModalController } from '@ionic/angular';
 import { MediaService } from '../media.service';
 import { Media } from '../media';
 import Keyboard from 'simple-keyboard';
 import { NgForm } from '@angular/forms';
+import { AlbumSearchComponent } from '../album-search/album-search.component';
+import { ServiceSearchComponent } from '../service-search/service-search.component';
 
 
 @Component({
@@ -62,7 +64,8 @@ export class AddPage implements OnInit, AfterViewInit {
 
   constructor(
     private mediaService: MediaService,
-    private navController: NavController
+    private navController: NavController,
+    private modalController: ModalController
   ) { }
 
   ngOnInit() {
@@ -254,6 +257,46 @@ export class AddPage implements OnInit, AfterViewInit {
 
     this.validate();
 
+    this.navController.back();
+  }
+
+  async openAlbumSearch() {
+    const modal = await this.modalController.create({
+      component: AlbumSearchComponent,
+      cssClass: 'album-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addAlbumFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  async openServiceSearch(service: 'applemusic' | 'amazonmusic' | 'tunein') {
+    const modal = await this.modalController.create({
+      component: ServiceSearchComponent,
+      componentProps: {
+        service: service,
+        category: this.category
+      },
+      cssClass: 'service-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addAlbumFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  addAlbumFromSearch(album: Media) {
+    album.category = this.category;
+    this.mediaService.addRawMedia(album);
     this.navController.back();
   }
 

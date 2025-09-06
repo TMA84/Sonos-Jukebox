@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { IonSlides } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { MediaService } from '../media.service';
 import { ArtworkService } from '../artwork.service';
@@ -13,23 +12,9 @@ import { Artist } from '../artist';
   styleUrls: ['./medialist.page.scss'],
 })
 export class MedialistPage implements OnInit {
-  @ViewChild('slider', { static: false }) slider: IonSlides;
-
   artist: Artist;
   media: Media[] = [];
   covers = {};
-
-  slideOptions = {
-    initialSlide: 0,
-    slidesPerView: 3,
-    autoplay: false,
-    loop: false,
-    freeMode: true,
-    freeModeSticky: true,
-    freeModeMomentumBounce: false,
-    freeModeMomentumRatio: 1.0,
-    freeModeMomentumVelocityRatio: 1.0
-  };
 
   constructor(
     private route: ActivatedRoute,
@@ -49,20 +34,7 @@ export class MedialistPage implements OnInit {
     // Subscribe
     this.mediaService.getMediaFromArtist(this.artist).subscribe(media => {
       this.media = media;
-
-      this.media.forEach(currentMedia => {
-        this.artworkService.getArtwork(currentMedia).subscribe(url => {
-          this.covers[currentMedia.title] = url;
-        });
-      });
-      this.slider.update();
-
-      // Workaround as the scrollbar handle isn't visible after the immediate update
-      // Seems like a size calculation issue, as resizing the browser window helps
-      // Better fix for this? 
-      window.setTimeout(() => {
-        this.slider.update();
-      }, 1000);
+      this.loadArtworkBatch(media.slice(0, 12)); // Load first batch only
     });
 
     // Retreive data through subscription above
@@ -86,15 +58,15 @@ export class MedialistPage implements OnInit {
     });
   }
 
-  slideDidChange() {
-    // console{}.log('Slide did change');
+  private loadArtworkBatch(items: Media[]) {
+    items.forEach(currentMedia => {
+      this.artworkService.getArtwork(currentMedia).subscribe(url => {
+        this.covers[currentMedia.title] = url;
+      });
+    });
   }
 
-  slidePrev() {
-    this.slider.slidePrev();
-  }
-
-  slideNext() {
-    this.slider.slideNext();
+  loadMoreArtwork(items: Media[]) {
+    this.loadArtworkBatch(items);
   }
 }

@@ -1,0 +1,13 @@
+ion-fab-button {
+  --background: var(--ion-color-primary);
+  --color: white;
+  --box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+ion-searchbar {
+  --background: transparent;
+  --color: var(--ion-color-dark);
+  --placeholder-color: var(--ion-color-medium);
+  --icon-color: var(--ion-color-medium);
+  --clear-button-color: var(--ion-color-medium);
+}

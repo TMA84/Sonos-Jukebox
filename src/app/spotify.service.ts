@@ -140,6 +140,27 @@ export class SpotifyService {
     });
   }
 
+  searchAlbums(query: string): Observable<Media[]> {
+    return defer(() => this.spotifyApi.searchAlbums(query, { limit: 20, market: 'DE' })).pipe(
+      retryWhen(errors => {
+        return this.errorHandler(errors);
+      }),
+      map((response: SpotifyAlbumsResponse) => {
+        return response.albums.items.map(item => {
+          const media: Media = {
+            id: item.id,
+            artist: item.artists[0].name,
+            title: item.name,
+            cover: item.images[0]?.url,
+            type: 'spotify',
+            category: 'audiobook'
+          };
+          return media;
+        });
+      })
+    );
+  }
+
   errorHandler(errors: Observable<any>) {
     return errors.pipe(
       flatMap((error) => (error.status !== 401 && error.status !== 429) ? throwError(error) : of(error)),
