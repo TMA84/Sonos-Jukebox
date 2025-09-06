@@ -6,13 +6,15 @@ import { VirtualGridComponent } from '../virtual-grid/virtual-grid.component';
 import { SearchFilterComponent } from '../search-filter/search-filter.component';
 import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
+import { ArtistSearchComponent } from '../artist-search/artist-search.component';
 
 @NgModule({
   declarations: [
     VirtualGridComponent,
     SearchFilterComponent,
     AlbumSearchComponent,
-    ServiceSearchComponent
+    ServiceSearchComponent,
+    ArtistSearchComponent
   ],
   imports: [
     CommonModule,
@@ -23,7 +25,8 @@ import { ServiceSearchComponent } from '../service-search/service-search.compone
     VirtualGridComponent,
     SearchFilterComponent,
     AlbumSearchComponent,
-    ServiceSearchComponent
+    ServiceSearchComponent,
+    ArtistSearchComponent
   ]
 })
 export class SharedModule {}

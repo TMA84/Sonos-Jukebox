@@ -6,6 +6,7 @@ import Keyboard from 'simple-keyboard';
 import { NgForm } from '@angular/forms';
 import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
+import { ArtistSearchComponent } from '../artist-search/artist-search.component';
 
 
 @Component({
@@ -294,9 +295,37 @@ export class AddPage implements OnInit, AfterViewInit {
     return await modal.present();
   }
 
+  async openArtistSearch() {
+    const modal = await this.modalController.create({
+      component: ArtistSearchComponent,
+      cssClass: 'artist-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addArtistFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
   addAlbumFromSearch(album: Media) {
     album.category = this.category;
     this.mediaService.addRawMedia(album);
+    this.navController.back();
+  }
+
+  addArtistFromSearch(artist: any) {
+    const media: Media = {
+      artistid: artist.id,
+      artist: artist.name,
+      title: `All ${artist.name} Albums`,
+      cover: artist.image,
+      type: 'spotify',
+      category: this.category
+    };
+    this.mediaService.addRawMedia(media);
     this.navController.back();
   }
 

@@ -161,6 +161,22 @@ export class SpotifyService {
     );
   }
 
+  searchArtists(query: string): Observable<any[]> {
+    return defer(() => this.spotifyApi.searchArtists(query, { limit: 20 })).pipe(
+      retryWhen(errors => {
+        return this.errorHandler(errors);
+      }),
+      map((response: any) => {
+        return response.artists.items.map(item => ({
+          id: item.id,
+          name: item.name,
+          image: item.images[0]?.url,
+          followers: item.followers.total
+        }));
+      })
+    );
+  }
+
   errorHandler(errors: Observable<any>) {
     return errors.pipe(
       flatMap((error) => (error.status !== 401 && error.status !== 429) ? throwError(error) : of(error)),
