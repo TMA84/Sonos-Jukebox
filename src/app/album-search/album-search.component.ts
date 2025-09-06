@@ -14,6 +14,13 @@ export class AlbumSearchComponent {
   searchTerm = '';
   searchResults: Media[] = [];
   isSearching = false;
+  showKeyboard = false;
+  isUpperCase = false;
+  keyboardRows = [
+    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+  ];
 
   constructor(
     private spotifyService: SpotifyService,
@@ -47,5 +54,27 @@ export class AlbumSearchComponent {
 
   closeModal() {
     this.modalController.dismiss();
+  }
+
+  toggleKeyboard() {
+    this.showKeyboard = !this.showKeyboard;
+  }
+
+  hideKeyboard() {
+    this.showKeyboard = false;
+  }
+
+  addKey(key: string) {
+    this.searchTerm += this.isUpperCase ? key.toUpperCase() : key;
+    this.onSearch();
+  }
+
+  backspace() {
+    this.searchTerm = this.searchTerm.slice(0, -1);
+    this.onSearch();
+  }
+
+  toggleCase() {
+    this.isUpperCase = !this.isUpperCase;
   }
 }

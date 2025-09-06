@@ -23,6 +23,7 @@ export class HomePage implements OnInit {
   editButtonclickCount = 0;
   editClickTimer = 0;
   needsUpdate = false;
+  availableCategories: string[] = [];
 
   constructor(
     private mediaService: MediaService,
@@ -34,6 +35,7 @@ export class HomePage implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.loadAvailableCategories();
     this.mediaService.setCategory('audiobook');
 
     // Subscribe
@@ -154,5 +156,18 @@ export class HomePage implements OnInit {
     });
 
     return await modal.present();
+  }
+
+  loadAvailableCategories() {
+    this.mediaService.updateRawMedia();
+    this.mediaService.getRawMediaObservable().subscribe(rawMedia => {
+      this.availableCategories = [...new Set(rawMedia.map(item => item.category || 'audiobook'))];
+      
+      // If current category is not available, switch to first available
+      if (this.availableCategories.length > 0 && !this.availableCategories.includes(this.category)) {
+        this.category = this.availableCategories[0];
+        this.categoryChanged({ detail: { value: this.category } });
+      }
+    });
   }
 }
