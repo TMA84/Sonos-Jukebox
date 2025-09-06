@@ -39,6 +39,7 @@ export class EditPage implements OnInit {
           text: 'Ok',
           handler: () => {
             this.mediaService.deleteRawMediaAtIndex(index);
+            this.reloadHome();
           }
         },
         {
@@ -52,5 +53,10 @@ export class EditPage implements OnInit {
 
   addButtonPressed() {
     this.router.navigate(['/add']);
+  }
+
+  reloadHome() {
+    // Trigger home page reload by updating media service
+    this.mediaService.updateRawMedia();
   }
 }
