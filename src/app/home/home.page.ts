@@ -20,8 +20,6 @@ export class HomePage implements OnInit {
   media: Media[] = [];
   covers = {};
   activityIndicatorVisible = false;
-  editButtonclickCount = 0;
-  editClickTimer = 0;
   needsUpdate = false;
   availableCategories: string[] = [];
 

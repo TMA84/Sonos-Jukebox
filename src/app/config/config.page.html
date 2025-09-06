@@ -151,11 +151,11 @@
           <ion-card-title>Library Management</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-button expand="block" (click)="openAddPage()" fill="outline">
+          <ion-button expand="block" (click)="openAddPage($event)" fill="outline">
             <ion-icon name="add-outline" slot="start"></ion-icon>
             Add Albums/Artists
           </ion-button>
-          <ion-button expand="block" (click)="openEditPage()" fill="outline">
+          <ion-button expand="block" (click)="openEditPage($event)" fill="outline">
             <ion-icon name="create-outline" slot="start"></ion-icon>
             Edit Library
           </ion-button>
