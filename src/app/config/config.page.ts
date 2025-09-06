@@ -16,6 +16,8 @@ export class ConfigPage implements OnInit {
   currentPin = '';
   newPin = '';
   clientId = '';
+  clientName = '';
+  availableClients: any[] = [];
   spotifyConfig = { clientId: '', clientSecret: '' };
   sonosConfig = { server: '', port: '' };
   selectedTab = 'speakers';
@@ -30,6 +32,7 @@ export class ConfigPage implements OnInit {
     this.clientId = this.clientService.getClientId();
     this.loadCurrentConfig();
     this.loadFullConfig();
+    this.loadClientName();
   }
 
   loadCurrentConfig() {
@@ -142,5 +145,37 @@ export class ConfigPage implements OnInit {
 
   tabChanged(event: any) {
     this.selectedTab = event.detail.value;
+  }
+
+  loadClientName() {
+    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    this.http.get<any>(configUrl, { 
+      params: { clientId: this.clientId }
+    }).subscribe(config => {
+      this.clientName = config.name || '';
+    });
+  }
+
+  saveClientName() {
+    const saveUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    this.http.post(saveUrl, { 
+      clientId: this.clientId,
+      name: this.clientName 
+    }).subscribe({
+      next: () => console.log('Client name saved'),
+      error: (err) => console.error('Failed to save client name:', err)
+    });
+  }
+
+  loadClients() {
+    const clientsUrl = environment.production ? '../api/clients' : 'http://localhost:8200/api/clients';
+    this.http.get<any[]>(clientsUrl).subscribe(clients => {
+      this.availableClients = clients;
+    });
+  }
+
+  switchToClient(clientId: string) {
+    this.clientService.setClientId(clientId);
+    window.location.reload();
   }
 }

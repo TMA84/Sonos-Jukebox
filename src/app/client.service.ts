@@ -14,6 +14,11 @@ export class ClientService {
     return this.clientId;
   }
 
+  setClientId(clientId: string): void {
+    this.clientId = clientId;
+    localStorage.setItem('sonos-client-id', clientId);
+  }
+
   private generateClientId(): string {
     const stored = localStorage.getItem('sonos-client-id');
     if (stored) return stored;
