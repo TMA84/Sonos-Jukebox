@@ -178,7 +178,11 @@
         <ion-label position="stacked">New PIN (4-12 digits)</ion-label>
         <ion-input type="password" [(ngModel)]="newPin" maxlength="12"></ion-input>
       </ion-item>
-      <ion-button expand="block" (click)="changePin()" [disabled]="!currentPin || !newPin || newPin.length < 4 || newPin.length > 12">
+      <ion-item>
+        <ion-label position="stacked">Confirm New PIN</ion-label>
+        <ion-input type="password" [(ngModel)]="confirmPin" maxlength="12"></ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="changePin()" [disabled]="!currentPin || !newPin || !confirmPin || newPin.length < 4 || newPin.length > 12 || newPin !== confirmPin">
         Change PIN
       </ion-button>
         </ion-card-content>

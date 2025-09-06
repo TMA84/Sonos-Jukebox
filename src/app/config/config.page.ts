@@ -15,6 +15,7 @@ export class ConfigPage implements OnInit {
   isLoading = false;
   currentPin = '';
   newPin = '';
+  confirmPin = '';
   clientId = '';
   clientName = '';
   availableClients: any[] = [];
@@ -84,12 +85,14 @@ export class ConfigPage implements OnInit {
       next: () => {
         this.currentPin = '';
         this.newPin = '';
+        this.confirmPin = '';
         console.log('PIN changed successfully');
       },
       error: (err) => {
         console.error('Failed to change PIN:', err);
         this.currentPin = '';
         this.newPin = '';
+        this.confirmPin = '';
       }
     });
   }
