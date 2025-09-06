@@ -7,16 +7,16 @@
             </ion-button>
         </ion-buttons>
         <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)">
-            <ion-segment-button value="audiobook">
+            <ion-segment-button *ngIf="availableCategories.includes('audiobook')" value="audiobook">
                 <ion-icon name="book-outline"></ion-icon>
             </ion-segment-button>
-            <ion-segment-button value="music">
+            <ion-segment-button *ngIf="availableCategories.includes('music')" value="music">
                 <ion-icon name="musical-notes-outline"></ion-icon>
             </ion-segment-button>
-            <ion-segment-button value="playlist">
+            <ion-segment-button *ngIf="availableCategories.includes('playlist')" value="playlist">
                 <ion-icon name="document-text-outline"></ion-icon>
             </ion-segment-button>
-            <ion-segment-button value="radio">
+            <ion-segment-button *ngIf="availableCategories.includes('radio')" value="radio">
                 <ion-icon name="radio-outline"></ion-icon>
             </ion-segment-button>
         </ion-segment>
