@@ -16,5 +16,14 @@
         "type": "spotify",
         "category": "audiobook",
         "clientId": "client-zxm73esdj"
+    },
+    {
+        "artistid": "544X9aDcwFDSon8HevRcqg",
+        "artist": "Subway To Sally",
+        "title": "All Subway To Sally Albums",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eba7cb8c6c5fa61190848e2871",
+        "type": "spotify",
+        "category": "audiobook",
+        "clientId": "client-zxm73esdj"
     }
 ]

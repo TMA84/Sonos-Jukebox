@@ -15,6 +15,8 @@ export class PlayerPage implements OnInit {
   media: Media;
   cover = '';
   playing = true;
+  currentTrack: any = null;
+  statusInterval: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -33,6 +35,7 @@ export class PlayerPage implements OnInit {
     this.artworkService.getArtwork(this.media).subscribe(url => {
       this.cover = url;
     });
+    this.startStatusPolling();
   }
 
   ionViewWillEnter() {
@@ -47,6 +50,7 @@ export class PlayerPage implements OnInit {
 
   ionViewWillLeave() {
     this.playerService.sendCmd(PlayerCmds.PAUSE);
+    this.stopStatusPolling();
   }
 
   volUp() {
@@ -72,6 +76,21 @@ export class PlayerPage implements OnInit {
     } else {
       this.playing = true;
       this.playerService.sendCmd(PlayerCmds.PLAY);
+    }
+  }
+
+  startStatusPolling() {
+    this.statusInterval = setInterval(() => {
+      this.playerService.getCurrentTrack().subscribe(track => {
+        this.currentTrack = track;
+        this.playing = track?.playbackState === 'PLAYING';
+      });
+    }, 2000);
+  }
+
+  stopStatusPolling() {
+    if (this.statusInterval) {
+      clearInterval(this.statusInterval);
     }
   }
 }
