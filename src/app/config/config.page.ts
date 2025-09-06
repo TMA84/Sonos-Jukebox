@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
 import { ClientService } from '../client.service';
 
@@ -35,7 +36,8 @@ export class ConfigPage implements OnInit {
   constructor(
     private http: HttpClient,
     private clientService: ClientService,
-    private router: Router
+    private router: Router,
+    private toastController: ToastController
   ) {}
 
   ngOnInit() {
@@ -194,11 +196,18 @@ export class ConfigPage implements OnInit {
     });
   }
 
-  switchToClient(clientId: string) {
+  async switchToClient(clientId: string) {
     this.clientService.setClientId(clientId);
     this.clientId = clientId;
     this.loadCurrentConfig();
     this.loadClientName();
+    
+    const toast = await this.toastController.create({
+      message: 'Client switched successfully',
+      duration: 2000,
+      color: 'success'
+    });
+    toast.present();
   }
 
   toggleKeyboard() {
@@ -282,25 +291,42 @@ export class ConfigPage implements OnInit {
     this.isUpperCase = !this.isUpperCase;
   }
 
-  deleteClient(clientId: string) {
+  async deleteClient(clientId: string) {
     if (clientId === this.clientId) {
-      console.log('Cannot delete current client');
+      const toast = await this.toastController.create({
+        message: 'Cannot delete currently selected client',
+        duration: 2000,
+        color: 'warning'
+      });
+      toast.present();
       return;
     }
     
     const deleteUrl = environment.production ? '../api/clients/delete' : 'http://localhost:8200/api/clients/delete';
     
     this.http.post(deleteUrl, { clientId }).subscribe({
-      next: () => {
+      next: async () => {
         this.loadClients();
+        const toast = await this.toastController.create({
+          message: 'Client deleted successfully',
+          duration: 2000,
+          color: 'success'
+        });
+        toast.present();
       },
-      error: (err) => {
+      error: async (err) => {
         console.error('Failed to delete client:', err);
+        const toast = await this.toastController.create({
+          message: 'Failed to delete client',
+          duration: 2000,
+          color: 'danger'
+        });
+        toast.present();
       }
     });
   }
 
-  createNewClient() {
+  async createNewClient() {
     const newClientId = 'client_' + Date.now();
     const createUrl = environment.production ? '../api/clients/create' : 'http://localhost:8200/api/clients/create';
     
@@ -308,15 +334,28 @@ export class ConfigPage implements OnInit {
       clientId: newClientId,
       name: this.newClientName
     }).subscribe({
-      next: () => {
+      next: async () => {
         this.clientService.setClientId(newClientId);
         this.clientId = newClientId;
         this.clientName = this.newClientName;
         this.newClientName = '';
         this.loadClients();
+        
+        const toast = await this.toastController.create({
+          message: 'Client created successfully',
+          duration: 2000,
+          color: 'success'
+        });
+        toast.present();
       },
-      error: (err) => {
+      error: async (err) => {
         console.error('Failed to create client:', err);
+        const toast = await this.toastController.create({
+          message: 'Failed to create client',
+          duration: 2000,
+          color: 'danger'
+        });
+        toast.present();
       }
     });
   }
