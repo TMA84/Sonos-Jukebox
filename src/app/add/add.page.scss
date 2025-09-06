@@ -184,3 +184,73 @@ ion-item {
         height: 40px;
     }
 }
+
+@media (max-width: 800px) {
+    ion-toolbar {
+        ion-button {
+            height: 50px !important;
+            width: 50px !important;
+            --icon-font-size: 20px;
+        }
+        
+        ion-segment-button {
+            font-size: 12px;
+        }
+    }
+    
+    ion-card {
+        margin: 8px 4px;
+        
+        ion-card-header {
+            padding: 8px;
+            
+            ion-card-title {
+                font-size: 16px;
+            }
+        }
+        
+        ion-card-content {
+            padding: 8px;
+        }
+    }
+}
+
+@media (max-height: 480px) {
+    ion-toolbar {
+        --min-height: 40px;
+        
+        ion-button {
+            height: 40px !important;
+            width: 40px !important;
+            --icon-font-size: 16px;
+        }
+        
+        ion-segment-button {
+            font-size: 10px;
+            --padding-start: 4px;
+            --padding-end: 4px;
+        }
+    }
+    
+    ion-card {
+        margin: 4px 2px;
+        
+        ion-card-header {
+            padding: 6px;
+        }
+        
+        ion-card-content {
+            padding: 6px;
+        }
+    }
+    
+    .virtual-keyboard {
+        padding: 5px;
+        
+        ion-button {
+            height: 32px;
+            font-size: 12px;
+            margin: 1px;
+        }
+    }
+}

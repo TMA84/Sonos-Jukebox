@@ -9,72 +9,162 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
-
 /* Core CSS required for Ionic components to work properly */
-
 @import "~@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
-
 @import "~@ionic/angular/css/normalize.css";
 @import "~@ionic/angular/css/structure.css";
 @import "~@ionic/angular/css/typography.css";
 @import '~@ionic/angular/css/display.css';
 
 /* Optional CSS utils that can be commented out */
-
 @import "~@ionic/angular/css/padding.css";
 @import "~@ionic/angular/css/float-elements.css";
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
-/* no text selection in firefox */
-
-html,
-body,
-div,
-a,
-i,
-button,
-select,
-option,
-optgroup,
-hr,
-br {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    cursor: default;
+/* Responsive Design for 800x480 and other displays */
+@media (max-width: 800px) {
+  ion-toolbar {
+    --min-height: 44px;
+    
+    ion-title {
+      font-size: 16px;
+    }
+    
+    ion-button {
+      --padding-start: 8px;
+      --padding-end: 8px;
+    }
+  }
+  
+  ion-card {
+    margin: 8px;
+    
+    ion-card-header {
+      padding: 12px;
+      
+      ion-card-title {
+        font-size: 18px;
+      }
+    }
+    
+    ion-card-content {
+      padding: 12px;
+    }
+  }
+  
+  ion-item {
+    --min-height: 40px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    
+    ion-label {
+      font-size: 14px;
+    }
+  }
+  
+  ion-button {
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  ion-segment {
+    --background: var(--ion-color-light);
+    
+    ion-segment-button {
+      --padding-start: 8px;
+      --padding-end: 8px;
+      font-size: 12px;
+    }
+  }
 }
 
-.slides-md {
-    --bullet-background: #ffffff;
+@media (max-height: 480px) {
+  ion-content {
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+  }
+  
+  ion-card {
+    margin: 4px;
+    
+    ion-card-header {
+      padding: 8px;
+    }
+    
+    ion-card-content {
+      padding: 8px;
+    }
+  }
+  
+  ion-item {
+    --min-height: 36px;
+  }
+  
+  .virtual-keyboard {
+    padding: 5px;
+    
+    ion-button {
+      height: 32px;
+      font-size: 12px;
+      margin: 1px;
+    }
+  }
 }
 
-ion-toolbar {
-    --min-height: 70px;
+/* Specific optimizations for 800x480 displays */
+@media (max-width: 800px) and (max-height: 480px) {
+  ion-header {
+    ion-toolbar {
+      --min-height: 40px;
+      
+      ion-title {
+        font-size: 14px;
+      }
+      
+      ion-segment {
+        ion-segment-button {
+          font-size: 10px;
+          --padding-start: 4px;
+          --padding-end: 4px;
+          
+          ion-icon {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+  }
+  
+  ion-grid {
+    --ion-grid-padding: 8px;
+    
+    ion-row {
+      ion-col {
+        --ion-grid-column-padding: 4px;
+      }
+    }
+  }
 }
 
-.alert {
-    --backdrop-opacity: 0.5;
-    --background: #2c2c2c;
-    --width: 400px;
-    --min-width: 400px;
-    --max-width: 400px;
-}
-
-.alert-button {
-    font-size: 18px !important;
-}
-
-.alert-message {
-    font-size: 18px !important;
-}
-
-ion-popover [popover]:not(:popover-open):not(dialog[open]) {
-    display: contents;
+/* Touch-friendly sizing */
+@media (pointer: coarse) {
+  ion-button {
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    min-height: 44px;
+  }
+  
+  ion-item {
+    --min-height: 44px;
+  }
+  
+  .virtual-keyboard ion-button {
+    min-height: 40px;
+    min-width: 40px;
+  }
 }

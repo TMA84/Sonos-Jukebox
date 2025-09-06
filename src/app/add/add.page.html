@@ -14,11 +14,6 @@
         </ion-buttons>
     </ion-toolbar>
     <ion-toolbar color="light">
-        <ion-buttons slot="start">
-            <ion-button (click)="categoryButtonPressed($event)">
-                <ion-icon slot="start" name="{{this.categoryIcons[this.category]}}" color="primary"></ion-icon>
-            </ion-button>
-        </ion-buttons>
         <ion-select #select interface="popover" [(ngModel)]="category" (ionChange)="categoryChanged()" cancelText="Cancel" okText="Ok">
             <ion-select-option value="audiobook">Radio Play / Audio Book</ion-select-option>
             <ion-select-option value="music">Music</ion-select-option>

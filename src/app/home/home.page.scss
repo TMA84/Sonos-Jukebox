@@ -20,3 +20,38 @@ ion-content {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+@media (max-width: 800px) {
+    ion-toolbar {
+        ion-button {
+            height: 50px !important;
+            width: 50px !important;
+            font-size: 16px !important;
+        }
+        ion-icon {
+            font-size: 20px;
+        }
+    }
+}
+
+@media (max-height: 480px) {
+    ion-toolbar {
+        --min-height: 44px;
+        
+        ion-button {
+            height: 44px !important;
+            width: 44px !important;
+            font-size: 14px !important;
+        }
+        
+        ion-icon {
+            font-size: 18px;
+        }
+    }
+    
+    ion-content {
+        --padding-start: 4px;
+        --padding-end: 4px;
+        --padding-top: 4px;
+    }
+}
