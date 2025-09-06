@@ -18,6 +18,7 @@ export class ConfigPage implements OnInit {
   clientId = '';
   spotifyConfig = { clientId: '', clientSecret: '' };
   sonosConfig = { server: '', port: '' };
+  selectedTab = 'speakers';
 
   constructor(
     private http: HttpClient,
@@ -137,5 +138,9 @@ export class ConfigPage implements OnInit {
 
   openEditPage() {
     this.router.navigate(['/edit']);
+  }
+
+  tabChanged(event: any) {
+    this.selectedTab = event.detail.value;
   }
 }

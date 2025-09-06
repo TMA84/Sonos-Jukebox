@@ -33,146 +33,96 @@
 
 <ion-content>
     <div [ngSwitch]="source">
-        <div *ngSwitchCase="'library'" class="top">
-            <form #libraryForm="ngForm" (ngSubmit)="submit(libraryForm)">
-                <ion-grid>
-                    <ion-row>
-                        <ion-col size="6">
-                            <div>
-                                <ion-item>
-                                    <ion-input #library_artist name="library_artist" type="text" placeholder="Artist" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                </ion-item>
-                            </div>
-                        </ion-col>
-                        <ion-col size="6">
-                            <div>
-                                <ion-item>
-                                    <ion-input #library_title name="library_title" type="text" placeholder="Title" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                </ion-item>
-                            </div>
-                        </ion-col>
-                    </ion-row>
-                    <ion-row>
-                        <ion-col size="12">
-                            <div>
-                                <ion-item>
-                                    <ion-input #library_cover name="library_cover" type="text" placeholder="Cover Artwork URL" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                </ion-item>
-                            </div>
-                        </ion-col>
-                    </ion-row>
-                    <ion-row>
-                        <ion-col size="6">
-                            <div>
-                                <div class="add-button">
-                                    <ion-button size="large" type="submit" expand="block" [disabled]="!valid">Add</ion-button>
-                                </div>
-                            </div>
-                        </ion-col>
-                        <ion-col size="6">
-                            <div>
-                                <div class="cancel-button">
-                                    <ion-button size="large" color="danger" (click)="cancelButtonPressed()" expand="block">Cancel</ion-button>
-                                </div>
-                            </div>
-                        </ion-col>
-                    </ion-row>
-                </ion-grid>
-            </form>
+        <div *ngSwitchCase="'library'">
+            <ion-card>
+                <ion-card-header>
+                    <ion-card-title>Local Sonos Library</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                    <form #libraryForm="ngForm" (ngSubmit)="submit(libraryForm)">
+                        <ion-item>
+                            <ion-label position="stacked">Artist</ion-label>
+                            <ion-input #library_artist name="library_artist" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label position="stacked">Title</ion-label>
+                            <ion-input #library_title name="library_title" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label position="stacked">Cover Artwork URL</ion-label>
+                            <ion-input #library_cover name="library_cover" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                        </ion-item>
+                        <ion-button type="submit" expand="block" [disabled]="!valid">
+                            <ion-icon name="add" slot="start"></ion-icon>
+                            Add to Library
+                        </ion-button>
+                    </form>
+                </ion-card-content>
+            </ion-card>
         </div>
 
-        <div *ngSwitchCase="'spotify'" class="top">
-            <ion-row *ngIf="spotifyConfigured">
-                <ion-col size="6">
-                    <div class="search-button">
-                        <ion-button size="large" fill="outline" (click)="openAlbumSearch()" expand="block">
-                            <ion-icon name="search-outline" slot="start"></ion-icon>
-                            Search Albums
-                        </ion-button>
-                    </div>
-                </ion-col>
-                <ion-col size="6">
-                    <div class="search-button">
-                        <ion-button size="large" fill="outline" (click)="openArtistSearch()" expand="block">
-                            <ion-icon name="person-outline" slot="start"></ion-icon>
-                            Search Artists
-                        </ion-button>
-                    </div>
-                </ion-col>
-            </ion-row>
+        <div *ngSwitchCase="'spotify'">
+            <ion-card *ngIf="spotifyConfigured">
+                <ion-card-header>
+                    <ion-card-title>Quick Search</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                    <ion-row>
+                        <ion-col size="6">
+                            <ion-button size="large" fill="outline" (click)="openAlbumSearch()" expand="block">
+                                <ion-icon name="search-outline" slot="start"></ion-icon>
+                                Search Albums
+                            </ion-button>
+                        </ion-col>
+                        <ion-col size="6">
+                            <ion-button size="large" fill="outline" (click)="openArtistSearch()" expand="block">
+                                <ion-icon name="person-outline" slot="start"></ion-icon>
+                                Search Artists
+                            </ion-button>
+                        </ion-col>
+                    </ion-row>
+                </ion-card-content>
+            </ion-card>
             
-            <ion-row *ngIf="!spotifyConfigured">
-                <ion-col size="12">
-                    <ion-item>
-                        <ion-label color="medium">Spotify not configured. Configure in server/config/config.json</ion-label>
+            <ion-card>
+                <ion-card-header>
+                    <ion-card-title>Manual Entry</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                    <ion-item *ngIf="!spotifyConfigured">
+                        <ion-label color="medium">Spotify not configured. Configure in settings first.</ion-label>
                     </ion-item>
-                </ion-col>
-            </ion-row>
-            
-            <ion-row>
-                <ion-col size="12">
-                    <ion-item>
-                        <ion-label>Or add manually:</ion-label>
-                    </ion-item>
-                </ion-col>
-            </ion-row>
-            
-            <form #spotifyForm="ngForm" (ngSubmit)="submit(spotifyForm)">
-                <ion-grid>
-                    <ion-row>
-                        <ion-col size="12">
-                            <div>
-                                <ion-item>
-                                    <ion-label class="dimmed-text">Media search type</ion-label>
-                                    <ion-select #searchTypeSelect interface="popover" [(ngModel)]="searchType" name="searchType" (ionChange)="searchTypeChanged()">
-                                        <ion-select-option value="artist_title">Artist + Title</ion-select-option>
-                                        <ion-select-option value="artist_id">Artist ID</ion-select-option>
-                                        <ion-select-option value="media_id">Media ID</ion-select-option>
-                                        <ion-select-option value="query">Search Query</ion-select-option>
-                                      </ion-select>
-                                </ion-item>
-                            </div>
-                        </ion-col>
-                    </ion-row>
-
-                    <ion-row>
-                        <ion-col size="6">
-                            <div>
-                                <ion-item>
-                                    <ion-input #spotify_artist name="spotify_artist" type="text" placeholder="Artist" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                </ion-item>
-                            </div>
-                        </ion-col>
-                        <ion-col size="6">
-                            <div>
-                                <ion-item [ngSwitch]="searchType">
-                                    <ion-input *ngSwitchCase="'artist_title'" #spotify_title name="spotify_title" type="text" placeholder="Title" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                    <ion-input *ngSwitchCase="'media_id'" #spotify_id name="spotify_id" type="text" placeholder="Media ID" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                    <ion-input *ngSwitchCase="'query'" #spotify_query name="spotify_query" type="text" placeholder="Search Query" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                    <ion-input *ngSwitchCase="'artist_id'" #spotify_artistid name="spotify_artistid" type="text" placeholder="Unique Artist ID" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
-                                </ion-item>
-                            </div>
-                        </ion-col>
-                    </ion-row>
-
-                    <ion-row>
-                        <ion-col size="6">
-                            <div>
-                                <div class="add-button">
-                                    <ion-button size="large" type="submit" expand="block" [disabled]="!valid">Add</ion-button>
-                                </div>
-                            </div>
-                        </ion-col>
-                        <ion-col size="6">
-                            <div>
-                                <div class="cancel-button">
-                                    <ion-button size="large" color="danger" (click)="cancelButtonPressed()" expand="block">Cancel</ion-button>
-                                </div>
-                            </div>
-                        </ion-col>
-                    </ion-row>
-                </ion-grid>
-            </form>
+                    <form #spotifyForm="ngForm" (ngSubmit)="submit(spotifyForm)">
+                        <ion-item>
+                            <ion-label>Search Type</ion-label>
+                            <ion-select #searchTypeSelect interface="popover" [(ngModel)]="searchType" name="searchType" (ionChange)="searchTypeChanged()">
+                                <ion-select-option value="artist_title">Artist + Title</ion-select-option>
+                                <ion-select-option value="artist_id">Artist ID</ion-select-option>
+                                <ion-select-option value="media_id">Media ID</ion-select-option>
+                                <ion-select-option value="query">Search Query</ion-select-option>
+                            </ion-select>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label position="stacked">Artist</ion-label>
+                            <ion-input #spotify_artist name="spotify_artist" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                        </ion-item>
+                        <ion-item [ngSwitch]="searchType">
+                            <ion-label *ngSwitchCase="'artist_title'" position="stacked">Title</ion-label>
+                            <ion-label *ngSwitchCase="'media_id'" position="stacked">Media ID</ion-label>
+                            <ion-label *ngSwitchCase="'query'" position="stacked">Search Query</ion-label>
+                            <ion-label *ngSwitchCase="'artist_id'" position="stacked">Artist ID</ion-label>
+                            <ion-input *ngSwitchCase="'artist_title'" #spotify_title name="spotify_title" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                            <ion-input *ngSwitchCase="'media_id'" #spotify_id name="spotify_id" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                            <ion-input *ngSwitchCase="'query'" #spotify_query name="spotify_query" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                            <ion-input *ngSwitchCase="'artist_id'" #spotify_artistid name="spotify_artistid" type="text" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)" ngModel></ion-input>
+                        </ion-item>
+                        <ion-button type="submit" expand="block" [disabled]="!valid">
+                            <ion-icon name="add" slot="start"></ion-icon>
+                            Add to Library
+                        </ion-button>
+                    </form>
+                </ion-card-content>
+            </ion-card>
         </div>
 
         <div *ngSwitchCase="'amazonmusic'" class="top">
