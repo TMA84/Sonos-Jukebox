@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { Media } from '../media';
 
 @Component({
@@ -20,6 +21,8 @@ export class ServiceSearchComponent {
     amazonmusic: { name: 'Amazon Music', placeholder: 'Search Amazon Music...' },
     tunein: { name: 'TuneIn Radio', placeholder: 'Search radio stations...' }
   };
+
+  constructor(private modalController: ModalController) { }
 
   onSearch() {
     if (!this.searchTerm.trim()) return;
@@ -54,11 +57,15 @@ export class ServiceSearchComponent {
       type: this.service,
       category: this.category
     };
-    this.albumSelected.emit(media);
+    this.modalController.dismiss(media);
   }
 
   clearSearch() {
     this.searchTerm = '';
     this.searchResults = [];
+  }
+
+  closeModal() {
+    this.modalController.dismiss();
   }
 }

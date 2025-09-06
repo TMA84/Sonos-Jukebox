@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const path = require('path');
+const fs = require('fs');
 const jsonfile = require('jsonfile');
 var SpotifyWebApi = require('spotify-web-api-node');
 const config = require('./server/config/config.json');
@@ -16,6 +17,12 @@ var spotifyApi = new SpotifyWebApi({
 
 // Configuration
 const dataFile = './server/config/data.json'
+
+// Create data.json if it doesn't exist
+if (!fs.existsSync(dataFile)) {
+    jsonfile.writeFileSync(dataFile, [], { spaces: 4 });
+    console.log('Created empty data.json file');
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

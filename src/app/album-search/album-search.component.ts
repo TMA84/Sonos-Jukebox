@@ -1,4 +1,5 @@
 import { Component, Output, EventEmitter } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { SpotifyService } from '../spotify.service';
 import { Media } from '../media';
 
@@ -14,7 +15,10 @@ export class AlbumSearchComponent {
   searchResults: Media[] = [];
   isSearching = false;
 
-  constructor(private spotifyService: SpotifyService) {}
+  constructor(
+    private spotifyService: SpotifyService,
+    private modalController: ModalController
+  ) {}
 
   onSearch() {
     if (!this.searchTerm.trim()) return;
@@ -33,11 +37,15 @@ export class AlbumSearchComponent {
   }
 
   selectAlbum(album: Media) {
-    this.albumSelected.emit(album);
+    this.modalController.dismiss(album);
   }
 
   clearSearch() {
     this.searchTerm = '';
     this.searchResults = [];
+  }
+
+  closeModal() {
+    this.modalController.dismiss();
   }
 }
