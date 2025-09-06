@@ -6,21 +6,22 @@
 }
 
 .pin-display {
-  display: flex;
-  gap: 1rem;
+  text-align: center;
   margin-bottom: 2rem;
 }
 
-.pin-dot {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--ion-color-primary);
-  border-radius: 50%;
-  background: transparent;
-  
-  &.filled {
-    background: var(--ion-color-primary);
-  }
+.pin-text {
+  font-size: 2rem;
+  font-family: monospace;
+  letter-spacing: 0.5rem;
+  margin-bottom: 0.5rem;
+  min-height: 2.5rem;
+  color: var(--ion-color-primary);
+}
+
+.pin-length {
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
 }
 
 .keypad {
