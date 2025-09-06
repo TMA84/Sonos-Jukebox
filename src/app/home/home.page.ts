@@ -54,8 +54,9 @@ export class HomePage implements OnInit {
     if (this.needsUpdate) {
       this.update();
     }
-    // Always reload available categories when entering
+    // Always reload available categories and data when entering
     this.loadAvailableCategories();
+    this.update();
   }
 
   ionViewDidLeave() {
