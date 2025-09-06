@@ -166,3 +166,21 @@ ion-item {
     --height: 80%;
     --border-radius: 16px;
 }
+
+.virtual-keyboard {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--ion-color-light);
+    border-top: 1px solid var(--ion-color-medium);
+    padding: 10px;
+    z-index: 1000;
+    
+    ion-button {
+        margin: 2px;
+        --border-radius: 8px;
+        font-size: 14px;
+        height: 40px;
+    }
+}
