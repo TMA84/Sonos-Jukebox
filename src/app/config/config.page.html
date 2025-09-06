@@ -27,10 +27,10 @@
       <ion-list *ngIf="speakers.length > 0">
         <ion-radio-group [(ngModel)]="selectedSpeaker" (ionChange)="selectSpeaker($event.detail.value)">
           <ion-item *ngFor="let speaker of speakers">
-            <ion-radio slot="start" [value]="speaker.roomName"></ion-radio>
+            <ion-radio slot="start" [value]="getSpeakerName(speaker)"></ion-radio>
             <ion-label>
-              <h2>{{speaker.roomName}}</h2>
-              <p>{{speaker.coordinator.playerName}} - {{speaker.coordinator.state.currentTrack.artist}}</p>
+              <h2>{{getSpeakerName(speaker)}}</h2>
+              <p>{{getSpeakerDetails(speaker)}}</p>
             </ion-label>
           </ion-item>
         </ion-radio-group>
@@ -41,6 +41,44 @@
           No speakers found. Make sure node-sonos-http-api is running.
         </ion-label>
       </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Spotify Configuration</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Client ID</ion-label>
+        <ion-input [(ngModel)]="spotifyConfig.clientId" placeholder="Enter Spotify Client ID"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Client Secret</ion-label>
+        <ion-input type="password" [(ngModel)]="spotifyConfig.clientSecret" placeholder="Enter Spotify Client Secret"></ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="saveSpotifyConfig()" [disabled]="!spotifyConfig.clientId || !spotifyConfig.clientSecret">
+        Save Spotify Configuration
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Sonos API Configuration</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Server IP</ion-label>
+        <ion-input [(ngModel)]="sonosConfig.server" placeholder="127.0.0.1"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Port</ion-label>
+        <ion-input [(ngModel)]="sonosConfig.port" placeholder="5005"></ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="saveSonosConfig()" [disabled]="!sonosConfig.server || !sonosConfig.port">
+        Save Sonos Configuration
+      </ion-button>
     </ion-card-content>
   </ion-card>
 

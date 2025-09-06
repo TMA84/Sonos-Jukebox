@@ -39,32 +39,45 @@ app.use(express.static(path.join(__dirname, 'www'))); // Static path to compiled
 
 // Routes
 app.get('/api/data', (req, res) => {
-    jsonfile.readFile(dataFile, (error, data) => {
-        if (error) data = [];
-        res.json(data);
+    const clientId = req.query.clientId || 'default';
+    const clientDataFile = `./server/config/data-${clientId}.json`;
+    
+    jsonfile.readFile(clientDataFile, (error, data) => {
+        if (error) {
+            // Try fallback to main data file for backward compatibility
+            jsonfile.readFile(dataFile, (fallbackError, fallbackData) => {
+                res.json(fallbackError ? [] : fallbackData);
+            });
+        } else {
+            res.json(data);
+        }
     });
 });
 
 app.post('/api/add', (req, res) => {
-    jsonfile.readFile(dataFile, (error, data) => {
+    const clientId = req.body.clientId || req.query.clientId || 'default';
+    const clientDataFile = `./server/config/data-${clientId}.json`;
+    
+    jsonfile.readFile(clientDataFile, (error, data) => {
         if (error) data = [];
         data.push(req.body);
 
-        jsonfile.writeFile(dataFile, data, { spaces: 4 }, (error) => {
-            if (error) throw err;
-            res.status(200).send();
+        jsonfile.writeFile(clientDataFile, data, { spaces: 4 }, (writeError) => {
+            res.status(writeError ? 500 : 200).send();
         });
     });
 });
 
 app.post('/api/delete', (req, res) => {
-    jsonfile.readFile(dataFile, (error, data) => {
+    const clientId = req.body.clientId || req.query.clientId || 'default';
+    const clientDataFile = `./server/config/data-${clientId}.json`;
+    
+    jsonfile.readFile(clientDataFile, (error, data) => {
         if (error) data = [];
         data.splice(req.body.index, 1);
 
-        jsonfile.writeFile(dataFile, data, { spaces: 4 }, (error) => {
-            if (error) throw err;
-            res.status(200).send();
+        jsonfile.writeFile(clientDataFile, data, { spaces: 4 }, (writeError) => {
+            res.status(writeError ? 500 : 200).send();
         });
     });
 });
@@ -153,6 +166,33 @@ app.post('/api/config/pin', (req, res) => {
 app.get('/api/pin', (req, res) => {
     jsonfile.readFile(pinFile, (error, pinData) => {
         res.send((pinData || { pin: '1234' }).pin);
+    });
+});
+
+app.get('/api/config/full', (req, res) => {
+    res.json(config);
+});
+
+app.post('/api/config/spotify', (req, res) => {
+    config.spotify = {
+        clientId: req.body.clientId,
+        clientSecret: req.body.clientSecret
+    };
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to save Spotify config' : 'Spotify config saved');
+    });
+});
+
+app.post('/api/config/sonos', (req, res) => {
+    config['node-sonos-http-api'] = {
+        ...config['node-sonos-http-api'],
+        server: req.body.server,
+        port: req.body.port
+    };
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to save Sonos config' : 'Sonos config saved');
     });
 });
 
