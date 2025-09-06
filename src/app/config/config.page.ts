@@ -290,7 +290,7 @@ export class ConfigPage implements OnInit {
     
     const deleteUrl = environment.production ? '../api/clients/delete' : 'http://localhost:8200/api/clients/delete';
     
-    this.http.delete(deleteUrl, { body: { clientId } }).subscribe({
+    this.http.post(deleteUrl, { clientId }).subscribe({
       next: () => {
         this.loadClients();
       },
