@@ -135,11 +135,19 @@ export class ConfigPage implements OnInit {
     });
   }
 
-  openAddPage() {
+  openAddPage(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.router.navigate(['/add']);
   }
 
-  openEditPage() {
+  openEditPage(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.router.navigate(['/edit']);
   }
 

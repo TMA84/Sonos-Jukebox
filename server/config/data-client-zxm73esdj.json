@@ -34,5 +34,14 @@
         "type": "spotify",
         "category": "audiobook",
         "clientId": "client-zxm73esdj"
+    },
+    {
+        "artistid": "5ziUNRAHfR28SgsINMc66V",
+        "artist": "Kupfergold",
+        "title": "All Kupfergold Albums",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb86a01ab181f0d9a61d07426a",
+        "type": "spotify",
+        "category": "audiobook",
+        "clientId": "client-zxm73esdj"
     }
 ]
