@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild } from '@angular/core';
 import { NavController, IonSelect, IonInput, IonSegment, ModalController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { MediaService } from '../media.service';
 import { Media } from '../media';
 import Keyboard from 'simple-keyboard';
@@ -49,7 +50,8 @@ export class AddPage implements OnInit, AfterViewInit {
     private mediaService: MediaService,
     private navController: NavController,
     private modalController: ModalController,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private router: Router
   ) { }
 
   ngOnInit() {
