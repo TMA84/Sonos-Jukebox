@@ -1,0 +1,10 @@
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  
+  ion-spinner {
+    margin-bottom: 1rem;
+  }
+}

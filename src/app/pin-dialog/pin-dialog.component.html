@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Enter PIN</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="closeModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="pin-container">
+    <div class="pin-display">
+      <span *ngFor="let i of [1,2,3,4]" class="pin-dot" [class.filled]="pin.length >= i"></span>
+    </div>
+    
+    <div class="keypad">
+      <ion-button *ngFor="let digit of ['1','2','3','4','5','6','7','8','9']" 
+                  (click)="addDigit(digit)" 
+                  fill="outline" 
+                  size="large">
+        {{digit}}
+      </ion-button>
+      <ion-button (click)="clearPin()" fill="outline" size="large">
+        <ion-icon name="backspace-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="addDigit('0')" fill="outline" size="large">0</ion-button>
+      <div></div>
+    </div>
+  </div>
+</ion-content>

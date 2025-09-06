@@ -9,25 +9,15 @@
       <ion-card class="media-card">
         <img 
           [src]="getItemCover(item)" 
-          (click)="onItemClick(item)"
+          (click)="itemClick.emit(item)"
           loading="lazy"
-          draggable="false" 
-          style="-moz-user-select: none;" 
-          ondragstart="return false;">
-        <ion-card-header (click)="onNameClick(item)">
+          draggable="false">
+        <ion-card-header (click)="nameClick.emit(item)">
           <ion-card-title class="ion-text-nowrap truncate-text">
             {{getItemTitle(item)}}
           </ion-card-title>
         </ion-card-header>
       </ion-card>
-    </ion-col>
-  </ion-row>
-  <ion-row *ngIf="hasMore && displayedItems.length > 0">
-    <ion-col size="12" class="ion-text-center">
-      <ion-button fill="clear" (click)="loadMore()">
-        <ion-icon name="chevron-down-outline"></ion-icon>
-        Load More
-      </ion-button>
     </ion-col>
   </ion-row>
   <ion-row *ngIf="displayedItems.length === 0 && searchTerm">
@@ -36,3 +26,13 @@
     </ion-col>
   </ion-row>
 </ion-grid>
+
+<ion-infinite-scroll 
+  threshold="100px" 
+  (ionInfinite)="onInfiniteScroll($event)"
+  [disabled]="!hasMore">
+  <ion-infinite-scroll-content
+    loadingSpinner="bubbles"
+    loadingText="Loading more albums...">
+  </ion-infinite-scroll-content>
+</ion-infinite-scroll>
