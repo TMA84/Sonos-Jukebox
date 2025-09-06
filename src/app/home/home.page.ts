@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { IonSlides } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
 import { MediaService } from '../media.service';
 import { ArtworkService } from '../artwork.service';
@@ -14,31 +13,14 @@ import { Media } from '../media';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
-  @ViewChild('artist_slider', { static: false }) artistSlider: IonSlides;
-  @ViewChild('media_slider', { static: false }) mediaSlider: IonSlides;
-
-  category =  'audiobook';
-
+  category = 'audiobook';
   artists: Artist[] = [];
   media: Media[] = [];
   covers = {};
   activityIndicatorVisible = false;
   editButtonclickCount = 0;
   editClickTimer = 0;
-
   needsUpdate = false;
-
-  slideOptions = {
-    initialSlide: 0,
-    slidesPerView: 3,
-    autoplay: false,
-    loop: false,
-    freeMode: true,
-    freeModeSticky: true,
-    freeModeMomentumBounce: false,
-    freeModeMomentumRatio: 1.0,
-    freeModeMomentumVelocityRatio: 1.0
-  };
 
   constructor(
     private mediaService: MediaService,
@@ -54,38 +36,12 @@ export class HomePage implements OnInit {
     // Subscribe
     this.mediaService.getMedia().subscribe(media => {
       this.media = media;
-
-      this.media.forEach(currentMedia => {
-        this.artworkService.getArtwork(currentMedia).subscribe(url => {
-          this.covers[currentMedia.title] = url;
-        });
-      });
-      this.mediaSlider?.update();
-
-      // Workaround as the scrollbar handle isn't visible after the immediate update
-      // Seems like a size calculation issue, as resizing the browser window helps
-      // Better fix for this? 
-      window.setTimeout(() => {
-        this.mediaSlider?.update();
-      }, 1000);
+      this.loadArtworkBatch(media.slice(0, 12)); // Load first batch only
     });
 
     this.mediaService.getArtists().subscribe(artists => {
       this.artists = artists;
-
-      this.artists.forEach(artist => {
-        this.artworkService.getArtwork(artist.coverMedia).subscribe(url => {
-          this.covers[artist.name] = url;
-        });
-      });
-      this.artistSlider?.update();
-
-      // Workaround as the scrollbar handle isn't visible after the immediate update
-      // Seems like a size calculation issue, as resizing the browser window helps
-      // Better fix for this? 
-      window.setTimeout(() => {
-        this.artistSlider?.update();
-      }, 1000);
+      this.loadArtistArtworkBatch(artists.slice(0, 12)); // Load first batch only
     });
 
     this.update();
@@ -156,6 +112,30 @@ export class HomePage implements OnInit {
         this.playerService.say(clickedMedia.title);
       }
     });
+  }
+
+  private loadArtworkBatch(items: Media[]) {
+    items.forEach(currentMedia => {
+      this.artworkService.getArtwork(currentMedia).subscribe(url => {
+        this.covers[currentMedia.title] = url;
+      });
+    });
+  }
+
+  private loadArtistArtworkBatch(artists: Artist[]) {
+    artists.forEach(artist => {
+      this.artworkService.getArtwork(artist.coverMedia).subscribe(url => {
+        this.covers[artist.name] = url;
+      });
+    });
+  }
+
+  loadMoreMediaArtwork(items: Media[]) {
+    this.loadArtworkBatch(items);
+  }
+
+  loadMoreArtistArtwork(items: Artist[]) {
+    this.loadArtistArtworkBatch(items);
   }
 
   editButtonPressed() {

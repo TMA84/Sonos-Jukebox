@@ -1,0 +1,38 @@
+<app-search-filter 
+  [placeholder]="'Search albums...'"
+  (searchChange)="onSearchChange($event)">
+</app-search-filter>
+
+<ion-grid>
+  <ion-row>
+    <ion-col size="4" *ngFor="let item of displayedItems; trackBy: trackByFn">
+      <ion-card class="media-card">
+        <img 
+          [src]="getItemCover(item)" 
+          (click)="onItemClick(item)"
+          loading="lazy"
+          draggable="false" 
+          style="-moz-user-select: none;" 
+          ondragstart="return false;">
+        <ion-card-header (click)="onNameClick(item)">
+          <ion-card-title class="ion-text-nowrap truncate-text">
+            {{getItemTitle(item)}}
+          </ion-card-title>
+        </ion-card-header>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+  <ion-row *ngIf="hasMore && displayedItems.length > 0">
+    <ion-col size="12" class="ion-text-center">
+      <ion-button fill="clear" (click)="loadMore()">
+        <ion-icon name="chevron-down-outline"></ion-icon>
+        Load More
+      </ion-button>
+    </ion-col>
+  </ion-row>
+  <ion-row *ngIf="displayedItems.length === 0 && searchTerm">
+    <ion-col size="12" class="ion-text-center">
+      <p>No results found for "{{searchTerm}}"</p>
+    </ion-col>
+  </ion-row>
+</ion-grid>

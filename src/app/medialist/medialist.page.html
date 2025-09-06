@@ -10,20 +10,12 @@
 </ion-header>
 
 <ion-content>
-    <ion-slides [options]="slideOptions" scrollbar="true" #slider (ionSlideDidChange)="slideDidChange()">
-        <ion-slide *ngFor="let currentMedia of media">
-            <ion-grid>
-                <ion-row class="media-card">
-                    <ion-col size="12">
-                        <ion-card>
-                            <img (click)="coverClicked(currentMedia)" draggable="false" style="-moz-user-select: none;" ondragstart="return false;" src="{{covers[currentMedia.title]}}">
-                            <ion-card-header (click)="mediaNameClicked(currentMedia)">
-                                <ion-card-title class="ion-text-nowrap truncate-text">{{currentMedia.title}}</ion-card-title>
-                            </ion-card-header>
-                        </ion-card>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
-        </ion-slide>
-    </ion-slides>
+    <app-virtual-grid 
+        [items]="media" 
+        [covers]="covers"
+        [itemsPerPage]="12"
+        (itemClick)="coverClicked($event)"
+        (nameClick)="mediaNameClicked($event)"
+        (loadMoreArtwork)="loadMoreArtwork($event)">
+    </app-virtual-grid>
 </ion-content>

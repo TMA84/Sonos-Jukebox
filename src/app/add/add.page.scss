@@ -156,3 +156,13 @@ ion-item {
     min-width: 80px;
     max-width: 80px;
 }
+
+.search-button {
+    padding: 16px 0;
+}
+
+.album-search-modal,
+.service-search-modal {
+    --height: 80%;
+    --border-radius: 16px;
+}

@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Search Albums</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="clearSearch()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-searchbar 
+    [(ngModel)]="searchTerm"
+    (ionInput)="onSearch()"
+    placeholder="Search for artist or album..."
+    debounce="500">
+  </ion-searchbar>
+
+  <div *ngIf="isSearching" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Searching...</p>
+  </div>
+
+  <ion-list *ngIf="searchResults.length > 0">
+    <ion-item 
+      *ngFor="let album of searchResults" 
+      button 
+      (click)="selectAlbum(album)">
+      <ion-thumbnail slot="start">
+        <img [src]="album.cover || '../assets/images/nocover.png'" [alt]="album.title">
+      </ion-thumbnail>
+      <ion-label>
+        <h2>{{album.title}}</h2>
+        <p>{{album.artist}}</p>
+      </ion-label>
+      <ion-icon name="add-circle-outline" slot="end"></ion-icon>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="searchTerm && !isSearching && searchResults.length === 0" class="no-results">
+    <ion-icon name="search-outline"></ion-icon>
+    <p>No albums found for "{{searchTerm}}"</p>
+  </div>
+</ion-content>

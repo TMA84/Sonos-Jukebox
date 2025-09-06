@@ -1,0 +1,34 @@
+.media-card {
+  width: 100%;
+  margin: 8px auto;
+  --background: #262626;
+  
+  img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  ion-card-header {
+    padding: 8px;
+    
+    ion-card-title {
+      font-size: 0.9rem;
+      padding-bottom: 0;
+    }
+  }
+}
+
+.truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+ion-button {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  margin: 16px 0;
+}

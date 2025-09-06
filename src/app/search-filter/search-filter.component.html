@@ -1,0 +1,20 @@
+<ion-toolbar color="light" *ngIf="isVisible">
+  <ion-searchbar 
+    [(ngModel)]="searchTerm"
+    (ionInput)="onSearchChange()"
+    [placeholder]="placeholder"
+    showClearButton="focus"
+    debounce="300">
+  </ion-searchbar>
+  <ion-buttons slot="end">
+    <ion-button fill="clear" (click)="toggleSearch()">
+      <ion-icon name="close-outline"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>
+
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isVisible">
+  <ion-fab-button size="small" (click)="toggleSearch()">
+    <ion-icon name="search-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
