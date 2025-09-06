@@ -120,6 +120,25 @@ export class PlayerService {
     });
   }
 
+  getCurrentTrack(): Observable<any> {
+    return new Observable(observer => {
+      this.getConfig().subscribe(config => {
+        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + config.rooms[0] + '/';
+        this.http.get(baseUrl + 'state').subscribe(
+          (state: any) => {
+            observer.next({
+              title: state.currentTrack?.title || 'Unknown',
+              artist: state.currentTrack?.artist || 'Unknown Artist',
+              album: state.currentTrack?.album || '',
+              playbackState: state.playbackState
+            });
+          },
+          error => observer.next(null)
+        );
+      });
+    });
+  }
+
   private sendRequest(url: string) {
     this.getConfig().subscribe(config => {
       const baseUrl = 'http://' + config.server + ':' + config.port + '/' + config.rooms[0] + '/';

@@ -8,3 +8,11 @@
     margin-bottom: 1rem;
   }
 }
+
+ion-toolbar {
+  ion-back-button {
+    --min-height: 44px;
+    --min-width: 44px;
+    --icon-font-size: 24px;
+  }
+}
