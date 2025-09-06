@@ -270,7 +270,7 @@ app.post('/api/clients/create', (req, res) => {
     });
 });
 
-app.delete('/api/clients/delete', (req, res) => {
+app.post('/api/clients/delete', (req, res) => {
     const clientId = req.body.clientId;
     
     if (config.clients && config.clients[clientId]) {
