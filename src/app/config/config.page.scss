@@ -84,3 +84,33 @@ ion-toolbar {
     --min-height: 36px;
   }
 }
+
+.virtual-keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ion-color-light);
+  border-top: 1px solid var(--ion-color-medium);
+  padding: 10px;
+  z-index: 1000;
+  
+  ion-button {
+    margin: 2px;
+    --border-radius: 8px;
+    font-size: 14px;
+    height: 40px;
+  }
+}
+
+@media (max-height: 480px) {
+  .virtual-keyboard {
+    padding: 5px;
+    
+    ion-button {
+      height: 32px;
+      font-size: 12px;
+      margin: 1px;
+    }
+  }
+}

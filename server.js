@@ -249,6 +249,27 @@ app.get('/api/clients', (req, res) => {
     res.json(clients);
 });
 
+app.post('/api/clients/create', (req, res) => {
+    const clientId = req.body.clientId;
+    const clientName = req.body.name;
+    
+    if (!config.clients) config.clients = {};
+    config.clients[clientId] = {
+        name: clientName,
+        room: ''
+    };
+    
+    // Create empty data file for new client
+    const clientDataFile = `./server/config/data-${clientId}.json`;
+    if (!fs.existsSync(clientDataFile)) {
+        jsonfile.writeFileSync(clientDataFile, [], { spaces: 4 });
+    }
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to create client' : 'Client created successfully');
+    });
+});
+
 // Catch all other routes and return the index file from Ionic app
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'www/index.html'));

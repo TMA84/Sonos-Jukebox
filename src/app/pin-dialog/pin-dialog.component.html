@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="pin-content">
   <div class="pin-container">
     <div class="pin-display">
       <div class="pin-text">{{getPinDisplay()}}</div>
@@ -17,19 +17,38 @@
     </div>
     
     <div class="keypad">
-      <ion-button *ngFor="let digit of ['1','2','3','4','5','6','7','8','9']" 
-                  (click)="addDigit(digit)" 
-                  fill="outline" 
-                  size="large">
-        {{digit}}
-      </ion-button>
-      <ion-button (click)="clearPin()" fill="outline" size="large">
-        <ion-icon name="backspace-outline"></ion-icon>
-      </ion-button>
-      <ion-button (click)="addDigit('0')" fill="outline" size="large">0</ion-button>
-      <ion-button (click)="checkPinManually()" fill="solid" size="large" [disabled]="pin.length < 4">
-        <ion-icon name="checkmark-outline"></ion-icon>
-      </ion-button>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4" *ngFor="let digit of ['1','2','3']">
+            <ion-button (click)="addDigit(digit)" fill="outline" expand="block" class="keypad-btn">{{digit}}</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4" *ngFor="let digit of ['4','5','6']">
+            <ion-button (click)="addDigit(digit)" fill="outline" expand="block" class="keypad-btn">{{digit}}</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4" *ngFor="let digit of ['7','8','9']">
+            <ion-button (click)="addDigit(digit)" fill="outline" expand="block" class="keypad-btn">{{digit}}</ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">
+            <ion-button (click)="clearPin()" fill="outline" expand="block" class="keypad-btn">
+              <ion-icon name="backspace-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+          <ion-col size="4">
+            <ion-button (click)="addDigit('0')" fill="outline" expand="block" class="keypad-btn">0</ion-button>
+          </ion-col>
+          <ion-col size="4">
+            <ion-button (click)="checkPinManually()" fill="solid" expand="block" class="keypad-btn" [disabled]="pin.length < 4">
+              <ion-icon name="checkmark-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
   </div>
 </ion-content>

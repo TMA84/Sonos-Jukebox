@@ -18,10 +18,19 @@ export class ConfigPage implements OnInit {
   confirmPin = '';
   clientId = '';
   clientName = '';
+  newClientName = '';
   availableClients: any[] = [];
   spotifyConfig = { clientId: '', clientSecret: '' };
   sonosConfig = { server: '', port: '' };
   selectedTab = 'speakers';
+  showKeyboard = false;
+  isUpperCase = false;
+  activeInput = '';
+  keyboardRows = [
+    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+  ];
 
   constructor(
     private http: HttpClient,
@@ -188,5 +197,107 @@ export class ConfigPage implements OnInit {
   switchToClient(clientId: string) {
     this.clientService.setClientId(clientId);
     window.location.reload();
+  }
+
+  toggleKeyboard() {
+    this.showKeyboard = !this.showKeyboard;
+  }
+
+  hideKeyboard() {
+    this.showKeyboard = false;
+  }
+
+  setActiveInput(inputName: string) {
+    this.activeInput = inputName;
+  }
+
+  addKey(key: string) {
+    const keyToAdd = this.isUpperCase ? key.toUpperCase() : key;
+    switch (this.activeInput) {
+      case 'currentPin':
+        this.currentPin += keyToAdd;
+        break;
+      case 'newPin':
+        this.newPin += keyToAdd;
+        break;
+      case 'confirmPin':
+        this.confirmPin += keyToAdd;
+        break;
+      case 'clientName':
+        this.clientName += keyToAdd;
+        break;
+      case 'spotifyClientId':
+        this.spotifyConfig.clientId += keyToAdd;
+        break;
+      case 'spotifyClientSecret':
+        this.spotifyConfig.clientSecret += keyToAdd;
+        break;
+      case 'sonosServer':
+        this.sonosConfig.server += keyToAdd;
+        break;
+      case 'sonosPort':
+        this.sonosConfig.port += keyToAdd;
+        break;
+      case 'newClientName':
+        this.newClientName += keyToAdd;
+        break;
+    }
+  }
+
+  backspace() {
+    switch (this.activeInput) {
+      case 'currentPin':
+        this.currentPin = this.currentPin.slice(0, -1);
+        break;
+      case 'newPin':
+        this.newPin = this.newPin.slice(0, -1);
+        break;
+      case 'confirmPin':
+        this.confirmPin = this.confirmPin.slice(0, -1);
+        break;
+      case 'clientName':
+        this.clientName = this.clientName.slice(0, -1);
+        break;
+      case 'spotifyClientId':
+        this.spotifyConfig.clientId = this.spotifyConfig.clientId.slice(0, -1);
+        break;
+      case 'spotifyClientSecret':
+        this.spotifyConfig.clientSecret = this.spotifyConfig.clientSecret.slice(0, -1);
+        break;
+      case 'sonosServer':
+        this.sonosConfig.server = this.sonosConfig.server.slice(0, -1);
+        break;
+      case 'sonosPort':
+        this.sonosConfig.port = this.sonosConfig.port.slice(0, -1);
+        break;
+      case 'newClientName':
+        this.newClientName = this.newClientName.slice(0, -1);
+        break;
+    }
+  }
+
+  toggleCase() {
+    this.isUpperCase = !this.isUpperCase;
+  }
+
+  createNewClient() {
+    const newClientId = 'client_' + Date.now();
+    const createUrl = environment.production ? '../api/clients/create' : 'http://localhost:8200/api/clients/create';
+    
+    this.http.post(createUrl, {
+      clientId: newClientId,
+      name: this.newClientName
+    }).subscribe({
+      next: () => {
+        this.clientService.setClientId(newClientId);
+        this.clientId = newClientId;
+        this.clientName = this.newClientName;
+        this.newClientName = '';
+        this.loadClients();
+      },
+      error: (err) => {
+        console.error('Failed to create client:', err);
+      }
+    });
   }
 }

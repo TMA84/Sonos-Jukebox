@@ -25,14 +25,50 @@
 }
 
 .keypad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
   max-width: 300px;
   
-  ion-button {
-    width: 80px;
-    height: 80px;
-    --border-radius: 50%;
+  .keypad-btn {
+    height: 60px;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 4px 0;
+  }
+}
+
+@media (max-height: 480px) {
+  .pin-container {
+    padding: 1rem;
+  }
+  
+  .pin-display {
+    margin-bottom: 1rem;
+    
+    .pin-text {
+      font-size: 1.5rem;
+      min-height: 2rem;
+    }
+    
+    .pin-length {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .keypad {
+    .keypad-btn {
+      height: 45px;
+      font-size: 16px;
+      margin: 2px 0;
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .keypad {
+    max-width: 280px;
+    
+    .keypad-btn {
+      height: 50px;
+      font-size: 16px;
+    }
   }
 }
