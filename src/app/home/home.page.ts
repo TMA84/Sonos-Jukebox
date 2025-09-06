@@ -56,6 +56,8 @@ export class HomePage implements OnInit {
     if (this.needsUpdate) {
       this.update();
     }
+    // Always reload available categories when entering
+    this.loadAvailableCategories();
   }
 
   ionViewDidLeave() {
@@ -168,6 +170,9 @@ export class HomePage implements OnInit {
         this.category = this.availableCategories[0];
         this.categoryChanged({ detail: { value: this.category } });
       }
+      
+      // Refresh current view
+      this.update();
     });
   }
 }

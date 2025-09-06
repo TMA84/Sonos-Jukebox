@@ -25,5 +25,14 @@
         "type": "spotify",
         "category": "audiobook",
         "clientId": "client-zxm73esdj"
+    },
+    {
+        "artistid": "3YVNhnRJA4fODe4IyUIeWN",
+        "artist": "LEGO Ninjago",
+        "title": "All LEGO Ninjago Albums",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb093b0e2e930aba2c35c0ff09",
+        "type": "spotify",
+        "category": "audiobook",
+        "clientId": "client-zxm73esdj"
     }
 ]

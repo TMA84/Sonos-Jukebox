@@ -248,8 +248,14 @@ export class AddPage implements OnInit, AfterViewInit {
     this.keyboard.clearInput('tunein_cover');
 
     this.validate();
+    this.reloadHome();
 
-    this.navController.back();
+    this.router.navigate(['/config']);
+  }
+
+  reloadHome() {
+    // Trigger home page reload by updating media service
+    this.mediaService.updateRawMedia();
   }
 
   async openAlbumSearch() {
@@ -304,7 +310,7 @@ export class AddPage implements OnInit, AfterViewInit {
   addAlbumFromSearch(album: Media) {
     album.category = this.category;
     this.mediaService.addRawMedia(album);
-    this.navController.back();
+    this.reloadHome();
   }
 
   addArtistFromSearch(artist: any) {
@@ -317,7 +323,7 @@ export class AddPage implements OnInit, AfterViewInit {
       category: this.category
     };
     this.mediaService.addRawMedia(media);
-    this.navController.back();
+    this.reloadHome();
   }
 
   toggleKeyboard() {
