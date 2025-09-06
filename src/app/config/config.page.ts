@@ -282,6 +282,24 @@ export class ConfigPage implements OnInit {
     this.isUpperCase = !this.isUpperCase;
   }
 
+  deleteClient(clientId: string) {
+    if (clientId === this.clientId) {
+      console.log('Cannot delete current client');
+      return;
+    }
+    
+    const deleteUrl = environment.production ? '../api/clients/delete' : 'http://localhost:8200/api/clients/delete';
+    
+    this.http.delete(deleteUrl, { body: { clientId } }).subscribe({
+      next: () => {
+        this.loadClients();
+      },
+      error: (err) => {
+        console.error('Failed to delete client:', err);
+      }
+    });
+  }
+
   createNewClient() {
     const newClientId = 'client_' + Date.now();
     const createUrl = environment.production ? '../api/clients/create' : 'http://localhost:8200/api/clients/create';

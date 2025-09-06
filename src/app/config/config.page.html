@@ -72,12 +72,14 @@
             Load Available Clients
           </ion-button>
           <ion-list *ngIf="availableClients.length > 0">
-            <ion-item *ngFor="let client of availableClients" button (click)="switchToClient(client.id)">
-              <ion-label>
+            <ion-item *ngFor="let client of availableClients">
+              <ion-label (click)="switchToClient(client.id)" button>
                 <h2>{{client.name || client.id}}</h2>
                 <p>{{client.room || 'No speaker configured'}}</p>
               </ion-label>
-              <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+              <ion-button fill="clear" color="danger" (click)="deleteClient(client.id)" slot="end">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
             </ion-item>
           </ion-list>
         </ion-card-content>
