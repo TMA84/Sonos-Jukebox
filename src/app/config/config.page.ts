@@ -196,7 +196,9 @@ export class ConfigPage implements OnInit {
 
   switchToClient(clientId: string) {
     this.clientService.setClientId(clientId);
-    window.location.reload();
+    this.clientId = clientId;
+    this.loadCurrentConfig();
+    this.loadClientName();
   }
 
   toggleKeyboard() {
