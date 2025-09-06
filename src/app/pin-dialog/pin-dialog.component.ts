@@ -25,11 +25,14 @@ export class PinDialogComponent implements OnInit {
   }
 
   addDigit(digit: string) {
-    if (this.pin.length < 4) {
+    if (this.pin.length < 12) {
       this.pin += digit;
-      if (this.pin.length === 4) {
-        this.checkPin();
-      }
+    }
+  }
+
+  checkPinManually() {
+    if (this.pin.length >= 4) {
+      this.checkPin();
     }
   }
 

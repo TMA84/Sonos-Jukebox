@@ -156,7 +156,7 @@ export class HomePage implements OnInit {
     return await modal.present();
   }
 
-  editButtonPressed() {
+  async editButtonPressed() {
     window.clearTimeout(this.editClickTimer);
 
     if (this.editButtonclickCount < 9) {
@@ -166,7 +166,18 @@ export class HomePage implements OnInit {
         this.editButtonclickCount = 0;
       }, 500);
     } else {
-      this.router.navigate(['/edit']);
+      const modal = await this.modalController.create({
+        component: PinDialogComponent,
+        cssClass: 'pin-dialog-modal'
+      });
+
+      modal.onDidDismiss().then((result) => {
+        if (result.data === true) {
+          this.router.navigate(['/config']);
+        }
+      });
+
+      await modal.present();
       this.editButtonclickCount = 0;
       this.needsUpdate = true;
     }

@@ -12,7 +12,8 @@
 <ion-content>
   <div class="pin-container">
     <div class="pin-display">
-      <span *ngFor="let i of [1,2,3,4]" class="pin-dot" [class.filled]="pin.length >= i"></span>
+      <div class="pin-text">{{pin.replace(/./g, '•')}}</div>
+      <div class="pin-length">{{pin.length}}/12 digits</div>
     </div>
     
     <div class="keypad">
@@ -26,7 +27,9 @@
         <ion-icon name="backspace-outline"></ion-icon>
       </ion-button>
       <ion-button (click)="addDigit('0')" fill="outline" size="large">0</ion-button>
-      <div></div>
+      <ion-button (click)="checkPinManually()" fill="solid" size="large" [disabled]="pin.length < 4">
+        <ion-icon name="checkmark-outline"></ion-icon>
+      </ion-button>
     </div>
   </div>
 </ion-content>

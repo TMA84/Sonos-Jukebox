@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { ClientService } from '../client.service';
 
@@ -20,7 +21,8 @@ export class ConfigPage implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -127,5 +129,13 @@ export class ConfigPage implements OnInit {
       next: () => console.log('Sonos configuration saved'),
       error: (err) => console.error('Failed to save Sonos config:', err)
     });
+  }
+
+  openAddPage() {
+    this.router.navigate(['/add']);
+  }
+
+  openEditPage() {
+    this.router.navigate(['/edit']);
   }
 }
