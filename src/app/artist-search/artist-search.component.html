@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Search Artists</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="closeModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-searchbar 
+    [(ngModel)]="searchTerm"
+    (ionInput)="onSearch()"
+    placeholder="Search for artists..."
+    debounce="500">
+  </ion-searchbar>
+
+  <div *ngIf="isSearching" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Searching...</p>
+  </div>
+
+  <ion-list *ngIf="searchResults.length > 0">
+    <ion-item 
+      *ngFor="let artist of searchResults" 
+      button 
+      (click)="selectArtist(artist)">
+      <ion-thumbnail slot="start">
+        <img [src]="artist.image || '../assets/images/nocover.png'" [alt]="artist.name">
+      </ion-thumbnail>
+      <ion-label>
+        <h2>{{artist.name}}</h2>
+        <p>{{artist.followers | number}} followers</p>
+      </ion-label>
+      <ion-icon name="add-circle-outline" slot="end"></ion-icon>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="searchTerm && !isSearching && searchResults.length === 0" class="no-results">
+    <ion-icon name="search-outline"></ion-icon>
+    <p>No artists found for "{{searchTerm}}"</p>
+  </div>
+</ion-content>
