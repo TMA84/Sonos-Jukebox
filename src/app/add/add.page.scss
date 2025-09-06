@@ -174,14 +174,24 @@ ion-item {
     right: 0;
     background: var(--ion-color-light);
     border-top: 1px solid var(--ion-color-medium);
-    padding: 10px;
+    padding: 5px;
     z-index: 1000;
+    max-height: 35vh;
     
     ion-button {
-        margin: 2px;
-        --border-radius: 8px;
-        font-size: 14px;
-        height: 40px;
+        margin: 1px;
+        --border-radius: 4px;
+        font-size: 12px;
+        height: 32px;
+        min-height: 32px;
+    }
+    
+    ion-grid {
+        --ion-grid-padding: 2px;
+    }
+    
+    ion-col {
+        --ion-grid-column-padding: 1px;
     }
 }
 
@@ -245,12 +255,14 @@ ion-item {
     }
     
     .virtual-keyboard {
-        padding: 5px;
+        padding: 3px;
+        max-height: 30vh;
         
         ion-button {
-            height: 32px;
-            font-size: 12px;
-            margin: 1px;
+            height: 28px;
+            min-height: 28px;
+            font-size: 11px;
+            margin: 0.5px;
         }
     }
 }

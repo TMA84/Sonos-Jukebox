@@ -2,73 +2,87 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
+  height: 100%;
 }
 
 .pin-display {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .pin-text {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-family: monospace;
-  letter-spacing: 0.5rem;
-  margin-bottom: 0.5rem;
-  min-height: 2.5rem;
+  letter-spacing: 0.3rem;
+  margin-bottom: 0.3rem;
+  min-height: 1.8rem;
   color: var(--ion-color-primary);
 }
 
 .pin-length {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--ion-color-medium);
 }
 
 .keypad {
-  max-width: 300px;
+  width: 100%;
+  max-width: 280px;
   
   .keypad-btn {
-    height: 60px;
-    font-size: 18px;
+    height: 45px;
+    font-size: 16px;
     font-weight: bold;
-    margin: 4px 0;
+    margin: 2px 0;
   }
 }
 
 @media (max-height: 480px) {
   .pin-container {
-    padding: 1rem;
+    padding: 0.5rem;
   }
   
   .pin-display {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     
     .pin-text {
-      font-size: 1.5rem;
-      min-height: 2rem;
+      font-size: 1.2rem;
+      min-height: 1.5rem;
+      letter-spacing: 0.2rem;
     }
     
     .pin-length {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
     }
   }
   
   .keypad {
+    max-width: 260px;
+    
     .keypad-btn {
-      height: 45px;
-      font-size: 16px;
-      margin: 2px 0;
+      height: 35px;
+      font-size: 14px;
+      margin: 1px 0;
     }
   }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 800px) and (max-height: 480px) {
+  .pin-container {
+    padding: 0.3rem;
+  }
+  
+  .pin-display {
+    margin-bottom: 0.3rem;
+  }
+  
   .keypad {
-    max-width: 280px;
+    max-width: 240px;
     
     .keypad-btn {
-      height: 50px;
-      font-size: 16px;
+      height: 32px;
+      font-size: 13px;
+      margin: 0.5px 0;
     }
   }
 }
