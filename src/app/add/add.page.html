@@ -5,6 +5,9 @@
         </ion-buttons>
         <ion-title>Add Content</ion-title>
         <ion-buttons slot="end">
+            <ion-button (click)="toggleKeyboard()">
+                <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}" color="primary"></ion-icon>
+            </ion-button>
             <ion-button (click)="categoryButtonPressed($event)">
                 <ion-icon slot="start" name="{{this.categoryIcons[this.category]}}" color="primary"></ion-icon>
             </ion-button>
@@ -346,7 +349,40 @@
         </div>
     </div>
 
-    <div class="bottom">
-        <div class="simple-keyboard"></div>
+    <!-- Modern Virtual Keyboard -->
+    <div *ngIf="showKeyboard" class="virtual-keyboard">
+        <ion-grid>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[0]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[1]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[2]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="2">
+                    <ion-button size="small" fill="outline" (click)="toggleCase()">{{isUpperCase ? 'abc' : 'ABC'}}</ion-button>
+                </ion-col>
+                <ion-col size="6">
+                    <ion-button size="small" fill="outline" (click)="addKey(' ')">Space</ion-button>
+                </ion-col>
+                <ion-col size="2">
+                    <ion-button size="small" fill="outline" (click)="backspace()">
+                        <ion-icon name="backspace-outline"></ion-icon>
+                    </ion-button>
+                </ion-col>
+                <ion-col size="2">
+                    <ion-button size="small" fill="solid" (click)="hideKeyboard()">Done</ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
     </div>
 </ion-content>

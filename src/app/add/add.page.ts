@@ -29,6 +29,14 @@ export class AddPage implements OnInit, AfterViewInit {
   selectedInputElem: any;
   valid = false;
   spotifyConfigured = false;
+  showKeyboard = false;
+  isUpperCase = false;
+  activeInput: any = null;
+  keyboardRows = [
+    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+  ];
 
   categoryIcons = {
     audiobook: 'book-outline',
@@ -126,10 +134,13 @@ export class AddPage implements OnInit, AfterViewInit {
 
   focusChanged(event: any) {
     this.selectedInputElem = event.target;
+    this.activeInput = event.target;
 
-    this.keyboard.setOptions({
-      inputName: event.target.name
-    });
+    if (this.keyboard) {
+      this.keyboard.setOptions({
+        inputName: event.target.name
+      });
+    }
   }
 
   inputChanged(event: any) {
@@ -309,12 +320,44 @@ export class AddPage implements OnInit, AfterViewInit {
     this.navController.back();
   }
 
+  toggleKeyboard() {
+    this.showKeyboard = !this.showKeyboard;
+  }
+
+  hideKeyboard() {
+    this.showKeyboard = false;
+  }
+
+  addKey(key: string) {
+    if (this.activeInput) {
+      const currentValue = this.activeInput.value || '';
+      const newValue = currentValue + (this.isUpperCase ? key.toUpperCase() : key);
+      this.activeInput.value = newValue;
+      this.activeInput.dispatchEvent(new Event('input'));
+      this.validate();
+    }
+  }
+
+  backspace() {
+    if (this.activeInput) {
+      const currentValue = this.activeInput.value || '';
+      const newValue = currentValue.slice(0, -1);
+      this.activeInput.value = newValue;
+      this.activeInput.dispatchEvent(new Event('input'));
+      this.validate();
+    }
+  }
+
+  toggleCase() {
+    this.isUpperCase = !this.isUpperCase;
+  }
+
   validate() {
     if (this.category === 'playlist') {
       this.searchType = 'media_id';
     }
 
-    const inputs = {
+    const inputs = this.keyboard ? {
       spotify_artist: this.keyboard.getInput('spotify_artist'),
       spotify_title: this.keyboard.getInput('spotify_title'),
       spotify_id: this.keyboard.getInput('spotify_id'),
@@ -322,7 +365,7 @@ export class AddPage implements OnInit, AfterViewInit {
       spotify_query: this.keyboard.getInput('spotify_query'),
       library_artist: this.keyboard.getInput('library_artist'),
       library_title: this.keyboard.getInput('library_title')
-    };
+    } : {};
 
     switch (this.source) {
       case 'spotify':
