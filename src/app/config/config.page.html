@@ -38,10 +38,26 @@
         <ion-card-content>
           <ion-item>
             <ion-label position="stacked">Client Name</ion-label>
-            <ion-input [(ngModel)]="clientName" placeholder="Enter friendly name"></ion-input>
+            <ion-input [(ngModel)]="clientName" placeholder="Enter friendly name" (ionFocus)="setActiveInput('clientName')"></ion-input>
           </ion-item>
           <ion-button expand="block" (click)="saveClientName()" [disabled]="!clientName">
             Save Client Name
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Create New Client</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">New Client Name</ion-label>
+            <ion-input [(ngModel)]="newClientName" placeholder="Enter client name" (ionFocus)="setActiveInput('newClientName')"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="createNewClient()" [disabled]="!newClientName">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            Create New Client
           </ion-button>
         </ion-card-content>
       </ion-card>
@@ -112,11 +128,11 @@
     <ion-card-content>
       <ion-item>
         <ion-label position="stacked">Client ID</ion-label>
-        <ion-input [(ngModel)]="spotifyConfig.clientId" placeholder="Enter Spotify Client ID"></ion-input>
+        <ion-input [(ngModel)]="spotifyConfig.clientId" placeholder="Enter Spotify Client ID" (ionFocus)="setActiveInput('spotifyClientId')"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Client Secret</ion-label>
-        <ion-input type="password" [(ngModel)]="spotifyConfig.clientSecret" placeholder="Enter Spotify Client Secret"></ion-input>
+        <ion-input type="password" [(ngModel)]="spotifyConfig.clientSecret" placeholder="Enter Spotify Client Secret" (ionFocus)="setActiveInput('spotifyClientSecret')"></ion-input>
       </ion-item>
       <ion-button expand="block" (click)="saveSpotifyConfig()" [disabled]="!spotifyConfig.clientId || !spotifyConfig.clientSecret">
         Save Spotify Configuration
@@ -131,11 +147,11 @@
     <ion-card-content>
       <ion-item>
         <ion-label position="stacked">Server IP</ion-label>
-        <ion-input [(ngModel)]="sonosConfig.server" placeholder="127.0.0.1"></ion-input>
+        <ion-input [(ngModel)]="sonosConfig.server" placeholder="127.0.0.1" (ionFocus)="setActiveInput('sonosServer')"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="stacked">Port</ion-label>
-        <ion-input [(ngModel)]="sonosConfig.port" placeholder="5005"></ion-input>
+        <ion-input [(ngModel)]="sonosConfig.port" placeholder="5005" (ionFocus)="setActiveInput('sonosPort')"></ion-input>
       </ion-item>
       <ion-button expand="block" (click)="saveSonosConfig()" [disabled]="!sonosConfig.server || !sonosConfig.port">
         Save Sonos Configuration
@@ -168,25 +184,72 @@
       <ion-card>
         <ion-card-header>
           <ion-card-title>Security PIN</ion-card-title>
+          <ion-buttons slot="end">
+            <ion-button fill="clear" (click)="toggleKeyboard()">
+              <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+            </ion-button>
+          </ion-buttons>
         </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-label position="stacked">Current PIN</ion-label>
-        <ion-input type="password" [(ngModel)]="currentPin" maxlength="4"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">New PIN (4-12 digits)</ion-label>
-        <ion-input type="password" [(ngModel)]="newPin" maxlength="12"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Confirm New PIN</ion-label>
-        <ion-input type="password" [(ngModel)]="confirmPin" maxlength="12"></ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="changePin()" [disabled]="!currentPin || !newPin || !confirmPin || newPin.length < 4 || newPin.length > 12 || newPin !== confirmPin">
-        Change PIN
-      </ion-button>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">Current PIN</ion-label>
+            <ion-input type="password" [(ngModel)]="currentPin" maxlength="4" (ionFocus)="setActiveInput('currentPin')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">New PIN (4-12 digits)</ion-label>
+            <ion-input type="password" [(ngModel)]="newPin" maxlength="12" (ionFocus)="setActiveInput('newPin')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Confirm New PIN</ion-label>
+            <ion-input type="password" [(ngModel)]="confirmPin" maxlength="12" (ionFocus)="setActiveInput('confirmPin')"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="changePin()" [disabled]="!currentPin || !newPin || !confirmPin || newPin.length < 4 || newPin.length > 12 || newPin !== confirmPin">
+            Change PIN
+          </ion-button>
         </ion-card-content>
       </ion-card>
     </div>
+  </div>
+
+  <!-- Virtual Keyboard -->
+  <div *ngIf="showKeyboard" class="virtual-keyboard">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="1" *ngFor="let key of keyboardRows[0]">
+          <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="1" *ngFor="let key of keyboardRows[1]">
+          <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="1" *ngFor="let key of keyboardRows[2]">
+          <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+          <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="2">
+          <ion-button size="small" fill="outline" (click)="toggleCase()">{{isUpperCase ? 'abc' : 'ABC'}}</ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button size="small" fill="outline" (click)="addKey(' ')">Space</ion-button>
+        </ion-col>
+        <ion-col size="2">
+          <ion-button size="small" fill="outline" (click)="backspace()">
+            <ion-icon name="backspace-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col size="2">
+          <ion-button size="small" fill="solid" (click)="hideKeyboard()">Done</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
 </ion-content>
