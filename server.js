@@ -270,6 +270,26 @@ app.post('/api/clients/create', (req, res) => {
     });
 });
 
+app.delete('/api/clients/delete', (req, res) => {
+    const clientId = req.body.clientId;
+    
+    if (config.clients && config.clients[clientId]) {
+        delete config.clients[clientId];
+        
+        // Delete client data file
+        const clientDataFile = `./server/config/data-${clientId}.json`;
+        if (fs.existsSync(clientDataFile)) {
+            fs.unlinkSync(clientDataFile);
+        }
+        
+        jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+            res.status(error ? 500 : 200).send(error ? 'Failed to delete client' : 'Client deleted successfully');
+        });
+    } else {
+        res.status(404).send('Client not found');
+    }
+});
+
 // Catch all other routes and return the index file from Ionic app
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'www/index.html'));
