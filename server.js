@@ -6,13 +6,39 @@ const path = require('path');
 const fs = require('fs');
 const jsonfile = require('jsonfile');
 var SpotifyWebApi = require('spotify-web-api-node');
-const config = require('./server/config/config.json');
-
 app.use(cors());
 
+// Create config directory if it doesn't exist
+if (!fs.existsSync('./server/config')) {
+    fs.mkdirSync('./server/config', { recursive: true });
+    console.log('Created config directory');
+}
+
+// Create config.json if it doesn't exist
+if (!fs.existsSync('./server/config/config.json')) {
+    const defaultConfig = {
+        "node-sonos-http-api": {
+            "server": "127.0.0.1",
+            "port": "5005",
+            "rooms": []
+        },
+        "spotify": {
+            "clientId": "",
+            "clientSecret": ""
+        },
+        "clients": {}
+    };
+    jsonfile.writeFileSync('./server/config/config.json', defaultConfig, { spaces: 4 });
+    console.log('Created default config.json file');
+}
+
+// Load configuration
+const config = require('./server/config/config.json');
+
+// Initialize Spotify API
 var spotifyApi = new SpotifyWebApi({
-    clientId: config.spotify.clientId,
-    clientSecret: config.spotify.clientSecret
+    clientId: config.spotify?.clientId || '',
+    clientSecret: config.spotify?.clientSecret || ''
 });
 
 // Configuration
@@ -194,6 +220,33 @@ app.post('/api/config/sonos', (req, res) => {
     jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
         res.status(error ? 500 : 200).send(error ? 'Failed to save Sonos config' : 'Sonos config saved');
     });
+});
+
+app.get('/api/config/client', (req, res) => {
+    const clientId = req.query.clientId || 'default';
+    const clientConfig = config.clients?.[clientId] || {};
+    res.json({ name: clientConfig.name || '' });
+});
+
+app.post('/api/config/client', (req, res) => {
+    const clientId = req.body.clientId || 'default';
+    
+    if (!config.clients) config.clients = {};
+    if (!config.clients[clientId]) config.clients[clientId] = {};
+    config.clients[clientId].name = req.body.name;
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to save client name' : 'Client name saved');
+    });
+});
+
+app.get('/api/clients', (req, res) => {
+    const clients = Object.keys(config.clients || {}).map(id => ({
+        id,
+        name: config.clients[id].name || '',
+        room: config.clients[id].room || ''
+    }));
+    res.json(clients);
 });
 
 // Catch all other routes and return the index file from Ionic app
