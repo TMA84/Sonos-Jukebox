@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
 import { ModalController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { MediaService } from '../media.service';
 import { ArtworkService } from '../artwork.service';
 import { PlayerService } from '../player.service';
@@ -44,13 +46,26 @@ export class HomePage implements OnInit {
     private activityIndicatorService: ActivityIndicatorService,
     private clientService: ClientService,
     private router: Router,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
     this.loadAvailableCategories();
     this.loadClientName();
+    this.loadDefaultSpeaker();
     this.loadLibraryData();
+  }
+
+  loadDefaultSpeaker() {
+    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    this.http.get<any>(configUrl, {
+      params: { clientId: this.getClientId() }
+    }).subscribe(config => {
+      if (config.currentRoom) {
+        localStorage.setItem('selectedSpeaker', config.currentRoom);
+      }
+    });
   }
 
   loadLibraryData() {
