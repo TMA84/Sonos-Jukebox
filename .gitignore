@@ -36,5 +36,11 @@ server/config/data.json
 server/config/data-*.json
 server/config/config.json
 server/config/pin.json
+server/config/clients.json
 config.json
+
+# Client-specific config files
+server/config/libraryItems_*
+server/config/clientName_*
+server/config/enableSpeakerSelection_*
 
