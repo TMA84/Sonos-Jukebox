@@ -2,6 +2,13 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.2
+
+### 🎯 Enhanced User Experience
+- **Direct artist loading** - Shows artists immediately on app start for all content categories
+- **Improved navigation** - Faster access to content with optimized loading flow
+- **Better performance** - Streamlined data loading for quicker app startup
+
 ## What's New in Version 2.1.1
 
 ### 🧹 Code Quality Improvements

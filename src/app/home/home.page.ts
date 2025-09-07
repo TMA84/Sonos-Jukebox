@@ -80,25 +80,14 @@ export class HomePage implements OnInit {
     
     this.mediaService.setCategory(this.category);
     
-    if (this.category === 'audiobook' || this.category === 'music') {
-      // Subscribe first, then publish
-      this.mediaService.getArtists().subscribe(artists => {
-        console.log('Artists loaded:', artists.length);
-        this.artists = artists;
-        this.filteredArtists = this.artists;
-        this.loadArtistArtworkBatch(this.artists.slice(0, 12));
-      });
-      this.mediaService.publishArtists();
-    } else {
-      // Subscribe first, then publish
-      this.mediaService.getMedia().subscribe(media => {
-        console.log('Media loaded:', media.length);
-        this.media = media;
-        this.filteredMedia = this.media;
-        this.loadArtworkBatch(this.media.slice(0, 12));
-      });
-      this.mediaService.publishMedia();
-    }
+    // Load artists for all categories
+    this.mediaService.getArtists().subscribe(artists => {
+      console.log('Artists loaded:', artists.length);
+      this.artists = artists;
+      this.filteredArtists = this.artists;
+      this.loadArtistArtworkBatch(this.artists.slice(0, 12));
+    });
+    this.mediaService.publishArtists();
   }
 
   ionViewWillEnter() {
@@ -124,11 +113,7 @@ export class HomePage implements OnInit {
   }
 
   update() {
-    if (this.category === 'audiobook' || this.category === 'music') {
-      this.mediaService.publishArtists();
-    } else {
-      this.mediaService.publishMedia();
-    }
+    this.mediaService.publishArtists();
     this.needsUpdate = false;
   }
 
