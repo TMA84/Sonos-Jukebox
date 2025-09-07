@@ -44,6 +44,7 @@ var spotifyApi = new SpotifyWebApi({
 // Configuration
 const dataFile = './server/config/data.json'
 const pinFile = './server/config/pin.json'
+const defaultPinFile = './server/config/pin-default.json'
 
 // Create data.json if it doesn't exist
 if (!fs.existsSync(dataFile)) {
@@ -51,11 +52,7 @@ if (!fs.existsSync(dataFile)) {
     console.log('Created empty data.json file');
 }
 
-// Create pin.json if it doesn't exist
-if (!fs.existsSync(pinFile)) {
-    jsonfile.writeFileSync(pinFile, { pin: '1234' }, { spaces: 4 });
-    console.log('Created default PIN file');
-}
+// Don't create pin.json on startup - it will be created when PIN is first changed
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -209,22 +206,45 @@ app.post('/api/config/speaker', (req, res) => {
 
 app.post('/api/config/pin', (req, res) => {
     jsonfile.readFile(pinFile, (error, pinData) => {
-        if (error) pinData = { pin: '1234' };
-        
-        if (pinData.pin !== req.body.currentPin) {
-            return res.status(401).send('Current PIN incorrect');
+        if (error) {
+            // pin.json doesn't exist, read from default
+            jsonfile.readFile(defaultPinFile, (defaultError, defaultPinData) => {
+                const currentPin = defaultError ? '1234' : defaultPinData.pin;
+                
+                if (currentPin !== req.body.currentPin) {
+                    return res.status(401).send('Current PIN incorrect');
+                }
+                
+                // Create pin.json with new PIN
+                const newPinData = { pin: req.body.newPin };
+                jsonfile.writeFile(pinFile, newPinData, { spaces: 4 }, (writeError) => {
+                    res.status(writeError ? 500 : 200).send(writeError ? 'Failed to save PIN' : 'PIN changed successfully');
+                });
+            });
+        } else {
+            // pin.json exists, use it
+            if (pinData.pin !== req.body.currentPin) {
+                return res.status(401).send('Current PIN incorrect');
+            }
+            
+            pinData.pin = req.body.newPin;
+            jsonfile.writeFile(pinFile, pinData, { spaces: 4 }, (writeError) => {
+                res.status(writeError ? 500 : 200).send(writeError ? 'Failed to save PIN' : 'PIN changed successfully');
+            });
         }
-        
-        pinData.pin = req.body.newPin;
-        jsonfile.writeFile(pinFile, pinData, { spaces: 4 }, (writeError) => {
-            res.status(writeError ? 500 : 200).send(writeError ? 'Failed to save PIN' : 'PIN changed successfully');
-        });
     });
 });
 
 app.get('/api/pin', (req, res) => {
     jsonfile.readFile(pinFile, (error, pinData) => {
-        res.send((pinData || { pin: '1234' }).pin);
+        if (error) {
+            // pin.json doesn't exist, read from default
+            jsonfile.readFile(defaultPinFile, (defaultError, defaultPinData) => {
+                res.send(defaultError ? '1234' : defaultPinData.pin);
+            });
+        } else {
+            res.send(pinData.pin);
+        }
     });
 });
 
