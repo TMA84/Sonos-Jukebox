@@ -60,19 +60,31 @@ export class MedialistPage implements OnInit {
       // This is an artist entry, fetch individual albums
       this.fetchArtistAlbums(this.artist.coverMedia.artistid);
     } else {
-      // Load from localStorage for regular albums - use artist's client
-      const artistClientId = this.getArtistClientId();
-      const stored = localStorage.getItem(`libraryItems_${artistClientId}`);
-      const libraryItems = stored ? JSON.parse(stored) : [];
+      // Use media service to get albums from this artist
+      const category = this.artist.coverMedia?.category || 'audiobook';
+      console.log('Loading media for artist:', this.artist.name, 'category:', category);
       
-      this.allMedia = libraryItems.filter(item => 
-        item.artist === this.artist.name && 
-        !item.artistid // Exclude artist entries
-      );
-      this.media = this.allMedia;
+      this.mediaService.setCategory(category);
       
-      console.log('Artist:', this.artist.name, 'Client:', artistClientId, 'Albums found:', this.media.length);
-      this.loadArtworkBatch(this.media.slice(0, 12));
+      // First subscribe to artist media, then publish
+      this.mediaService.getMediaFromArtist(this.artist).subscribe({
+        next: (media) => {
+          console.log('Artist:', this.artist.name, 'Albums found:', media.length);
+          this.allMedia = media;
+          this.media = this.allMedia;
+          if (this.media.length > 0) {
+            this.loadArtworkBatch(this.media.slice(0, 12));
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load media for artist:', this.artist.name, err);
+          this.allMedia = [];
+          this.media = [];
+        }
+      });
+      
+      // Now publish the data
+      this.mediaService.publishArtistMedia();
     }
   }
 

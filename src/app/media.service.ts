@@ -14,6 +14,10 @@ import { Artist } from './artist';
 export class MediaService {
 
   private category = 'audiobook';
+  private mediaCache = new Map<string, Media[]>();
+  private cacheExpiry = new Map<string, number>();
+  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+  private backgroundLoading = false;
 
   private rawMediaSubject = new Subject<Media[]>();
 
@@ -41,6 +45,8 @@ export class MediaService {
       params: { clientId: this.clientService.getClientId() }
     }).subscribe(media => {
         this.rawMediaSubject.next(media);
+        // Start background loading for all categories
+        this.preloadAllCategories(media);
     });
   }
 
@@ -74,16 +80,59 @@ export class MediaService {
     });
   }
 
+  private isCacheValid(key: string): boolean {
+    const expiry = this.cacheExpiry.get(key);
+    return expiry ? Date.now() < expiry : false;
+  }
+
+  private setCacheData(key: string, data: Media[]): void {
+    this.mediaCache.set(key, data);
+    this.cacheExpiry.set(key, Date.now() + this.CACHE_DURATION);
+  }
+
+  private preloadAllCategories(rawMedia: Media[]) {
+    if (this.backgroundLoading) return;
+    this.backgroundLoading = true;
+    
+    const categories = ['audiobook', 'music', 'playlist', 'radio'];
+    categories.forEach(category => {
+      const cacheKey = `${this.clientService.getClientId()}_${category}`;
+      if (!this.isCacheValid(cacheKey)) {
+        setTimeout(() => this.loadCategoryInBackground(rawMedia, category), Math.random() * 2000);
+      }
+    });
+  }
+
+  private loadCategoryInBackground(rawMedia: Media[], category: string) {
+    const cacheKey = `${this.clientService.getClientId()}_${category}`;
+    this.processMediaForCategory(rawMedia, category).subscribe(media => {
+      this.setCacheData(cacheKey, media);
+    });
+  }
+
   // Get the media data for the current category from the server
   private updateMedia() {
+    const cacheKey = `${this.clientService.getClientId()}_${this.category}`;
+    
+    // Return cached data if valid
+    if (this.isCacheValid(cacheKey)) {
+      return of(this.mediaCache.get(cacheKey) || []);
+    }
+
     const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
 
     return this.http.get<Media[]>(url, {
       params: { clientId: this.clientService.getClientId() }
     }).pipe(
+      mergeMap(rawMedia => this.processMediaForCategory(rawMedia, this.category))
+    );
+  }
+
+  private processMediaForCategory(rawMedia: Media[], category: string) {
+    return of(rawMedia).pipe(
       map(items => { // Filter to get only items for the chosen category
         items.forEach(item => item.category = (item.category === undefined) ? 'audiobook' : item.category); // default category
-        items = items.filter(item => item.category === this.category);
+        items = items.filter(item => item.category === category);
         return items;
       }),
       mergeMap(items => from(items)), // parallel calls for each item
@@ -134,12 +183,17 @@ export class MediaService {
       mergeAll(), // merge everything together
       toArray(), // convert to array
       map(media => { // add dummy image for missing covers
-        return media.map(currentMedia => {
+        const processedMedia = media.map(currentMedia => {
           if (!currentMedia.cover) {
             currentMedia.cover = '../assets/images/nocover.png';
           }
           return currentMedia;
         });
+        
+        // Cache the processed data
+        const currentCacheKey = `${this.clientService.getClientId()}_${category}`;
+        this.setCacheData(currentCacheKey, processedMedia);
+        return processedMedia;
       })
     );
   }

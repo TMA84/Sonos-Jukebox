@@ -273,12 +273,19 @@ export class ConfigPage implements OnInit {
   loadClients() {
     const clientsUrl = environment.production ? '../api/clients' : 'http://localhost:8200/api/clients';
     this.http.get<any[]>(clientsUrl).subscribe(clients => {
-      // Load client names from localStorage
+      // Use server data as primary source, localStorage as fallback
       this.availableClients = clients.map(client => {
         const storedName = localStorage.getItem(`clientName_${client.id}`);
+        const displayName = client.name || storedName || `Client ${client.id.replace('client_', '')}`;
+        
+        // Store name in localStorage for future use
+        if (client.name && !storedName) {
+          localStorage.setItem(`clientName_${client.id}`, client.name);
+        }
+        
         return {
           ...client,
-          name: storedName || client.name || `Client ${client.id.replace('client_', '')}`
+          name: displayName
         };
       });
     });
@@ -287,6 +294,7 @@ export class ConfigPage implements OnInit {
   async switchToClient(clientId: string) {
     this.clientService.setClientId(clientId);
     this.clientId = clientId;
+    this.selectedClientId = clientId;
     this.loadCurrentConfig();
     this.loadClientName();
     this.loadLibraryItems(); // Reload library for new client
@@ -476,14 +484,16 @@ export class ConfigPage implements OnInit {
       next: async (response) => {
         console.log('Client created:', response);
         
-        // Store client name in localStorage
+        // Store client name in localStorage for caching
         localStorage.setItem(`clientName_${newClientId}`, this.newClientName);
         
         this.clientService.setClientId(newClientId);
         this.clientId = newClientId;
+        this.selectedClientId = newClientId;
         this.clientName = this.newClientName;
         this.newClientName = '';
         this.loadClients();
+        this.loadLibraryItems(); // Load library for new client
         
         const toast = await this.toastController.create({
           message: 'Client created successfully',
@@ -505,49 +515,27 @@ export class ConfigPage implements OnInit {
   }
 
   loadLibraryItems() {
-    // Load from localStorage per client
-    const stored = localStorage.getItem(`libraryItems_${this.clientId}`);
-    this.libraryItems = stored ? JSON.parse(stored) : [];
-    
-    // Also save to data.json format
-    this.saveToDataJson();
+    // Load from server API
+    const dataUrl = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
+    this.http.get<any[]>(dataUrl, {
+      params: { clientId: this.clientId }
+    }).subscribe({
+      next: (items) => {
+        this.libraryItems = items || [];
+        console.log('Loaded library items from server:', this.libraryItems.length);
+      },
+      error: (err) => {
+        console.error('Failed to load library items:', err);
+        this.libraryItems = [];
+      }
+    });
   }
 
-  saveLibraryItems() {
-    // Save to localStorage per client
-    localStorage.setItem(`libraryItems_${this.clientId}`, JSON.stringify(this.libraryItems));
-    
-    // Also save to data.json format
-    this.saveToDataJson();
-  }
 
-  saveToDataJson() {
-    const dataJson = {
-      clientId: this.clientId,
-      clientName: this.clientName,
-      items: this.libraryItems.map(item => ({
-        artist: item.artist,
-        title: item.title,
-        type: item.type,
-        category: item.category,
-        cover: item.cover,
-        id: item.id,
-        artistid: item.artistid,
-        query: item.query,
-        contentType: this.getContentType(item)
-      }))
-    };
-    
-    // Save to localStorage as data.json format per client
-    localStorage.setItem(`dataJson_${this.clientId}`, JSON.stringify(dataJson));
-  }
 
-  getContentType(item: any): string {
-    if (item.artistid) return 'artist';
-    if (item.query) return 'query';
-    if (item.id) return 'id';
-    return 'album';
-  }
+
+
+
 
   addToLibrary() {
     if (!this.libraryArtist || !this.libraryTitle) return;
@@ -566,8 +554,7 @@ export class ConfigPage implements OnInit {
     this.http.post(addUrl, item).subscribe({
       next: () => {
         console.log('Manual item added to server:', item);
-        this.libraryItems.push(item);
-        this.saveLibraryItems();
+        this.loadLibraryItems(); // Reload from server
         this.libraryArtist = '';
         this.libraryTitle = '';
       },
@@ -578,8 +565,19 @@ export class ConfigPage implements OnInit {
   }
 
   removeFromLibrary(index: number) {
-    this.libraryItems.splice(index, 1);
-    this.saveLibraryItems();
+    const deleteUrl = environment.production ? '../api/delete' : 'http://localhost:8200/api/delete';
+    this.http.post(deleteUrl, {
+      index: index,
+      clientId: this.clientId
+    }).subscribe({
+      next: () => {
+        console.log('Item deleted from server');
+        this.loadLibraryItems(); // Reload from server
+      },
+      error: (err) => {
+        console.error('Failed to delete item:', err);
+      }
+    });
   }
 
   openAddPage() {
@@ -637,8 +635,7 @@ export class ConfigPage implements OnInit {
     this.http.post(addUrl, item).subscribe({
       next: () => {
         console.log('Album added to server:', item);
-        this.libraryItems.push(item);
-        this.saveLibraryItems();
+        this.loadLibraryItems(); // Reload from server
       },
       error: (err) => {
         console.error('Failed to add album to server:', err);
@@ -663,8 +660,7 @@ export class ConfigPage implements OnInit {
     this.http.post(addUrl, item).subscribe({
       next: () => {
         console.log('Artist added to server:', item);
-        this.libraryItems.push(item);
-        this.saveLibraryItems();
+        this.loadLibraryItems(); // Reload from server
       },
       error: (err) => {
         console.error('Failed to add artist to server:', err);
@@ -708,8 +704,7 @@ export class ConfigPage implements OnInit {
     this.http.post(addUrl, item).subscribe({
       next: () => {
         console.log('Service content added to server:', item);
-        this.libraryItems.push(item);
-        this.saveLibraryItems();
+        this.loadLibraryItems(); // Reload from server
       },
       error: (err) => {
         console.error('Failed to add service content to server:', err);
