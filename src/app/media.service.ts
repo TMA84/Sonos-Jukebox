@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, of, iif, Subject } from 'rxjs';
-import { map, mergeMap, tap, toArray, mergeAll } from 'rxjs/operators';
+import { map, mergeMap, tap, toArray, mergeAll, catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { SpotifyService } from './spotify.service';
 import { ClientService } from './client.service';
@@ -66,12 +66,10 @@ export class MediaService {
     const url = (environment.production) ? '../api/add' : 'http://localhost:8200/api/add';
     const mediaWithClient = { ...media, clientId: this.clientService.getClientId() };
 
-    console.log('Adding media:', mediaWithClient);
-    console.log('URL:', url);
+
 
     this.http.post(url, mediaWithClient).subscribe({
       next: (response) => {
-        console.log('Add successful:', response);
         this.updateRawMedia();
       },
       error: (error) => {
@@ -95,17 +93,18 @@ export class MediaService {
     this.backgroundLoading = true;
     
     const categories = ['audiobook', 'music', 'playlist', 'radio'];
-    categories.forEach(category => {
+    categories.forEach((category, index) => {
       const cacheKey = `${this.clientService.getClientId()}_${category}`;
       if (!this.isCacheValid(cacheKey)) {
-        setTimeout(() => this.loadCategoryInBackground(rawMedia, category), Math.random() * 2000);
+        // Stagger the background loading with smaller delays
+        setTimeout(() => this.loadCategoryInBackground(rawMedia, category), index * 1000);
       }
     });
   }
 
   private loadCategoryInBackground(rawMedia: Media[], category: string) {
     const cacheKey = `${this.clientService.getClientId()}_${category}`;
-    this.processMediaForCategory(rawMedia, category).subscribe(media => {
+    this.processMediaForCategory(rawMedia, category).subscribe((media: Media[]) => {
       this.setCacheData(cacheKey, media);
     });
   }
@@ -136,11 +135,16 @@ export class MediaService {
         return items;
       }),
       mergeMap(items => from(items)), // parallel calls for each item
-      map((item) => // get media for the current item
-        iif(
-          () => (item.query && item.query.length > 0) ? true : false, // Get media by query
-          this.spotifyService.getMediaByQuery(item.query, item.category).pipe(
-            map(items => {  // If the user entered an user-defined artist name in addition to a query, overwrite orignal artist from spotify
+      mergeMap((item) => { // get media for the current item with error handling
+
+        
+        let mediaObservable: Observable<Media[]>;
+        
+        if (item.query && item.query.length > 0) {
+          // Get media by query
+          mediaObservable = this.spotifyService.getMediaByQuery(item.query, item.category).pipe(
+            map(items => {
+
               if (item.artist?.length > 0) {
                 items.forEach(currentItem => {
                   currentItem.artist = item.artist;
@@ -148,42 +152,56 @@ export class MediaService {
               }
               return items;
             })
-          ),
-          iif(
-            () => (item.artistid && item.artistid.length > 0) ? true : false, // Get media by artist
-            this.spotifyService.getMediaByArtistID(item.artistid, item.category).pipe(
-              map(items => {  // If the user entered an user-defined artist name in addition to a query, overwrite orignal artist from spotify
-                if (item.artist?.length > 0) {
-                  items.forEach(currentItem => {
-                    currentItem.artist = item.artist;
-                  });
-                }
-                return items;
-              })
-            ),
-            iif(
-              () => (item.type === 'spotify' && item.id && item.id.length > 0) ? true : false, // Get media by album
-              this.spotifyService.getMediaByID(item.id, item.category).pipe(
-                map(currentItem => {  // If the user entered an user-defined artist or album name, overwrite values from spotify
-                  if (item.artist?.length > 0) {
-                    currentItem.artist = item.artist;
-                  }
-                  if (item.title?.length > 0) {
-                    currentItem.title = item.title;
-                  }
-                  return [currentItem];
-                })
-              ),
-              of([item]) // Single album. Also return as array, so we always have the same data type
-            )
-          )
-        )
-      ),
-      mergeMap(items => from(items)), // seperate arrays to single observables
-      mergeAll(), // merge everything together
+          );
+        } else if (item.artistid && item.artistid.length > 0) {
+          // Get media by artist, fallback to track search if no albums/singles found
+          mediaObservable = this.spotifyService.getMediaByArtistID(item.artistid, item.category).pipe(
+            mergeMap(items => {
+              if (items.length === 0) {
+                return this.spotifyService.searchTracks(`artist:${item.artist}`, item.category);
+              }
+              return of(items);
+            }),
+            map(items => {
+              if (item.artist?.length > 0) {
+                items.forEach(currentItem => {
+                  currentItem.artist = item.artist;
+                });
+              }
+              return items;
+            })
+          );
+        } else if (item.type === 'spotify' && item.id && item.id.length > 0) {
+          // Get media by album
+          mediaObservable = this.spotifyService.getMediaByID(item.id, item.category).pipe(
+            map(currentItem => {
+
+              if (item.artist?.length > 0) {
+                currentItem.artist = item.artist;
+              }
+              if (item.title?.length > 0) {
+                currentItem.title = item.title;
+              }
+              return [currentItem];
+            })
+          );
+        } else {
+          // Single album - return as array
+          mediaObservable = of([item]);
+        }
+        
+        return mediaObservable.pipe(
+
+          catchError(error => {
+            console.error(`Error processing ${item.artist}:`, error);
+            return of([]); // Return empty array on error to continue processing other artists
+          })
+        );
+      }),
+      mergeMap(items => from(items)), // separate arrays to single observables
       toArray(), // convert to array
-      map(media => { // add dummy image for missing covers
-        const processedMedia = media.map(currentMedia => {
+      map((media: Media[]) => { // add dummy image for missing covers
+        const processedMedia = media.map((currentMedia: Media) => {
           if (!currentMedia.cover) {
             currentMedia.cover = '../assets/images/nocover.png';
           }
@@ -193,25 +211,26 @@ export class MediaService {
         // Cache the processed data
         const currentCacheKey = `${this.clientService.getClientId()}_${category}`;
         this.setCacheData(currentCacheKey, processedMedia);
+
         return processedMedia;
       })
     );
   }
 
   publishArtists() {
-    this.updateMedia().subscribe(media => {
+    this.updateMedia().subscribe((media: Media[]) => {
       this.artistSubject.next(media);
     });
   }
 
   publishMedia() {
-    this.updateMedia().subscribe(media => {
+    this.updateMedia().subscribe((media: Media[]) => {
       this.mediaSubject.next(media);
     });
   }
 
   publishArtistMedia() {
-    this.updateMedia().subscribe(media => {
+    this.updateMedia().subscribe((media: Media[]) => {
       this.artistMediaSubject.next(media);
     });
   }

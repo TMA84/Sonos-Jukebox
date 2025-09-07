@@ -54,13 +54,13 @@ export class SpotifyService {
   }
 
   getMediaByArtistID(id: string, category: string): Observable<Media[]> {
-    const albums = defer(() => this.spotifyApi.getArtistAlbums(id, { include_groups: 'album', limit: 1, offset: 0, market: 'DE' })).pipe(
+    const albums = defer(() => this.spotifyApi.getArtistAlbums(id, { include_groups: 'album,single', limit: 1, offset: 0, market: 'DE' })).pipe(
       retryWhen(errors => {
         return this.errorHandler(errors);
       }),
       map((response: SpotifyArtistsAlbumsResponse) => response.total),
       mergeMap(count => range(0, Math.ceil(count / 50))),
-      mergeMap(multiplier => defer(() => this.spotifyApi.getArtistAlbums(id, { include_groups: 'album', limit: 50, offset: 50 * multiplier, market: 'DE' })).pipe(
+      mergeMap(multiplier => defer(() => this.spotifyApi.getArtistAlbums(id, { include_groups: 'album,single', limit: 50, offset: 50 * multiplier, market: 'DE' })).pipe(
         retryWhen(errors => {
           return this.errorHandler(errors);
         }),
@@ -131,13 +131,16 @@ export class SpotifyService {
     return artwork;
   }
 
-  refreshToken() {
+  refreshToken(): Observable<string> {
     const tokenUrl = (environment.production) ? '../api/token' : 'http://localhost:8200/api/token';
 
-    this.http.get(tokenUrl, {responseType: 'text'}).subscribe(token => {
-      this.spotifyApi.setAccessToken(token);
-      this.refreshingToken = false;
-    });
+    return this.http.get(tokenUrl, {responseType: 'text'}).pipe(
+      tap((token) => {
+        this.spotifyApi.setAccessToken(token);
+        this.refreshingToken = false;
+        console.log('Token refreshed successfully');
+      })
+    );
   }
 
   searchAlbums(query: string): Observable<Media[]> {
@@ -177,28 +180,54 @@ export class SpotifyService {
     );
   }
 
+  searchTracks(query: string, category: string): Observable<Media[]> {
+    return defer(() => this.spotifyApi.searchTracks(query, { limit: 20, market: 'DE' })).pipe(
+      retryWhen(errors => {
+        return this.errorHandler(errors);
+      }),
+      map((response: any) => {
+        return response.tracks.items.map(item => {
+          const media: Media = {
+            id: item.album.id,
+            artist: item.artists[0].name,
+            title: item.album.name,
+            cover: item.album.images[0]?.url,
+            type: 'spotify',
+            category
+          };
+          return media;
+        });
+      })
+    );
+  }
+
   errorHandler(errors: Observable<any>) {
     let retryCount = 0;
     return errors.pipe(
       flatMap((error) => {
         if (error.status === 429) {
-          // Rate limited - Spotify has hidden 30+ second rate limit
-          const delayTime = retryCount === 0 ? 35000 : Math.min(35000 * Math.pow(2, retryCount - 1), 120000); // Start with 35s, max 2min
+          // Rate limited - use exponential backoff since retry-after is blocked by CORS
+          const delayTime = Math.min(60000 * Math.pow(2, retryCount), 600000); // 1min, 2min, 4min, max 10min
           retryCount++;
-          console.log(`Rate limited, waiting ${delayTime/1000}s before retry ${retryCount}`);
+
           return of(error).pipe(delay(delayTime));
         } else if (error.status === 401) {
-          // Token expired
+          // Token expired - refresh and wait for completion
+          console.log('Token expired, refreshing...');
           if (!this.refreshingToken) {
-            this.refreshToken();
             this.refreshingToken = true;
+            return this.refreshToken().pipe(
+              delay(1000),
+              map(() => error)
+            );
+          } else {
+            return of(error).pipe(delay(3000));
           }
-          return of(error).pipe(delay(1000));
         } else {
           return throwError(error);
         }
       }),
-      take(3) // Reduce retry attempts further
+      take(5) // More retries for token refresh
     );
   }
 }

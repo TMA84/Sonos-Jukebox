@@ -1,508 +1,215 @@
-# Sonos-Kids-Controller
+# Sonos Kids Controller - Enhanced Edition
 
-*This enhanced version is inspired by and builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller). Many thanks to the original author for creating this wonderful foundation for a kids-friendly Sonos controller.*
+*This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
-## Content
-[About Sonos-Kids-Controller](#about-sonos-kids-controller)\
-[New Features](#new-features)\
-[Dependencies](#dependencies)\
-[Usage](#usage)\
-[Configuration](#configuration)\
-[Adding Content](#adding-content)\
-[Security](#security)\
-[Autostart](#autostart)\
-[Update](#update)\
-[Hardware Player](#hardware-player)\
-[Raspberry Pi optimization](#raspberry-pi-optimization)\
-[Alternative Installation using Docker](#docker)
+## What's New in Version 2.1.0
 
-<img src="https://user-images.githubusercontent.com/170099/89946592-7863e480-dc23-11ea-9634-3fd8ff55852b.jpg" width="800" height="450"><br>
+### 🚀 Performance Enhancements
+- **24-hour caching** with background preloading for instant category switching
+- **Fixed stream processing** that handles empty results gracefully
+- **Improved Spotify rate limiting** using Retry-After headers
+- **Cross-browser compatibility** with server-side data storage
 
-<img src="https://user-images.githubusercontent.com/170099/89946772-b82acc00-dc23-11ea-914e-d45263c50ab0.jpg" width="800" height="450"><br>
+### 🎯 Multi-Client Support
+- **Client management** - Create and manage multiple user profiles
+- **Cookie-based persistence** - Reliable client switching across browsers
+- **URL client loading** - Direct access via `?client=name` parameter
+- **Per-client configurations** - Individual speaker and library settings
 
-<img src="https://user-images.githubusercontent.com/170099/89948614-b7476980-dc26-11ea-8ff7-65ab747e7bb0.png" width="800" height="480"><br>
+### 🔧 Enhanced User Experience
+- **Automatic speaker loading** from client configuration
+- **Improved error handling** for failed artist loading
+- **Better token refresh** mechanism for uninterrupted playback
+- **Robust data loading** that works consistently across all browsers
 
-<img src="https://user-images.githubusercontent.com/170099/89948807-09888a80-dc27-11ea-86f2-60b15258a899.png" width="800" height="480"><br>
+### 🛠️ Technical Improvements
+- **Modern Angular 18** and Ionic 8 framework
+- **115+ security vulnerabilities** fixed (reduced to 11 low-risk)
+- **Optimized build process** with better dependency management
+- **Enhanced API endpoints** for client and configuration management
 
-<img src="https://user-images.githubusercontent.com/170099/89948825-14431f80-dc27-11ea-809a-607260fed229.png" width="800" height="480"><br>
+## Quick Start
 
-## About Sonos-Kids-Controller
-This software can be used to create a touch-based Sonos controller for your kids.
+### Prerequisites
+- Node.js and npm installed
+- [node-sonos-http-api](https://github.com/Thyraz/node-sonos-http-api) running
+- Spotify Premium account (optional but recommended)
 
-It can also be used with Spotify Connect compatible devices instead of Sonos if you use [this software](https://github.com/amueller-tech/spotifycontroller) instead of the node-sonos-http-api discribed later in this document.
-
-*Sonos-Kids-Controller uses __TTS__ (text to speech) when you click on texts in the UI, so your kids don't have to aks you anymore about the name of a specific episode.*
-
-The recommended use case is in combination with Spotify Premium, as it's web API allows you to add albums using artist and album name instead of cryptic album-IDs. It's also possible to add multiple albums with a single search query (e.g. all albums from a sepcific artist).
-
-But you can also add albums from the local Sonos library (in case an album isn't available in your favorite streaming service), from Apple Music or from Amazon Music Unlimited by specifiying the corresponding album IDs. See the music services section about how to retrieve these IDs.
-
-The software consists of 2 parts:
-* The server component, running in an node express environment. Handles the album library and serves the client component to the browser
-*  The client component, developed in Ionic/Angular, which can be opened in a browser
-
-## New Features
-This enhanced version includes several performance improvements and new features:
-
-### Performance Enhancements
-* **Virtual Grid with Pagination**: Replaced inefficient slider with paginated grid (12 items per page) for better performance with large collections
-* **Lazy Loading**: Album artwork loads on-demand as you navigate through pages
-* **Search Functionality**: Built-in search and filtering for large album libraries
-* **Optimized Rendering**: Smooth scrolling and reduced memory usage
-
-### Enhanced Search Capabilities
-* **Album Search**: Search Spotify albums directly with real-time results
-* **Artist Search**: Find and add entire artist catalogs with one click
-* **Service Integration**: Search interfaces for Apple Music, Amazon Music, and TuneIn Radio
-* **One-Click Adding**: Add albums/artists directly from search results
-
-### Configuration & Security
-* **Speaker Discovery**: Automatically find and select Sonos speakers on your network
-* **Configuration Page**: Easy-to-use settings interface accessible from the main screen
-* **PIN Protection**: Secure configuration access with customizable 4-digit PIN (default: 1234)
-* **Service Detection**: Automatically disable unconfigured music services
-
-### Technical Improvements
-* **Modern Framework**: Updated to Angular 18, Ionic 8, and latest dependencies
-* **Security Updates**: Fixed 115+ security vulnerabilities (reduced to 11 low-risk)
-* **Improved Architecture**: Shared component modules and better code organization
-* **Auto-Configuration**: Automatic creation of missing configuration files
-
-## Dependencies
-This software uses [node-sonos-http-api](https://github.com/Thyraz/node-sonos-http-api) to control your Sonos hardware. __So you need to have it running somewhere, for example on the same system as this software__.\
-This doesn't have to be the Pi itself, but should be possible too (if it can handle everything performance-wise without any lags).
-
-## Usage
-Ensure that you have Node.js and npm installed.
-Also install [node-sonos-http-api](https://github.com/Thyraz/node-sonos-http-api) as described in the readme of the software. 
-If you plan on using Spotify, follow the instructions [here.](https://github.com/Thyraz/node-sonos-http-api#note-for-spotify-users)
-
-Then install this software from Github:
-```
+### Installation
+```bash
+# Install Ionic CLI
 sudo npm install -g @ionic/cli
 
-wget https://github.com/Thyraz/Sonos-Kids-Controller/archive/master.zip
-
-unzip master.zip
-
-rm master.zip 
-
-cd Sonos-Kids-Controller-master
-
+# Clone and setup
+git clone https://github.com/your-repo/Sonos-Kids-Controller.git
+cd Sonos-Kids-Controller
 npm install
-
 ionic build --prod
 
-```
-Create the configuration file by making a copy of the included example:
-```
-cd server/config
-
-cp config-example.json config.json
-```
-Edit the config file as discribed in the chapter [configuration](#configuration)
-
-Then start the software like this:
-```
+# Start the server
 npm start
 ```
 
-After that open a browser window and navigate to 
-```
-http://ip.of.the.server:8200
-```
-Now the user interface should appear
+### First Time Setup
+1. Open `http://localhost:8200` in your browser
+2. Click the settings button (⚙️) and enter PIN (default: 1234)
+3. Configure your Sonos speakers and Spotify credentials
+4. Create your first client profile
+5. Add music content using the search functionality
 
-## Configuration
+## Customer Handbook
 
-### Automatic Configuration
-The app now includes a built-in configuration interface accessible via the settings button (⚙️) on the main screen.
+### Getting Started
 
-### Manual Configuration
-You can still manually edit the configuration file:
-```
+#### Creating Your First Profile
+1. **Access Settings**: Click the gear icon (⚙️) in the top-right corner
+2. **Enter PIN**: Use the default PIN `1234` (you can change this later)
+3. **Create Client**: Click "Create New Client" and give it a name (e.g., "Kids Room")
+4. **Select Speaker**: Choose which Sonos speaker this profile should use
+
+#### Adding Music Content
+
+##### Quick Search Method (Recommended)
+1. **Open Library Editor**: Tap the hidden area in the top-right corner 10 times quickly
+2. **Add Content**: Click the "+" button
+3. **Search Options**:
+   - **Spotify Albums**: Search by album name and add directly
+   - **Spotify Artists**: Add entire artist catalogs with one click
+   - **Manual Entry**: Add specific albums with artwork URLs
+
+##### Search Examples
+- `artist:Benjamin Blümchen` - All Benjamin Blümchen content
+- `artist:"Paw Patrol" album:folge` - Specific Paw Patrol episodes
+- `Grüffelo` - All Grüffelo content
+
+#### Managing Multiple Profiles
+1. **Switch Clients**: Use the dropdown in settings to switch between profiles
+2. **Direct Access**: Bookmark `http://localhost:8200?client=ProfileName` for quick access
+3. **Individual Settings**: Each profile has its own speaker and music library
+
+### Daily Usage
+
+#### Playing Music
+1. **Browse Categories**: Switch between Audiobook, Music, Playlist, and Radio
+2. **Artist View**: Tap artist covers to see their albums
+3. **Direct Play**: Tap any album cover to start playing immediately
+4. **Voice Feedback**: Tap artist/album names to hear them spoken aloud
+
+#### Search and Filter
+1. **Enable Search**: Tap the search icon to show the search bar
+2. **Type or Use Keyboard**: Use the on-screen keyboard or type directly
+3. **Real-time Results**: See filtered results as you type
+
+#### Player Controls
+- **Volume**: Use the volume slider in the player
+- **Skip Tracks**: Use next/previous buttons
+- **Pause/Play**: Tap the play/pause button
+- **Quick Access**: Use the player shortcut button from the home screen
+
+### Troubleshooting
+
+#### No Music Showing
+1. **Check Client**: Ensure you're using the correct client profile
+2. **Verify Spotify**: Make sure Spotify credentials are configured in settings
+3. **Refresh Data**: Try switching categories or reloading the page
+4. **Check Network**: Ensure your device can reach the Sonos speakers
+
+#### Spotify Issues
+1. **Rate Limiting**: The app automatically handles Spotify rate limits - just wait
+2. **Token Expired**: Tokens refresh automatically, but you may need to wait a moment
+3. **No Results**: Try different search terms or check your Spotify subscription
+
+#### Speaker Not Found
+1. **Check Network**: Ensure Sonos speakers are on the same network
+2. **Refresh Speakers**: Go to settings and refresh the speaker list
+3. **Verify API**: Make sure node-sonos-http-api is running and accessible
+
+### Advanced Features
+
+#### PIN Security
+- **Change PIN**: Go to settings → Security → Change PIN
+- **Default PIN**: 1234 (change this for security)
+- **Access Control**: PIN protects configuration changes from children
+
+#### Client Management
+- **Multiple Profiles**: Create separate profiles for different family members
+- **Individual Libraries**: Each client has its own music collection
+- **Speaker Assignment**: Assign different Sonos speakers to different profiles
+
+#### Performance Optimization
+- **Caching**: Music data is cached for 24 hours for faster loading
+- **Background Loading**: Categories load in the background for instant switching
+- **Smart Retry**: Failed requests are automatically retried with proper delays
+
+### Configuration Files
+
+#### Main Config (`server/config/config.json`)
+```json
 {
     "node-sonos-http-api": {
-        "server": "127.0.0.1",
-        "port": "5005",
-        "rooms": [
-            "Livingroom",
-            "Kitchen"
-        ]
+        "server": "192.168.1.100",
+        "port": "5005"
     },
     "spotify": {
-        "clientId": "your_id",
-        "clientSecret": "your_secret"
+        "clientId": "your_spotify_client_id",
+        "clientSecret": "your_spotify_client_secret"
+    },
+    "clients": {
+        "client-abc123": {
+            "name": "Kids Room",
+            "room": "Living Room"
+        }
     }
 }
 ```
 
-### Configuration Features
-* **Speaker Discovery**: Use the configuration page to automatically find and select Sonos speakers
-* **Service Detection**: Unconfigured services (like Spotify without credentials) are automatically disabled
-* **PIN Protection**: Configuration access is protected by a 4-digit PIN (default: 1234)
-* **Auto-Creation**: Missing configuration files are created automatically on first startup
-
-Point the node-sonos-http-api section to the adress and the port where the service is running.
-The rooms are the Sonos room names that you want to be allowed as target.
-
-The spotify section is only needed when you want to use Spotify Premium as source.
-The id and the secret are the same values as entered in the node-sonos-http-api configuration as described [here.](https://github.com/Thyraz/node-sonos-http-api#note-for-spotify-users)
-
-## Adding Content
-
-### Quick Search (New)
-The easiest way to add content is using the new search functionality:
-* **Spotify Albums**: Search and add albums directly from Spotify
-* **Spotify Artists**: Add entire artist catalogs with one click
-* **Service Search**: Search Apple Music, Amazon Music, and TuneIn Radio (demo functionality)
-
-### Manual Entry
-There's a hidden button in the root view on the right side of the top navigation bar.
-If you click there, you should see an overlay lighting up.
-Click this button quickly 10 times to open the library editor.
-
-Then click the "+" button on the top right to add a new entry.
-
-### Local Sonos Library:
-* Enter artist name and album name exactly as it's displayed in the Sonos app.
-* Enter an artwork link for an artwork image (remember, you can open the UI on any browser, so you can use a desktop pc or an mobile phone to add items to the library and use copy and paste for artwork links.)
-A good source for album artworks is the iTunes Artwork Finder: https://bendodson.com/projects/itunes-artwork-finder/
-
-### Spotify Premium:
-* Enter artist and album name to add a single album
-* Add a query instead, to search for multiple albums
-* Album artwork will be automatically retreived from Spotify
-
-Examples for query strings:
-```
-artist:Max Kruse album:Urmel
-
-artist:Grüffelo
-
-artist:Benjamin Blümchen album:folge NOT gute-nacht
-
-artist:"Super Wings"
-```
-
-More details on Spotify web API search querys:
-https://developer.spotify.com/documentation/web-api/reference/search/search/#writing-a-query---guidelines
-
-### Apple Music or Amazon Music Unlimited:
-* Enter artist name and album name as they should be displayed in the UI.
-* Enter the album ID which can be discovered as described here: https://github.com/jishi/node-sonos-http-api#spotify-apple-music-and-amazon-music-experimental
-* Enter an artwork link for an artwork image (remember, you can open the UI on any browser, so you can use a desktop pc or an mobile phone to add items to the library and use copy and paste for artwork links.)
-A good source for album artworks is the iTunes Artwork Finder: https://bendodson.com/projects/itunes-artwork-finder/
-
-Pro Tip:
-As Amazon and Apple don't provide a full public API to search for content like Spotify does, adding AlbumIDs and artwork links through the UI might be time consuming and complicated.
-you can also edit the library by editing _server/config/data.json_ (created automatically on first startup).
-The structure should be self-explaining.
-Just be sure to shutdown Sonos-Kids-Controller before editing the file, as the software might otherwise overwrite your changes with an in-memory copy of the data.
-Also a backup of the file might be a good idea, as the software might overwrite the file with an empty library on startup, when you have some syntax errors in your edits, preventing the data from loading.
-
-## Security
-
-### PIN Protection
-The configuration interface is protected by a 4-digit PIN to prevent children from accidentally changing settings.
-
-* **Default PIN**: 1234
-* **Changing PIN**: Use the configuration page to change the PIN
-* **PIN Storage**: Stored securely in `server/config/pin.json`
-
-### Access Control
-* Configuration button requires PIN entry
-* Invalid PIN attempts clear the entry field
-* PIN is validated server-side for security
-
-
-## Autostart
-I use pm2 as process manager for node.js projects.
-So both services (node-sonos-http-api and Sonos-Kids-Controller) are startet on boot time in this case
-
-```
-sudo npm install pm2 -g
-```
-Then build a startup script for pm2 (don't run with sudo):
-```
-pm2 startup
-```
-after that pm2 should show you a command that has to be run as sudo to finish install the startup scripts.
-Copy and paste it into the terminal and execute it.
-
-then in the directory of node-sonos-http-api:
-```
-pm2 start server.js
-pm2 save
-```
-
-again in the directory of Sonos-Kids-Controller:
-```
-pm2 start server.js
-pm2 save
-```
-
-After a reboot, enter `pm2 list` in the terminal and you should see that the 2 services are running. 
-
-## Update
-Updating to a newer Sonos-Kids-Controller version works similar to the initial installation.
-Execute these commands, starting from the parent directory of you current _Sonos-Kids-Controller-master_ installation:
-```
-wget https://github.com/Thyraz/Sonos-Kids-Controller/archive/master.zip
-
-unzip master.zip
-
-rm master.zip 
-
-cd Sonos-Kids-Controller-master
-
-npm install
-
-ionic build --prod
-
-```
-If you run into out of memory erros during the build process, try to set a memory limit manually:
-
-```
-export NODE_OPTIONS=--max-old-space-size=3072
-
-ionic build --prod
-```
-
-## Hardware Player
-While you can simply run this software on any server supported by node.js and open it in the browser of your choice (as long as it isn't IE or Edge), the typical use case will be a small box powered by an Raspberry Pi and a capacitive touch screen.
-
-I recommend a 5" touch screen with a resolution of 800x480, as you otherwise might have to edit the layout of the software.
-
-### Part List:
-
-Here's a list of what I bought for my player:
-* [Raspberry Pi 3b](https://www.amazon.de/gp/product/B01CD5VC92/)
-* [Micro SD card](#https://www.amazon.de/gp/product/B073JWXGNT/)
-* [Power Supply](https://www.amazon.de/gp/product/B07NW9NXGF/)
-* [Capacitive 5 inch touchscreen](https://www.amazon.de/gp/product/B07YCBWRQP/)
-* [Flat HDMI cable](https://www.amazon.de/gp/product/B07R9RXWM5/)
-* [Tilted micro USB cable](https://www.amazon.de/gp/product/B01N26RAL6/)\
-(use a cutter knive to remove some of the isolation of the tilted connector to save some more height)
-* [Small kitchen storage box as case](https://www.amazon.de/gp/product/B0841PZZ2C/) (ATTENTION: you need the mid sized box: 15.8cm x 12cm)
-* The bottom part of a raspberry case like [this one](https://www.amazon.de/schwarz-Gehäuse-Raspberry-neueste-Kühlkörper/dp/B00ZHG7AP0/) where you can tighten the raspberry without the need to drill holes in the backside of the jukebox
-* Tesa Powerstrips to fix the raspberry inside the jukebox
-
-### Front Cover Cutout:
-
-As first step, choose the position of the cutout for the touchscreen in the wooden front cover.
-Pay attention how far the HDMI and USB connectors stick out of the touch screen.
-Because of that you won't be able to center the touchscreen vertically in the front cover.
-
-After that I drilled 4 holes in each edge of the cutout.
-Then I used a fredsaw to remove the part between the holes.
-Keep the cutout a little bit smaller than the touchscreen, as working with a fredsaw might not be that precise.
-
-Now the hard part begins:\
-Tweak the shape of the cutout with a rasp until the touchscreen fits in tightly.
-This might take a while and I recommend to hold the touchscreen and the cover in front of each other toward a light source from time to time, to see where you need to remove more of the wood.
-
-When the touchscreen fits into the cutout, use sand paper to smooth the surface. I started with grain size 80 and ended with 300.
-If you want an uniform look, use the finer grained sandpaper also on the front surface of the wood and apply some wood oil everywhere for a consistant looking finish.
-
-### Assembly:
-Cut off the connector of the power supply, and drill a hole for the cable in the back of the case.
-Stick the cable through the hole and solder the connector back on.
-
-Assemble the Pi in the bottom part of the raspberry case and use the Powerstrips to attach it inside the box.
-
-If the touchscreen isn't sitting tight enough in the cutout, use __short__ screws to attach it to the front cover.
-Maybe predrill the holes, so the wood won't crack.
-
-Connect the cables, insert the microSD card and you're done.
-The wooden front cover should stick firmly if you press it onto the backside. I didn't need any screws to hold it in place.
-If you need to open it again, push a knive between the front cover and the backside and use it as lever. 
-
-### Kiosk Mode Installation
-
-Use raspbian light (currently Buster is the latest stable version as I write this readme) as we don't want to install the default desktop environment.
-
-a) because we don't need it\
-b) because our Ionic/Angular app will stress the Pi enough, so we want to avoid too much running services and RAM usage.
-
-edit the config.txt in the boot partition and add the following lines at the end to configure the display:
-```
-max_usb_current = 1 
-Hdmi_group = 2 
-Hdmi_mode = 87 
-Hdmi_cvt 800 480 60 6 0 0 0 
-```
-After the initial boot process, start `raspi-config` and configure:
-* Localisation options and keyboard layout
-* Configure Wifi
-* Enable SSH if you wish to be able to log into the box remotely
-* Disable HDMI overscan in the advanced option
-* Change user password for pi
-* In _Boot Options_ Select 'Desktop/CLI' and then 'Console Autologin' for automatic login of the user pi
-
-Now reboot the Pi. If everything worked, you should be logged into the terminal session without having to enter you password at the end the boot process.
-
-Update all preinstalled packages:
-```
-sudo apt-get update
-sudo apt-get upgrade
-
-```
-Now we install Openbox as a lightweight window manager:
-```
-sudo apt-get install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox
-```
-And Chromium as a browser:
-```
-sudo apt-get install --no-install-recommends chromium-browser
-```
-
-You can now install node-sonos-http-api and Sonos-Kids-Controller on the Pi (as described in the previous chapters) if you don't want to run it on a different server.
-Depending on where the services are running edit the automatic startup of Openbox and Chromium in _/etc/xdg/openbox/autostart_ 
-
-
-```
-# Disable screen saver / power management
-xset s off
-xset s noblank
-xset -dpms
-
-# Start Chromium
-sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' ~/.config/chromium/'Local State'
-sed -i 's/"exited_cleanly":false/"exited_cleanly":true/; s/"exit_type":"[^"]\+"/"exit_type":"Normal"/' ~/.config/chromium/Default/Preferences
-chromium-browser --disable-infobars --kiosk 'http://url-to-sonos-kids-controller:8200'
-```
-
-Now Chromium should display our web app when Openbox is started.
-The last thing to do is to start the X server automatically when the Pi is powered on.
-As we already have automatic login in the terminal session,
-we can use __.bash_profile__ for starting X.
-Append the following line to the file:
-```
-[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
-```
-This starts X when the user logged into the first system terminal (which is the one autologin uses).
-
-Restart the pi to see if everything works.
-
-If you see a bubble in Chromium after some time, about Chromium not beeing up to date, use this workaround from [StackOverflow](https://stackoverflow.com/questions/58993181/disable-chromium-can-not-update-chromium-window-notification) and execute the following command:
-```
-sudo touch /etc/chromium-browser/customizations/01-disable-update-check;echo CHROMIUM_FLAGS=\"\$\{CHROMIUM_FLAGS\} --check-for-update-interval=31536000\" | sudo tee /etc/chromium-browser/customizations/01-disable-update-check
-```
-
-## Raspberry Pi optimization
-
-You may perform the following changes to Rasperry Pi OS AT YOUR OWN RISK.
-
-#### Disable boot up messages
-
-According to the guide on the site https://florianmuller.com/polish-your-raspberry-pi-clean-boot-splash-screen-video-noconsole-zram you can disable the boot up messages by adding the following text to the file __/boot/cmdline.txt__ (no linefeed, no double space):
-
-```
- loglevel=0 plymouth.enable=0 vt.global_cursor_default=0 plymouth.ignore-serial-consoles splash fastboot noatime nodiratime noram
-```
-
-#### Log to ramdisk 
-
-You may add the folling lines to the file __/etc/fstab__ to write temporary files and log files to ram. Attention: they get lost with every reboot.
-
-```
-tmpfs    /tmp    tmpfs    defaults,noatime,nosuid,size=100m    0 0
-tmpfs    /var/tmp    tmpfs    defaults,noatime,nosuid,size=25m    0 0
-tmpfs    /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=25m    0 0
-```
-
-This will speed up the boot up process and helps to improve the lifetime of the SD card.
-
-#### Fixed IP-Adress
-
-a fixed IP Adress will speed up the boot process by about 3-5 seconds. Add your details to __/etc/dhcpcd.conf__. For example:
-
-```
-interface wlan0
-static ip_address=192.168.0.4/24    
-static routers=192.168.0.254
-static domain_name_servers=192.168.0.254 8.8.8.8
-```
-
-#### Overclocking CPU
-
-You may consider overclock your hardware by add the following lines to __/boot/config.txt. THIS MAY HARM YOUR HARDWARE!
-
-Example for Raspberry 3B:
-```
-# Overclock CPU
-arm_freq=1200
-over_voltage=4
-temp_limit=75
-core_freq=500
-
-# Overclock GPU
-h264_freq=333
-avoid_pwm_pll=1
-gpu_mem=320
-v3d_freq=500
-
-# Overclock RAM
-sdram_freq=588
-sdram_schmoo=0x02000020
-over_voltage_sdram_p=6
-over_voltage_sdram_i=4
-over_voltage_sdram_c=4
-```
-
-#### Overclocking sd card
-
-If you have a suitable SD Card you may consider overclock the SD card reader by add the following lines to __/boot/config.txt. THIS MAY HARM YOUR HARDWARE!
-
-```
-dtparam=sd_overclock=100
-```
-
-## Docker Installation
-
-### Quick Start
-```bash
-# Clone the repository
-git clone https://github.com/your-repo/Sonos-Kids-Controller.git
-cd Sonos-Kids-Controller
-
-# Build and run with Docker Compose
-./build-docker.sh
-docker-compose up -d
-```
-
-### Manual Docker Build
-```bash
-# Build the Angular app first
-npm install
-ionic build --prod
-
-# Build Docker image
-docker build -t sonos-kids-controller .
-
-# Run container
-docker run -d \
-  -p 8200:8200 \
-  -v $(pwd)/server/config:/app/server/config \
-  --name sonos-kids-controller \
-  sonos-kids-controller
-```
-
-### Docker Features
-- **Lightweight**: Based on Node.js Alpine image
-- **Persistent Config**: Configuration files are mounted as volumes
-- **Multi-Client Support**: Single container serves multiple clients
-- **Auto-Restart**: Container restarts automatically on failure
-- **Network Isolation**: Runs in dedicated Docker network
-
-### Configuration
-Configuration files are stored in `./server/config/` and mounted into the container:
-- `config.json` - Main configuration
-- `data.json` - Album library (auto-created)
-- `pin.json` - Security PIN (auto-created)
-
-### Alternative Docker Image
-There is also a community-maintained Docker image available:
-Maintained by [stepman0](https://github.com/stepman0)\
-Get it [here](https://github.com/stepman0/docker-sonos-kids-controller).
+#### Client Data (`server/config/data-client-abc123.json`)
+- Contains the music library for each client
+- Automatically created when adding content
+- Can be manually edited (backup first!)
+
+### Support and Maintenance
+
+#### Regular Maintenance
+1. **Update Dependencies**: Run `npm update` periodically
+2. **Clear Cache**: Delete cache files if experiencing issues
+3. **Backup Data**: Backup your `server/config/` directory regularly
+
+#### Getting Help
+1. **Check Logs**: Look at browser console for error messages
+2. **Verify Setup**: Ensure all prerequisites are properly installed
+3. **Network Issues**: Check connectivity between devices and Sonos speakers
+
+#### Version Updates
+1. **Backup First**: Always backup your configuration before updating
+2. **Follow Instructions**: Check release notes for specific update procedures
+3. **Test Thoroughly**: Verify all functionality after updates
+
+---
+
+## Technical Documentation
+
+### API Endpoints
+- `GET /api/data?clientId=xxx` - Get client library data
+- `POST /api/add` - Add new media item
+- `GET /api/token` - Get Spotify access token
+- `GET /api/config?clientId=xxx` - Get client configuration
+- `POST /api/config/client` - Update client settings
+
+### Architecture
+- **Frontend**: Angular 18 + Ionic 8
+- **Backend**: Node.js + Express
+- **Storage**: JSON files for configuration and data
+- **Caching**: In-memory with 24-hour expiration
+- **Authentication**: PIN-based configuration access
+
+### Browser Compatibility
+- Chrome/Chromium (recommended)
+- Firefox
+- Safari
+- Edge
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+---
+
+*For technical support or feature requests, please refer to the project repository.*
