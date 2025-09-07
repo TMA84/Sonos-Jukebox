@@ -1,8 +1,8 @@
 {
     "name": "Sonos-Jukebox",
-    "version": "1.6.0",
+    "version": "2.0.0",
     "author": "Tobias Wiedenmann",
-    "homepage": "https://github.com/Thyraz/Sonos-Kids-Controller",
+    "homepage": "https://github.com/TMA84/sonos-jukebox",
     "scripts": {
       "ng": "ng",
       "start": "node server.js",
