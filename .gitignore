@@ -44,3 +44,4 @@ server/config/libraryItems_*
 server/config/clientName_*
 server/config/enableSpeakerSelection_*
 
+server/config/pin.json
