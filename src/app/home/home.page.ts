@@ -69,7 +69,6 @@ export class HomePage implements OnInit {
   }
 
   loadLibraryData() {
-    // Use proper media service methods
     const clientId = this.getClientId();
     console.log('Loading library for client:', clientId);
     
@@ -82,21 +81,23 @@ export class HomePage implements OnInit {
     this.mediaService.setCategory(this.category);
     
     if (this.category === 'audiobook' || this.category === 'music') {
-      this.mediaService.publishArtists();
+      // Subscribe first, then publish
       this.mediaService.getArtists().subscribe(artists => {
         console.log('Artists loaded:', artists.length);
         this.artists = artists;
         this.filteredArtists = this.artists;
         this.loadArtistArtworkBatch(this.artists.slice(0, 12));
       });
+      this.mediaService.publishArtists();
     } else {
-      this.mediaService.publishMedia();
+      // Subscribe first, then publish
       this.mediaService.getMedia().subscribe(media => {
         console.log('Media loaded:', media.length);
         this.media = media;
         this.filteredMedia = this.media;
         this.loadArtworkBatch(this.media.slice(0, 12));
       });
+      this.mediaService.publishMedia();
     }
   }
 
