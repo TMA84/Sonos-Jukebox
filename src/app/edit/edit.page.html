@@ -1,15 +1,15 @@
 <ion-header>
-    <ion-toolbar color="light">
-        <ion-buttons slot="start">
-            <ion-back-button icon="arrow-back-outline" defaultHref="/config"></ion-back-button>
-        </ion-buttons>
+    <ion-toolbar>
         <ion-title>Edit Library</ion-title>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/config"></ion-back-button>
+        </ion-buttons>
         <ion-buttons slot="end">
             <ion-button (click)="toggleKeyboard()">
                 <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
             </ion-button>
             <ion-button (click)="addButtonPressed()">
-                <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+                <ion-icon name="add-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -58,6 +58,11 @@
     <div *ngIf="showKeyboard" class="virtual-keyboard">
         <ion-grid>
             <ion-row>
+                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
                 <ion-col size="1" *ngFor="let key of keyboardRows[0]">
                     <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
                 </ion-col>
@@ -70,11 +75,6 @@
             <ion-row>
                 <ion-col size="1" *ngFor="let key of keyboardRows[2]">
                     <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
-                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
                 </ion-col>
             </ion-row>
             <ion-row>

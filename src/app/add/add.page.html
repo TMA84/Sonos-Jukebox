@@ -1,42 +1,27 @@
 <ion-header>
-    <ion-toolbar color="light">
+    <ion-toolbar>
+        <ion-title>Add Content</ion-title>
         <ion-buttons slot="start">
             <ion-back-button defaultHref="/config"></ion-back-button>
         </ion-buttons>
-        <ion-title>Add Content</ion-title>
         <ion-buttons slot="end">
+            <ion-select [(ngModel)]="category" (ionChange)="categoryChanged()" interface="popover">
+                <ion-select-option value="audiobook">Audiobook</ion-select-option>
+                <ion-select-option value="music">Music</ion-select-option>
+                <ion-select-option value="playlist">Playlist</ion-select-option>
+                <ion-select-option value="radio">Radio</ion-select-option>
+            </ion-select>
+            <ion-select [(ngModel)]="source" (ionChange)="sourceChanged($event)" interface="popover">
+                <ion-select-option value="library">Library</ion-select-option>
+                <ion-select-option value="spotify">Spotify</ion-select-option>
+                <ion-select-option value="amazonmusic">Amazon</ion-select-option>
+                <ion-select-option value="applemusic">Apple</ion-select-option>
+                <ion-select-option value="tunein">TuneIn</ion-select-option>
+            </ion-select>
             <ion-button (click)="toggleKeyboard()">
-                <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}" color="primary"></ion-icon>
-            </ion-button>
-            <ion-button (click)="categoryButtonPressed($event)">
-                <ion-icon slot="start" name="{{this.categoryIcons[this.category]}}" color="primary"></ion-icon>
+                <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
             </ion-button>
         </ion-buttons>
-    </ion-toolbar>
-    <ion-toolbar color="light">
-        <ion-select #select interface="popover" [(ngModel)]="category" (ionChange)="categoryChanged()" cancelText="Cancel" okText="Ok">
-            <ion-select-option value="audiobook">Radio Play / Audio Book</ion-select-option>
-            <ion-select-option value="music">Music</ion-select-option>
-            <ion-select-option value="playlist">Playlist</ion-select-option>
-            <ion-select-option value="radio">Radio</ion-select-option>
-        </ion-select>
-        <ion-segment #segment value="{{this.source}}" (ionChange)="segmentChanged($event)">
-            <ion-segment-button #library_segment value="library">
-                <ion-label>Library</ion-label>
-            </ion-segment-button>
-            <ion-segment-button #spotify_segment value="spotify">
-                <ion-label>Spotify</ion-label>
-            </ion-segment-button>
-            <ion-segment-button #amazonmusic_segment value="amazonmusic">
-                <ion-label>Amazon</ion-label>
-            </ion-segment-button>
-            <ion-segment-button #applemusic_segment value="applemusic">
-                <ion-label>Apple</ion-label>
-            </ion-segment-button>
-            <ion-segment-button #tunein_segment value="tunein">
-                <ion-label>TuneIn</ion-label>
-            </ion-segment-button>
-        </ion-segment>
     </ion-toolbar>
 </ion-header>
 
@@ -352,6 +337,11 @@
     <!-- Modern Virtual Keyboard -->
     <div *ngIf="showKeyboard" class="virtual-keyboard">
         <ion-grid>
+            <ion-row>
+                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+                </ion-col>
+            </ion-row>
             <ion-row>
                 <ion-col size="1" *ngFor="let key of keyboardRows[0]">
                     <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>

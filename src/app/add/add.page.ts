@@ -185,6 +185,13 @@ export class AddPage implements OnInit, AfterViewInit {
     }, 10);
   }
 
+  sourceChanged(event: any) {
+    this.source = event.detail.value;
+    window.setTimeout(() => {
+      this.validate();
+    }, 10);
+  }
+
   submit(form: NgForm) {
     const media: Media = {
       type: this.source,

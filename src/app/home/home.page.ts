@@ -5,6 +5,7 @@ import { MediaService } from '../media.service';
 import { ArtworkService } from '../artwork.service';
 import { PlayerService } from '../player.service';
 import { ActivityIndicatorService } from '../activity-indicator.service';
+import { ClientService } from '../client.service';
 import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { Artist } from '../artist';
 import { Media } from '../media';
@@ -22,41 +23,89 @@ export class HomePage implements OnInit {
   activityIndicatorVisible = false;
   needsUpdate = false;
   availableCategories: string[] = [];
+  showKeyboard = false;
+  isUpperCase = false;
+  showSearch = false;
+  searchTerm = '';
+  activeInput = '';
+  filteredArtists: Artist[] = [];
+  filteredMedia: Media[] = [];
+  clientName = '';
+  keyboardRows = [
+    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+  ];
 
   constructor(
     private mediaService: MediaService,
     private artworkService: ArtworkService,
     private playerService: PlayerService,
     private activityIndicatorService: ActivityIndicatorService,
+    private clientService: ClientService,
     private router: Router,
     private modalController: ModalController
   ) {}
 
   ngOnInit() {
+    this.loadLibraryData();
     this.loadAvailableCategories();
-    this.mediaService.setCategory('audiobook');
+    this.loadClientName();
+  }
 
-    // Subscribe
-    this.mediaService.getMedia().subscribe(media => {
-      this.media = media;
-      this.loadArtworkBatch(media.slice(0, 12)); // Load first batch only
-    });
-
-    this.mediaService.getArtists().subscribe(artists => {
-      this.artists = artists;
-      this.loadArtistArtworkBatch(artists.slice(0, 12)); // Load first batch only
-    });
-
-    this.update();
+  loadLibraryData() {
+    // Load from client-specific key
+    const clientId = this.getClientId();
+    console.log('Loading library for client:', clientId);
+    const stored = localStorage.getItem(`libraryItems_${clientId}`);
+    console.log('Stored data for client', clientId, ':', stored);
+    const libraryItems = stored ? JSON.parse(stored) : [];
+    console.log('Library items:', libraryItems);
+    
+    // Clear previous data
+    this.artists = [];
+    this.media = [];
+    this.filteredArtists = [];
+    this.filteredMedia = [];
+    
+    if (this.category === 'audiobook' || this.category === 'music') {
+      const categoryItems = libraryItems.filter(item => item.category === this.category);
+      console.log('Category items for', this.category, ':', categoryItems.length);
+      
+      // Group by artist to create artist entries
+      const artistMap = new Map();
+      categoryItems.forEach(item => {
+        if (!artistMap.has(item.artist)) {
+          artistMap.set(item.artist, {
+            name: item.artist,
+            coverMedia: item,
+            albumCount: '1'
+          });
+        } else {
+          const existing = artistMap.get(item.artist);
+          existing.albumCount = (parseInt(existing.albumCount) + 1).toString();
+        }
+      });
+      
+      this.artists = Array.from(artistMap.values());
+      this.filteredArtists = this.artists;
+      this.loadArtistArtworkBatch(this.artists.slice(0, 12));
+    } else {
+      this.media = libraryItems.filter(item => item.category === this.category);
+      console.log('Media items for', this.category, ':', this.media.length);
+      this.filteredMedia = this.media;
+      this.loadArtworkBatch(this.media.slice(0, 12));
+    }
+    console.log('Loaded artists:', this.artists.length, 'media:', this.media.length);
   }
 
   ionViewWillEnter() {
-    if (this.needsUpdate) {
-      this.update();
-    }
-    // Always reload available categories and data when entering
+    console.log('Home page entering, reloading data');
+    // Always reload data when entering home page
+    this.loadLibraryData();
     this.loadAvailableCategories();
-    this.update();
+    this.loadClientName();
+    this.needsUpdate = false;
   }
 
   ionViewDidLeave() {
@@ -68,8 +117,8 @@ export class HomePage implements OnInit {
 
   categoryChanged(event: any) {
     this.category = event.detail.value;
-    this.mediaService.setCategory(this.category);
-    this.update();
+    console.log('Category changed to:', this.category);
+    this.loadLibraryData();
   }
 
   update() {
@@ -85,9 +134,15 @@ export class HomePage implements OnInit {
     this.activityIndicatorService.create().then(indicator => {
       this.activityIndicatorVisible = true;
       indicator.present().then(() => {
+        // Add client ID to artist data
+        const artistWithClient = {
+          ...clickedArtist,
+          clientId: this.getClientId()
+        };
+        
         const navigationExtras: NavigationExtras = {
           state: {
-            artist: clickedArtist
+            artist: artistWithClient
           }
         };
         this.router.navigate(['/medialist'], navigationExtras);
@@ -104,6 +159,9 @@ export class HomePage implements OnInit {
   }
 
   mediaCoverClicked(clickedMedia: Media) {
+    // Start playing immediately
+    this.playerService.playMedia(clickedMedia);
+    
     const navigationExtras: NavigationExtras = {
       state: {
         media: clickedMedia
@@ -160,18 +218,114 @@ export class HomePage implements OnInit {
   }
 
   loadAvailableCategories() {
-    this.mediaService.updateRawMedia();
-    this.mediaService.getRawMediaObservable().subscribe(rawMedia => {
-      this.availableCategories = [...new Set(rawMedia.map(item => item.category || 'audiobook'))];
-      
-      // If current category is not available, switch to first available
-      if (this.availableCategories.length > 0 && !this.availableCategories.includes(this.category)) {
-        this.category = this.availableCategories[0];
-        this.categoryChanged({ detail: { value: this.category } });
+    // Load from client-specific key
+    const clientId = this.getClientId();
+    console.log('Loading categories for client:', clientId);
+    const stored = localStorage.getItem(`libraryItems_${clientId}`);
+    const libraryItems = stored ? JSON.parse(stored) : [];
+    console.log('Categories - library items:', libraryItems.length);
+    
+    this.availableCategories = [...new Set(libraryItems.map((item: any) => item.category || 'audiobook'))] as string[];
+    
+    if (this.availableCategories.length === 0) {
+      this.availableCategories = ['audiobook', 'music', 'playlist', 'radio'];
+    }
+    
+    if (!this.availableCategories.includes(this.category)) {
+      this.category = this.availableCategories[0];
+    }
+    
+    this.loadLibraryData();
+  }
+
+  toggleKeyboard() {
+    this.showKeyboard = !this.showKeyboard;
+  }
+
+  hideKeyboard() {
+    this.showKeyboard = false;
+  }
+
+  toggleCase() {
+    this.isUpperCase = !this.isUpperCase;
+  }
+
+  toggleSearch() {
+    this.showSearch = !this.showSearch;
+    if (!this.showSearch) {
+      this.searchTerm = '';
+      this.onSearch();
+    }
+  }
+
+  setActiveInput(input: string) {
+    this.activeInput = input;
+  }
+
+  onSearch() {
+    if (!this.searchTerm.trim()) {
+      this.filteredArtists = this.artists;
+      this.filteredMedia = this.media;
+      return;
+    }
+
+    const term = this.searchTerm.toLowerCase();
+    this.filteredArtists = this.artists.filter(artist => 
+      artist.name.toLowerCase().includes(term)
+    );
+    this.filteredMedia = this.media.filter(media => 
+      media.title.toLowerCase().includes(term) || 
+      media.artist.toLowerCase().includes(term)
+    );
+  }
+
+  addKey(key: string) {
+    const keyToAdd = this.isUpperCase ? key.toUpperCase() : key;
+    switch (this.activeInput) {
+      case 'search':
+        this.searchTerm += keyToAdd;
+        this.onSearch();
+        break;
+    }
+  }
+
+  backspace() {
+    switch (this.activeInput) {
+      case 'search':
+        this.searchTerm = this.searchTerm.slice(0, -1);
+        this.onSearch();
+        break;
+    }
+  }
+
+
+
+  getClientId(): string {
+    // Use ClientService to get current client ID
+    const clientId = this.clientService.getClientId();
+    console.log('Current client ID from service:', clientId);
+    return clientId;
+  }
+
+  loadClientName() {
+    const clientId = this.getClientId();
+    console.log('Loading client name for:', clientId);
+    const storedName = localStorage.getItem(`clientName_${clientId}`);
+    console.log('Found client name:', storedName);
+    this.clientName = storedName || '';
+    
+    // If no name found, try to get from current client service
+    if (!this.clientName && clientId !== 'default') {
+      this.clientName = `Client ${clientId.replace('client_', '')}`;
+    }
+  }
+
+  goToPlayer() {
+    const navigationExtras: NavigationExtras = {
+      state: {
+        fromShortcut: true
       }
-      
-      // Refresh current view
-      this.update();
-    });
+    };
+    this.router.navigate(['/player'], navigationExtras);
   }
 }

@@ -125,6 +125,39 @@ app.get('/api/token', (req, res) => {
     );
 });
 
+app.get('/api/spotify/artist-albums', (req, res) => {
+    const { artistId, offset = 0, limit = 20 } = req.query;
+    
+    if (!artistId) {
+        return res.status(400).json({ error: 'Artist ID is required' });
+    }
+
+    // Get access token and fetch artist albums
+    spotifyApi.clientCredentialsGrant().then(
+        function(data) {
+            spotifyApi.setAccessToken(data.body['access_token']);
+            
+            return spotifyApi.getArtistAlbums(artistId, {
+                include_groups: 'album,single',
+                market: 'DE',
+                offset: parseInt(offset),
+                limit: parseInt(limit)
+            });
+        }
+    ).then(
+        function(data) {
+            res.json({ albums: data.body });
+        },
+        function(err) {
+            console.error('Failed to fetch artist albums:', err.message);
+            res.status(500).json({ 
+                error: 'Failed to fetch artist albums',
+                details: err.message 
+            });
+        }
+    );
+});
+
 app.get('/api/sonos', (req, res) => {
     const clientId = req.query.clientId || 'default';
     const clientRoom = config.clients?.[clientId]?.room || config['node-sonos-http-api']?.rooms?.[0] || '';

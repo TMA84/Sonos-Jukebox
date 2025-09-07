@@ -4,32 +4,28 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-select [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover" *ngIf="availableClients.length > 1">
+        <ion-select-option *ngFor="let client of availableClients" [value]="client.id">{{client.name}}</ion-select-option>
+      </ion-select>
+      <ion-select [(ngModel)]="selectedTab" (ionChange)="tabChanged($event)" interface="popover">
+        <ion-select-option value="library">Library</ion-select-option>
+        <ion-select-option value="clients">Clients</ion-select-option>
+        <ion-select-option value="speakers">Speakers</ion-select-option>
+        <ion-select-option value="services">Services</ion-select-option>
+        <ion-select-option value="security">Security</ion-select-option>
+      </ion-select>
+      <ion-button (click)="toggleKeyboard()">
+        <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-segment [(ngModel)]="selectedTab" (ionChange)="tabChanged($event)">
-    <ion-segment-button value="speakers">
-      <ion-icon name="volume-high-outline"></ion-icon>
-      <ion-label>Speakers</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="services">
-      <ion-icon name="settings-outline"></ion-icon>
-      <ion-label>Services</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="library">
-      <ion-icon name="library-outline"></ion-icon>
-      <ion-label>Library</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="security">
-      <ion-icon name="lock-closed-outline"></ion-icon>
-      <ion-label>Security</ion-label>
-    </ion-segment-button>
-  </ion-segment>
-
   <div [ngSwitch]="selectedTab">
-    <!-- Speakers Tab -->
-    <div *ngSwitchCase="'speakers'">
+    <!-- Clients Tab -->
+    <div *ngSwitchCase="'clients'">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Client Configuration</ion-card-title>
@@ -84,12 +80,27 @@
           </ion-list>
         </ion-card-content>
       </ion-card>
+    </div>
+
+    <!-- Speakers Tab -->
+    <div *ngSwitchCase="'speakers'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Player Settings</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label>Enable Speaker Selection</ion-label>
+            <ion-toggle [(ngModel)]="enableSpeakerSelection" (ionChange)="saveSpeakerSelectionSetting()"></ion-toggle>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
 
       <ion-card>
         <ion-card-header>
           <ion-card-title>Sonos Speakers</ion-card-title>
         </ion-card-header>
-    <ion-card-content>
+        <ion-card-content>
       <ion-button expand="block" (click)="findSpeakers()" [disabled]="isLoading">
         <ion-icon name="search-outline" slot="start"></ion-icon>
         Find Speakers
@@ -144,20 +155,77 @@
 
       <ion-card>
         <ion-card-header>
+          <ion-card-title>Amazon Music Configuration</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">Access Key</ion-label>
+            <ion-input [(ngModel)]="amazonConfig.accessKey" placeholder="Enter Amazon Access Key" (ionFocus)="setActiveInput('amazonAccessKey')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Secret Key</ion-label>
+            <ion-input type="password" [(ngModel)]="amazonConfig.secretKey" placeholder="Enter Amazon Secret Key" (ionFocus)="setActiveInput('amazonSecretKey')"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="saveAmazonConfig()" [disabled]="!amazonConfig.accessKey || !amazonConfig.secretKey">
+            Save Amazon Configuration
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Apple Music Configuration</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">Developer Token</ion-label>
+            <ion-input [(ngModel)]="appleConfig.developerToken" placeholder="Enter Apple Developer Token" (ionFocus)="setActiveInput('appleDeveloperToken')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Team ID</ion-label>
+            <ion-input [(ngModel)]="appleConfig.teamId" placeholder="Enter Apple Team ID" (ionFocus)="setActiveInput('appleTeamId')"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="saveAppleConfig()" [disabled]="!appleConfig.developerToken || !appleConfig.teamId">
+            Save Apple Configuration
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>TuneIn Radio Configuration</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">API Key</ion-label>
+            <ion-input [(ngModel)]="tuneinConfig.apiKey" placeholder="Enter TuneIn API Key" (ionFocus)="setActiveInput('tuneinApiKey')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Partner ID</ion-label>
+            <ion-input [(ngModel)]="tuneinConfig.partnerId" placeholder="Enter TuneIn Partner ID" (ionFocus)="setActiveInput('tuneinPartnerId')"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="saveTuneinConfig()" [disabled]="!tuneinConfig.apiKey || !tuneinConfig.partnerId">
+            Save TuneIn Configuration
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
           <ion-card-title>Sonos API Configuration</ion-card-title>
         </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-label position="stacked">Server IP</ion-label>
-        <ion-input [(ngModel)]="sonosConfig.server" placeholder="127.0.0.1" (ionFocus)="setActiveInput('sonosServer')"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Port</ion-label>
-        <ion-input [(ngModel)]="sonosConfig.port" placeholder="5005" (ionFocus)="setActiveInput('sonosPort')"></ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="saveSonosConfig()" [disabled]="!sonosConfig.server || !sonosConfig.port">
-        Save Sonos Configuration
-      </ion-button>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">Server IP</ion-label>
+            <ion-input [(ngModel)]="sonosConfig.server" placeholder="127.0.0.1" (ionFocus)="setActiveInput('sonosServer')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Port</ion-label>
+            <ion-input [(ngModel)]="sonosConfig.port" placeholder="5005" (ionFocus)="setActiveInput('sonosPort')"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="saveSonosConfig()" [disabled]="!sonosConfig.server || !sonosConfig.port">
+            Save Sonos Configuration
+          </ion-button>
         </ion-card-content>
       </ion-card>
     </div>
@@ -166,17 +234,89 @@
     <div *ngSwitchCase="'library'">
       <ion-card>
         <ion-card-header>
-          <ion-card-title>Library Management</ion-card-title>
+          <ion-card-title>Add Content</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-button expand="block" (click)="openAddPage($event)" fill="outline">
+          <ion-item>
+            <ion-label>Content Type</ion-label>
+            <ion-select [(ngModel)]="libraryCategory" interface="popover">
+              <ion-select-option value="audiobook">Audiobook</ion-select-option>
+              <ion-select-option value="music">Music</ion-select-option>
+              <ion-select-option value="playlist">Playlist</ion-select-option>
+              <ion-select-option value="radio">Radio</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-label>Source</ion-label>
+            <ion-select [(ngModel)]="librarySource" interface="popover">
+              <ion-select-option value="spotify">Spotify</ion-select-option>
+              <ion-select-option value="library">Local Library</ion-select-option>
+              <ion-select-option value="amazonmusic">Amazon Music</ion-select-option>
+              <ion-select-option value="applemusic">Apple Music</ion-select-option>
+              <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Artist</ion-label>
+            <ion-input [(ngModel)]="libraryArtist" (ionFocus)="setActiveInput('libraryArtist')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Title</ion-label>
+            <ion-input [(ngModel)]="libraryTitle" (ionFocus)="setActiveInput('libraryTitle')"></ion-input>
+          </ion-item>
+          <ion-row *ngIf="librarySource === 'spotify'">
+            <ion-col size="6">
+              <ion-button expand="block" fill="outline" (click)="openAlbumSearch()">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Search Albums
+              </ion-button>
+            </ion-col>
+            <ion-col size="6">
+              <ion-button expand="block" fill="outline" (click)="openArtistSearch()">
+                <ion-icon name="person-outline" slot="start"></ion-icon>
+                Search Artists
+              </ion-button>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="librarySource === 'amazonmusic' || librarySource === 'applemusic' || librarySource === 'tunein'">
+            <ion-col size="12">
+              <ion-button expand="block" fill="outline" (click)="openServiceSearch()">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Search {{getServiceName()}}
+              </ion-button>
+            </ion-col>
+          </ion-row>
+          <ion-button expand="block" (click)="addToLibrary()" [disabled]="!libraryArtist || !libraryTitle">
             <ion-icon name="add-outline" slot="start"></ion-icon>
-            Add Albums/Artists
+            Add to Library
           </ion-button>
-          <ion-button expand="block" (click)="openEditPage($event)" fill="outline">
-            <ion-icon name="create-outline" slot="start"></ion-icon>
-            Edit Library
+        </ion-card-content>
+      </ion-card>
+      
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Library Items ({{libraryItems.length}})</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-button expand="block" fill="outline" (click)="loadLibraryItems()">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Refresh Library
           </ion-button>
+          <ion-list *ngIf="libraryItems.length > 0">
+            <ion-item *ngFor="let item of libraryItems; let i = index">
+              <ion-label>
+                <h2>{{item.title}}</h2>
+                <p>{{item.artist}} - {{item.type}}</p>
+                <p><small>{{item.category}} | {{item.contentType || 'album'}}</small></p>
+              </ion-label>
+              <ion-button fill="clear" color="danger" (click)="removeFromLibrary(i)" slot="end">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ion-list>
+          <ion-item *ngIf="libraryItems.length === 0">
+            <ion-label color="medium">No items in library - Click refresh or add items above</ion-label>
+          </ion-item>
         </ion-card-content>
       </ion-card>
     </div>
@@ -217,6 +357,11 @@
   <div *ngIf="showKeyboard" class="virtual-keyboard">
     <ion-grid>
       <ion-row>
+        <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+          <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
         <ion-col size="1" *ngFor="let key of keyboardRows[0]">
           <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
         </ion-col>
@@ -229,11 +374,6 @@
       <ion-row>
         <ion-col size="1" *ngFor="let key of keyboardRows[2]">
           <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
-          <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
         </ion-col>
       </ion-row>
       <ion-row>

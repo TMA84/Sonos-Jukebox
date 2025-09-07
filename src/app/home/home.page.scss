@@ -1,11 +1,23 @@
 ion-toolbar {
+    --min-height: 44px;
+    
     ion-button {
-        height: 70px !important;
-        width: 70px !important;
-        font-size: 20px !important;
+        height: 36px !important;
+        width: 36px !important;
+        font-size: 16px !important;
+        --icon-font-size: 18px;
     }
     ion-icon {
-        font-size: 28px;
+        font-size: 18px;
+    }
+    ion-title {
+        font-size: 16px;
+    }
+    
+    ion-select {
+        color: var(--ion-color-primary);
+        font-size: 14px;
+        margin-right: 8px;
     }
 }
 
@@ -24,12 +36,12 @@ ion-content {
 @media (max-width: 800px) {
     ion-toolbar {
         ion-button {
-            height: 50px !important;
-            width: 50px !important;
-            font-size: 16px !important;
+            height: 36px !important;
+            width: 36px !important;
+            font-size: 14px !important;
         }
         ion-icon {
-            font-size: 20px;
+            font-size: 16px;
         }
     }
 }
@@ -39,13 +51,13 @@ ion-content {
         --min-height: 44px;
         
         ion-button {
-            height: 44px !important;
-            width: 44px !important;
-            font-size: 14px !important;
+            height: 36px !important;
+            width: 36px !important;
+            font-size: 12px !important;
         }
         
         ion-icon {
-            font-size: 18px;
+            font-size: 16px;
         }
     }
     
@@ -54,4 +66,41 @@ ion-content {
         --padding-end: 4px;
         --padding-top: 4px;
     }
+}
+
+.virtual-keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ion-color-light);
+  border-top: 1px solid var(--ion-color-medium);
+  padding: 5px;
+  z-index: 1000;
+  height: 50vh;
+  
+  ion-button {
+    margin: 1px;
+    --border-radius: 4px;
+    font-size: 10px;
+    height: 28px;
+    min-height: 28px;
+  }
+  
+  ion-grid {
+    --ion-grid-padding: 2px;
+  }
+  
+  ion-col {
+    --ion-grid-column-padding: 1px;
+  }
+}
+
+.client-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ion-color-primary);
+  text-align: center;
+  margin: 0;
+  padding: 4px 8px;
 }

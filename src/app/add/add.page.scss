@@ -17,7 +17,9 @@ ion-toolbar {
         --indicator-color: red !important;
     }
     ion-select {
-        display: none;
+        color: var(--ion-color-primary);
+        font-size: 14px;
+        margin-right: 8px;
     }
     ion-title {
         font-size: 16px;
@@ -182,14 +184,14 @@ ion-item {
     border-top: 1px solid var(--ion-color-medium);
     padding: 5px;
     z-index: 1000;
-    max-height: 35vh;
+    height: 50vh;
     
     ion-button {
         margin: 1px;
         --border-radius: 4px;
-        font-size: 12px;
-        height: 32px;
-        min-height: 32px;
+        font-size: 10px;
+        height: 28px;
+        min-height: 28px;
     }
     
     ion-grid {
@@ -262,7 +264,7 @@ ion-item {
     
     .virtual-keyboard {
         padding: 2px;
-        max-height: 25vh;
+        height: 40vh;
         
         ion-button {
             height: 24px;
@@ -284,7 +286,7 @@ ion-item {
 @media (max-width: 800px) and (max-height: 480px) {
     .virtual-keyboard {
         padding: 0px;
-        max-height: 15vh;
+        height: 35vh;
         
         ion-button {
             height: 18px;

@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { ToastController, ModalController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
 import { ClientService } from '../client.service';
+import { AlbumSearchComponent } from '../album-search/album-search.component';
+import { ArtistSearchComponent } from '../artist-search/artist-search.component';
+import { ServiceSearchComponent } from '../service-search/service-search.component';
 
 @Component({
   selector: 'app-config',
@@ -22,8 +25,11 @@ export class ConfigPage implements OnInit {
   newClientName = '';
   availableClients: any[] = [];
   spotifyConfig = { clientId: '', clientSecret: '' };
+  amazonConfig = { accessKey: '', secretKey: '' };
+  appleConfig = { developerToken: '', teamId: '' };
+  tuneinConfig = { apiKey: '', partnerId: '' };
   sonosConfig = { server: '', port: '' };
-  selectedTab = 'speakers';
+  selectedTab = 'library';
   showKeyboard = false;
   isUpperCase = false;
   activeInput = '';
@@ -32,19 +38,31 @@ export class ConfigPage implements OnInit {
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
     ['z', 'x', 'c', 'v', 'b', 'n', 'm']
   ];
+  libraryCategory = 'audiobook';
+  librarySource = 'spotify';
+  libraryArtist = '';
+  libraryTitle = '';
+  libraryItems: any[] = [];
+  enableSpeakerSelection = true;
+  selectedClientId = '';
 
   constructor(
     private http: HttpClient,
     private clientService: ClientService,
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {
     this.clientId = this.clientService.getClientId();
+    this.selectedClientId = this.clientId;
+    this.loadClients();
     this.loadCurrentConfig();
     this.loadFullConfig();
     this.loadClientName();
+    this.loadLibraryItems();
+    this.loadSpeakerSelectionSetting();
   }
 
   loadCurrentConfig() {
@@ -63,6 +81,16 @@ export class ConfigPage implements OnInit {
     this.http.get<any[]>(speakersUrl).subscribe({
       next: (speakers) => {
         this.speakers = speakers;
+        
+        // Save available speakers for home page
+        const speakerNames = speakers.map(s => this.getSpeakerName(s));
+        const sonosConfig = {
+          rooms: speakerNames,
+          server: this.sonosConfig.server,
+          port: this.sonosConfig.port
+        };
+        localStorage.setItem('sonosConfig', JSON.stringify(sonosConfig));
+        
         this.isLoading = false;
       },
       error: () => {
@@ -74,6 +102,10 @@ export class ConfigPage implements OnInit {
 
   selectSpeaker(speaker: string) {
     this.selectedSpeaker = speaker;
+    
+    // Save to localStorage for home page access
+    localStorage.setItem('selectedSpeaker', speaker);
+    
     const saveUrl = environment.production ? '../api/config/speaker' : 'http://localhost:8200/api/config/speaker';
     
     this.http.post(saveUrl, { 
@@ -126,6 +158,18 @@ export class ConfigPage implements OnInit {
         clientId: config.spotify?.clientId || '',
         clientSecret: config.spotify?.clientSecret || ''
       };
+      this.amazonConfig = {
+        accessKey: config.amazonmusic?.accessKey || '',
+        secretKey: config.amazonmusic?.secretKey || ''
+      };
+      this.appleConfig = {
+        developerToken: config.applemusic?.developerToken || '',
+        teamId: config.applemusic?.teamId || ''
+      };
+      this.tuneinConfig = {
+        apiKey: config.tunein?.apiKey || '',
+        partnerId: config.tunein?.partnerId || ''
+      };
       this.sonosConfig = {
         server: config['node-sonos-http-api']?.server || '',
         port: config['node-sonos-http-api']?.port || ''
@@ -141,6 +185,30 @@ export class ConfigPage implements OnInit {
     });
   }
 
+  saveAmazonConfig() {
+    const saveUrl = environment.production ? '../api/config/amazon' : 'http://localhost:8200/api/config/amazon';
+    this.http.post(saveUrl, this.amazonConfig).subscribe({
+      next: () => console.log('Amazon Music configuration saved'),
+      error: (err) => console.error('Failed to save Amazon config:', err)
+    });
+  }
+
+  saveAppleConfig() {
+    const saveUrl = environment.production ? '../api/config/apple' : 'http://localhost:8200/api/config/apple';
+    this.http.post(saveUrl, this.appleConfig).subscribe({
+      next: () => console.log('Apple Music configuration saved'),
+      error: (err) => console.error('Failed to save Apple config:', err)
+    });
+  }
+
+  saveTuneinConfig() {
+    const saveUrl = environment.production ? '../api/config/tunein' : 'http://localhost:8200/api/config/tunein';
+    this.http.post(saveUrl, this.tuneinConfig).subscribe({
+      next: () => console.log('TuneIn configuration saved'),
+      error: (err) => console.error('Failed to save TuneIn config:', err)
+    });
+  }
+
   saveSonosConfig() {
     const saveUrl = environment.production ? '../api/config/sonos' : 'http://localhost:8200/api/config/sonos';
     this.http.post(saveUrl, this.sonosConfig).subscribe({
@@ -149,50 +217,70 @@ export class ConfigPage implements OnInit {
     });
   }
 
-  openAddPage(event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.router.navigate(['/add']);
-  }
-
-  openEditPage(event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.router.navigate(['/edit']);
-  }
-
   tabChanged(event: any) {
     this.selectedTab = event.detail.value;
   }
 
   loadClientName() {
+    // Load from localStorage first
+    const storedName = localStorage.getItem(`clientName_${this.clientId}`);
+    if (storedName) {
+      this.clientName = storedName;
+      return;
+    }
+    
     const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
     this.http.get<any>(configUrl, { 
       params: { clientId: this.clientId }
     }).subscribe(config => {
       this.clientName = config.name || '';
+      if (this.clientName) {
+        localStorage.setItem(`clientName_${this.clientId}`, this.clientName);
+      }
     });
   }
 
-  saveClientName() {
+  async saveClientName() {
+    // Save to localStorage
+    localStorage.setItem(`clientName_${this.clientId}`, this.clientName);
+    
     const saveUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
     this.http.post(saveUrl, { 
       clientId: this.clientId,
       name: this.clientName 
-    }).subscribe({
-      next: () => console.log('Client name saved'),
-      error: (err) => console.error('Failed to save client name:', err)
+    }, { responseType: 'text' }).subscribe({
+      next: async (response) => {
+        console.log('Client name saved:', response);
+        const toast = await this.toastController.create({
+          message: 'Client name saved successfully',
+          duration: 2000,
+          color: 'success'
+        });
+        toast.present();
+      },
+      error: async (err) => {
+        console.error('Failed to save client name:', err);
+        const toast = await this.toastController.create({
+          message: 'Failed to save client name',
+          duration: 2000,
+          color: 'danger'
+        });
+        toast.present();
+      }
     });
   }
 
   loadClients() {
     const clientsUrl = environment.production ? '../api/clients' : 'http://localhost:8200/api/clients';
     this.http.get<any[]>(clientsUrl).subscribe(clients => {
-      this.availableClients = clients;
+      // Load client names from localStorage
+      this.availableClients = clients.map(client => {
+        const storedName = localStorage.getItem(`clientName_${client.id}`);
+        return {
+          ...client,
+          name: storedName || client.name || `Client ${client.id.replace('client_', '')}`
+        };
+      });
     });
   }
 
@@ -201,6 +289,8 @@ export class ConfigPage implements OnInit {
     this.clientId = clientId;
     this.loadCurrentConfig();
     this.loadClientName();
+    this.loadLibraryItems(); // Reload library for new client
+    this.loadSpeakerSelectionSetting(); // Reload speaker setting for new client
     
     const toast = await this.toastController.create({
       message: 'Client switched successfully',
@@ -249,8 +339,32 @@ export class ConfigPage implements OnInit {
       case 'sonosPort':
         this.sonosConfig.port += keyToAdd;
         break;
+      case 'amazonAccessKey':
+        this.amazonConfig.accessKey += keyToAdd;
+        break;
+      case 'amazonSecretKey':
+        this.amazonConfig.secretKey += keyToAdd;
+        break;
+      case 'appleDeveloperToken':
+        this.appleConfig.developerToken += keyToAdd;
+        break;
+      case 'appleTeamId':
+        this.appleConfig.teamId += keyToAdd;
+        break;
+      case 'tuneinApiKey':
+        this.tuneinConfig.apiKey += keyToAdd;
+        break;
+      case 'tuneinPartnerId':
+        this.tuneinConfig.partnerId += keyToAdd;
+        break;
       case 'newClientName':
         this.newClientName += keyToAdd;
+        break;
+      case 'libraryArtist':
+        this.libraryArtist += keyToAdd;
+        break;
+      case 'libraryTitle':
+        this.libraryTitle += keyToAdd;
         break;
     }
   }
@@ -281,8 +395,32 @@ export class ConfigPage implements OnInit {
       case 'sonosPort':
         this.sonosConfig.port = this.sonosConfig.port.slice(0, -1);
         break;
+      case 'amazonAccessKey':
+        this.amazonConfig.accessKey = this.amazonConfig.accessKey.slice(0, -1);
+        break;
+      case 'amazonSecretKey':
+        this.amazonConfig.secretKey = this.amazonConfig.secretKey.slice(0, -1);
+        break;
+      case 'appleDeveloperToken':
+        this.appleConfig.developerToken = this.appleConfig.developerToken.slice(0, -1);
+        break;
+      case 'appleTeamId':
+        this.appleConfig.teamId = this.appleConfig.teamId.slice(0, -1);
+        break;
+      case 'tuneinApiKey':
+        this.tuneinConfig.apiKey = this.tuneinConfig.apiKey.slice(0, -1);
+        break;
+      case 'tuneinPartnerId':
+        this.tuneinConfig.partnerId = this.tuneinConfig.partnerId.slice(0, -1);
+        break;
       case 'newClientName':
         this.newClientName = this.newClientName.slice(0, -1);
+        break;
+      case 'libraryArtist':
+        this.libraryArtist = this.libraryArtist.slice(0, -1);
+        break;
+      case 'libraryTitle':
+        this.libraryTitle = this.libraryTitle.slice(0, -1);
         break;
     }
   }
@@ -304,8 +442,9 @@ export class ConfigPage implements OnInit {
     
     const deleteUrl = environment.production ? '../api/clients/delete' : 'http://localhost:8200/api/clients/delete';
     
-    this.http.post(deleteUrl, { clientId }).subscribe({
-      next: async () => {
+    this.http.post(deleteUrl, { clientId }, { responseType: 'text' }).subscribe({
+      next: async (response) => {
+        console.log('Client deleted:', response);
         this.loadClients();
         const toast = await this.toastController.create({
           message: 'Client deleted successfully',
@@ -333,8 +472,13 @@ export class ConfigPage implements OnInit {
     this.http.post(createUrl, {
       clientId: newClientId,
       name: this.newClientName
-    }).subscribe({
-      next: async () => {
+    }, { responseType: 'text' }).subscribe({
+      next: async (response) => {
+        console.log('Client created:', response);
+        
+        // Store client name in localStorage
+        localStorage.setItem(`clientName_${newClientId}`, this.newClientName);
+        
         this.clientService.setClientId(newClientId);
         this.clientId = newClientId;
         this.clientName = this.newClientName;
@@ -358,5 +502,198 @@ export class ConfigPage implements OnInit {
         toast.present();
       }
     });
+  }
+
+  loadLibraryItems() {
+    // Load from localStorage per client
+    const stored = localStorage.getItem(`libraryItems_${this.clientId}`);
+    this.libraryItems = stored ? JSON.parse(stored) : [];
+    
+    // Also save to data.json format
+    this.saveToDataJson();
+  }
+
+  saveLibraryItems() {
+    // Save to localStorage per client
+    localStorage.setItem(`libraryItems_${this.clientId}`, JSON.stringify(this.libraryItems));
+    
+    // Also save to data.json format
+    this.saveToDataJson();
+  }
+
+  saveToDataJson() {
+    const dataJson = {
+      clientId: this.clientId,
+      clientName: this.clientName,
+      items: this.libraryItems.map(item => ({
+        artist: item.artist,
+        title: item.title,
+        type: item.type,
+        category: item.category,
+        cover: item.cover,
+        id: item.id,
+        artistid: item.artistid,
+        query: item.query,
+        contentType: this.getContentType(item)
+      }))
+    };
+    
+    // Save to localStorage as data.json format per client
+    localStorage.setItem(`dataJson_${this.clientId}`, JSON.stringify(dataJson));
+  }
+
+  getContentType(item: any): string {
+    if (item.artistid) return 'artist';
+    if (item.query) return 'query';
+    if (item.id) return 'id';
+    return 'album';
+  }
+
+  addToLibrary() {
+    if (!this.libraryArtist || !this.libraryTitle) return;
+    
+    const item = {
+      artist: this.libraryArtist,
+      title: this.libraryTitle,
+      type: this.librarySource,
+      category: this.libraryCategory,
+      contentType: 'album'
+    };
+    
+    this.libraryItems.push(item);
+    this.saveLibraryItems();
+    this.libraryArtist = '';
+    this.libraryTitle = '';
+  }
+
+  removeFromLibrary(index: number) {
+    this.libraryItems.splice(index, 1);
+    this.saveLibraryItems();
+  }
+
+  openAddPage() {
+    this.router.navigate(['/add']);
+  }
+
+  openEditPage() {
+    this.router.navigate(['/edit']);
+  }
+
+  async openAlbumSearch() {
+    const modal = await this.modalController.create({
+      component: AlbumSearchComponent,
+      cssClass: 'album-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addAlbumFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  async openArtistSearch() {
+    const modal = await this.modalController.create({
+      component: ArtistSearchComponent,
+      cssClass: 'artist-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addArtistFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  addAlbumFromSearch(album: any) {
+    const item = {
+      artist: album.artist,
+      title: album.title,
+      type: 'spotify',
+      category: this.libraryCategory,
+      cover: album.cover,
+      id: album.id,
+      contentType: 'album'
+    };
+    
+    this.libraryItems.push(item);
+    this.saveLibraryItems();
+  }
+
+  addArtistFromSearch(artist: any) {
+    const item = {
+      artist: artist.name,
+      title: `All ${artist.name} Albums`,
+      type: 'spotify',
+      category: this.libraryCategory,
+      cover: artist.image,
+      artistid: artist.id,
+      contentType: 'artist'
+    };
+    
+    this.libraryItems.push(item);
+    this.saveLibraryItems();
+  }
+
+  async openServiceSearch() {
+    const modal = await this.modalController.create({
+      component: ServiceSearchComponent,
+      componentProps: {
+        service: this.librarySource,
+        category: this.libraryCategory
+      },
+      cssClass: 'service-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addServiceFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  addServiceFromSearch(content: any) {
+    const item = {
+      artist: content.artist || '',
+      title: content.title,
+      type: this.librarySource,
+      category: this.libraryCategory,
+      cover: content.cover,
+      id: content.id,
+      contentType: 'album'
+    };
+    
+    this.libraryItems.push(item);
+    this.saveLibraryItems();
+  }
+
+  getServiceName(): string {
+    switch (this.librarySource) {
+      case 'amazonmusic': return 'Amazon Music';
+      case 'applemusic': return 'Apple Music';
+      case 'tunein': return 'TuneIn Radio';
+      default: return '';
+    }
+  }
+
+  loadSpeakerSelectionSetting() {
+    const setting = localStorage.getItem(`enableSpeakerSelection_${this.clientId}`);
+    this.enableSpeakerSelection = setting !== 'false';
+  }
+
+  saveSpeakerSelectionSetting() {
+    localStorage.setItem(`enableSpeakerSelection_${this.clientId}`, this.enableSpeakerSelection.toString());
+  }
+
+  clientSelectionChanged(event: any) {
+    const newClientId = event.detail.value;
+    this.switchToClient(newClientId);
+    this.selectedClientId = newClientId;
   }
 }

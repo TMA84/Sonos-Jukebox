@@ -1,17 +1,32 @@
-ion-back-button {
-    --min-height: 70px;
-    --min-width: 120px;
-    --icon-font-size: 30px;
+.load-more-button {
+    margin: 16px;
+    --border-radius: 8px;
 }
 
-ion-content {
-    --padding-start: 8px;
-    --padding-end: 8px;
-    --padding-top: 8px;
-}
-
-.truncate-text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.virtual-keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ion-color-light);
+  border-top: 1px solid var(--ion-color-medium);
+  padding: 5px;
+  z-index: 1000;
+  height: 50vh;
+  
+  ion-button {
+    margin: 1px;
+    --border-radius: 4px;
+    font-size: 10px;
+    height: 28px;
+    min-height: 28px;
+  }
+  
+  ion-grid {
+    --ion-grid-padding: 2px;
+  }
+  
+  ion-col {
+    --ion-grid-column-padding: 1px;
+  }
 }
