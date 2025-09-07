@@ -557,13 +557,24 @@ export class ConfigPage implements OnInit {
       title: this.libraryTitle,
       type: this.librarySource,
       category: this.libraryCategory,
-      contentType: 'album'
+      contentType: 'album',
+      clientId: this.clientId
     };
     
-    this.libraryItems.push(item);
-    this.saveLibraryItems();
-    this.libraryArtist = '';
-    this.libraryTitle = '';
+    // Save to server via API
+    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+    this.http.post(addUrl, item).subscribe({
+      next: () => {
+        console.log('Manual item added to server:', item);
+        this.libraryItems.push(item);
+        this.saveLibraryItems();
+        this.libraryArtist = '';
+        this.libraryTitle = '';
+      },
+      error: (err) => {
+        console.error('Failed to add manual item to server:', err);
+      }
+    });
   }
 
   removeFromLibrary(index: number) {
@@ -617,11 +628,22 @@ export class ConfigPage implements OnInit {
       category: this.libraryCategory,
       cover: album.cover,
       id: album.id,
-      contentType: 'album'
+      contentType: 'album',
+      clientId: this.clientId
     };
     
-    this.libraryItems.push(item);
-    this.saveLibraryItems();
+    // Save to server via API
+    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+    this.http.post(addUrl, item).subscribe({
+      next: () => {
+        console.log('Album added to server:', item);
+        this.libraryItems.push(item);
+        this.saveLibraryItems();
+      },
+      error: (err) => {
+        console.error('Failed to add album to server:', err);
+      }
+    });
   }
 
   addArtistFromSearch(artist: any) {
@@ -632,11 +654,22 @@ export class ConfigPage implements OnInit {
       category: this.libraryCategory,
       cover: artist.image,
       artistid: artist.id,
-      contentType: 'artist'
+      contentType: 'artist',
+      clientId: this.clientId
     };
     
-    this.libraryItems.push(item);
-    this.saveLibraryItems();
+    // Save to server via API
+    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+    this.http.post(addUrl, item).subscribe({
+      next: () => {
+        console.log('Artist added to server:', item);
+        this.libraryItems.push(item);
+        this.saveLibraryItems();
+      },
+      error: (err) => {
+        console.error('Failed to add artist to server:', err);
+      }
+    });
   }
 
   async openServiceSearch() {
@@ -666,11 +699,22 @@ export class ConfigPage implements OnInit {
       category: this.libraryCategory,
       cover: content.cover,
       id: content.id,
-      contentType: 'album'
+      contentType: 'album',
+      clientId: this.clientId
     };
     
-    this.libraryItems.push(item);
-    this.saveLibraryItems();
+    // Save to server via API
+    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+    this.http.post(addUrl, item).subscribe({
+      next: () => {
+        console.log('Service content added to server:', item);
+        this.libraryItems.push(item);
+        this.saveLibraryItems();
+      },
+      error: (err) => {
+        console.error('Failed to add service content to server:', err);
+      }
+    });
   }
 
   getServiceName(): string {

@@ -60,8 +60,17 @@ export class MediaService {
     const url = (environment.production) ? '../api/add' : 'http://localhost:8200/api/add';
     const mediaWithClient = { ...media, clientId: this.clientService.getClientId() };
 
-    this.http.post(url, mediaWithClient).subscribe(response => {
-      this.updateRawMedia();
+    console.log('Adding media:', mediaWithClient);
+    console.log('URL:', url);
+
+    this.http.post(url, mediaWithClient).subscribe({
+      next: (response) => {
+        console.log('Add successful:', response);
+        this.updateRawMedia();
+      },
+      error: (error) => {
+        console.error('Add failed:', error);
+      }
     });
   }
 
