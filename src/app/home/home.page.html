@@ -47,27 +47,14 @@
 </ion-header>
 
 <ion-content>
-    <div *ngIf="category === 'audiobook' || category === 'music'; else mediaBlock">
-        <app-virtual-grid 
-            [items]="filteredArtists" 
-            [covers]="covers"
-            [itemsPerPage]="12"
-            (itemClick)="artistCoverClicked($event)"
-            (nameClick)="artistNameClicked($event)"
-            (loadMoreArtwork)="loadMoreArtistArtwork($event)">
-        </app-virtual-grid>
-    </div>
-    
-    <ng-template #mediaBlock>
-        <app-virtual-grid 
-            [items]="filteredMedia" 
-            [covers]="covers"
-            [itemsPerPage]="12"
-            (itemClick)="mediaCoverClicked($event)"
-            (nameClick)="mediaNameClicked($event)"
-            (loadMoreArtwork)="loadMoreMediaArtwork($event)">
-        </app-virtual-grid>
-    </ng-template>
+    <app-virtual-grid 
+        [items]="filteredArtists" 
+        [covers]="covers"
+        [itemsPerPage]="12"
+        (itemClick)="artistCoverClicked($event)"
+        (nameClick)="artistNameClicked($event)"
+        (loadMoreArtwork)="loadMoreArtistArtwork($event)">
+    </app-virtual-grid>
 
     <!-- Virtual Keyboard -->
     <div *ngIf="showKeyboard" class="virtual-keyboard">
