@@ -1,20 +1,26 @@
 ion-toolbar {
+    --min-height: 44px;
+    
     ion-back-button {
-        --min-height: 70px;
-        --min-width: 120px;
-        --icon-font-size: 30px;
+        --min-height: 36px;
+        --min-width: 36px;
+        --icon-font-size: 18px;
     }
     ion-button {
-        height: 70px !important;
-        width: 70px !important;
-        font-size: 20px !important;
+        height: 36px !important;
+        width: 36px !important;
+        font-size: 16px !important;
+        --icon-font-size: 18px;
     }
     ion-segment-button {
-        font-size: 18px;
+        font-size: 14px;
         --indicator-color: red !important;
     }
     ion-select {
         display: none;
+    }
+    ion-title {
+        font-size: 16px;
     }
 }
 
@@ -277,14 +283,22 @@ ion-item {
 
 @media (max-width: 800px) and (max-height: 480px) {
     .virtual-keyboard {
-        padding: 1px;
-        max-height: 20vh;
+        padding: 0px;
+        max-height: 15vh;
         
         ion-button {
-            height: 20px;
-            min-height: 20px;
-            font-size: 9px;
+            height: 18px;
+            min-height: 18px;
+            font-size: 8px;
             margin: 0px;
+        }
+        
+        ion-grid {
+            --ion-grid-padding: 0px;
+        }
+        
+        ion-col {
+            --ion-grid-column-padding: 0px;
         }
     }
 }
