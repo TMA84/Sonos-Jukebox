@@ -2,6 +2,13 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.1
+
+### 🧹 Code Quality Improvements
+- **Clean console output** - Removed verbose debug logging for cleaner browser console
+- **Optimized logging** - Kept essential error logging while removing development noise
+- **Better user experience** - Cleaner debugging environment for production use
+
 ## What's New in Version 2.1.0
 
 ### 🚀 Performance Enhancements
