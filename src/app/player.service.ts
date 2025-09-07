@@ -53,10 +53,18 @@ export class PlayerService {
   }
 
   sendCmd(cmd: PlayerCmds) {
-    this.sendRequest(cmd);
+    this.sendRequest(cmd).catch(error => {
+      console.error('Failed to send command:', error);
+    });
   }
 
   playMedia(media: Media) {
+    // Validate media before processing
+    if (!media || !media.title || !media.artist) {
+      console.error('Invalid media provided to playMedia:', media);
+      return;
+    }
+    
     let url: string;
 
     switch (media.type) {
@@ -105,7 +113,9 @@ export class PlayerService {
       }
     }
 
-    this.sendRequest(url);
+    this.sendRequest(url).catch(error => {
+      console.error('Failed to play media:', error.error?.error || error.message);
+    });
   }
 
   say(text: string) {
@@ -116,14 +126,17 @@ export class PlayerService {
         url += '/' + config.tts.volume;
       }
 
-      this.sendRequest(url);
+      this.sendRequest(url).catch(error => {
+        console.error('Failed to say text:', error);
+      });
     });
   }
 
   getCurrentTrack(): Observable<any> {
     return new Observable(observer => {
       this.getConfig().subscribe(config => {
-        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + config.rooms[0] + '/';
+        const selectedSpeaker = localStorage.getItem('selectedSpeaker') || config.rooms[0];
+        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
         this.http.get(baseUrl + 'state').subscribe(
           (state: any) => {
             observer.next({
@@ -139,10 +152,51 @@ export class PlayerService {
     });
   }
 
-  private sendRequest(url: string) {
-    this.getConfig().subscribe(config => {
-      const baseUrl = 'http://' + config.server + ':' + config.port + '/' + config.rooms[0] + '/';
-      this.http.get(baseUrl + url).subscribe();
+  switchSpeaker(speakerName: string): Promise<void> {
+    return new Promise((resolve) => {
+      // Clear the cached config to force reload with new speaker
+      this.config = null;
+      localStorage.setItem('selectedSpeaker', speakerName);
+      resolve();
+    });
+  }
+
+  stopSpeaker(speakerName: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.getConfig().subscribe(config => {
+        const encodedSpeaker = encodeURIComponent(speakerName);
+        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + encodedSpeaker + '/';
+        console.log('Stopping speaker with URL:', baseUrl + 'pause');
+        
+        // Send pause command to stop the speaker
+        this.http.get(baseUrl + 'pause').subscribe({
+          next: (response) => {
+            console.log('Successfully stopped speaker:', speakerName, response);
+            resolve();
+          },
+          error: (err) => {
+            console.error('Failed to stop speaker:', speakerName, 'URL:', baseUrl + 'pause', 'Error:', err);
+            resolve();
+          }
+        });
+      });
+    });
+  }
+
+  private sendRequest(url: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.getConfig().subscribe(config => {
+        const selectedSpeaker = localStorage.getItem('selectedSpeaker') || config.rooms[0];
+        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
+        this.http.get(baseUrl + url).subscribe({
+          next: (response) => {
+            resolve(response);
+          },
+          error: (error) => {
+            reject(error);
+          }
+        });
+      });
     });
   }
 }

@@ -1,11 +1,26 @@
 <ion-header>
-    <ion-toolbar color="light">
+    <ion-toolbar>
         <ion-buttons slot="start">
-            <ion-back-button icon="arrow-back-outline" defaultHref="/home"></ion-back-button>
+            <ion-back-button defaultHref="/home"></ion-back-button>
         </ion-buttons>
-        <ion-title>
-            {{artist.name}}
-        </ion-title>
+        <ion-title>{{artist.name}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="toggleSearch()">
+                <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
+            </ion-button>
+            <ion-button (click)="toggleKeyboard()">
+                <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar *ngIf="showSearch">
+        <ion-searchbar 
+            [(ngModel)]="searchTerm"
+            (ionInput)="onSearch()"
+            (ionFocus)="setActiveInput('search')"
+            placeholder="Search albums..."
+            debounce="300">
+        </ion-searchbar>
     </ion-toolbar>
 </ion-header>
 
@@ -18,4 +33,60 @@
         (nameClick)="mediaNameClicked($event)"
         (loadMoreArtwork)="loadMoreArtwork($event)">
     </app-virtual-grid>
+    
+    <ion-infinite-scroll 
+        *ngIf="(hasMoreAlbums && !searchTerm.trim()) || (searchTerm.trim() && searchResults.length > 0 && searchOffset < searchResults.length)" 
+        (ionInfinite)="loadMoreAlbums($event)">
+        <ion-infinite-scroll-content
+            loadingSpinner="bubbles"
+            [loadingText]="searchTerm.trim() ? 'Loading more search results...' : 'Loading more albums...'">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    <!-- Virtual Keyboard -->
+    <div *ngIf="showKeyboard" class="virtual-keyboard">
+        <ion-grid>
+            <ion-row>
+                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[0]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[1]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[2]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="2">
+                    <ion-button size="small" fill="outline" (click)="toggleCase()">{{isUpperCase ? 'abc' : 'ABC'}}</ion-button>
+                </ion-col>
+                <ion-col size="6">
+                    <ion-button size="small" fill="outline" (click)="addKey(' ')">Space</ion-button>
+                </ion-col>
+                <ion-col size="2">
+                    <ion-button size="small" fill="outline" (click)="backspace()">
+                        <ion-icon name="backspace-outline"></ion-icon>
+                    </ion-button>
+                </ion-col>
+                <ion-col size="2">
+                    <ion-button size="small" fill="solid" (click)="hideKeyboard()">Done</ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
 </ion-content>

@@ -25,13 +25,23 @@
   right: 0;
   background: var(--ion-color-light);
   border-top: 1px solid var(--ion-color-medium);
-  padding: 10px;
+  padding: 5px;
   z-index: 1000;
+  max-height: 50vh;
   
   ion-button {
-    margin: 2px;
-    --border-radius: 8px;
-    font-size: 14px;
-    height: 40px;
+    margin: 1px;
+    --border-radius: 4px;
+    font-size: 10px;
+    height: 28px;
+    min-height: 28px;
+  }
+  
+  ion-grid {
+    --ion-grid-padding: 2px;
+  }
+  
+  ion-col {
+    --ion-grid-column-padding: 1px;
   }
 }

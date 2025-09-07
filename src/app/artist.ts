@@ -5,4 +5,5 @@ export interface Artist {
     albumCount: string;
     cover: string;
     coverMedia: Media;
+    clientId?: string;
 }

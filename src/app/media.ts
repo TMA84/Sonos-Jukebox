@@ -7,4 +7,5 @@ export interface Media {
     cover?: string;
     type: string;
     category: string;
+    contentType?: string;
 }

@@ -1,9 +1,9 @@
 <ion-header>
-    <ion-toolbar color="light">
+    <ion-toolbar>
+
         <ion-buttons slot="start">
-            <ion-button disabled="true">
-                <ion-icon slot="icon-only" name=""></ion-icon>
-                <!-- Dummy button to center ion-segment -->
+            <ion-button disabled="true" style="opacity: 0;">
+                <ion-icon name=""></ion-icon>
             </ion-button>
         </ion-buttons>
         <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)">
@@ -20,7 +20,25 @@
                 <ion-icon name="radio-outline"></ion-icon>
             </ion-segment-button>
         </ion-segment>
+        <ion-searchbar 
+            *ngIf="showSearch"
+            [(ngModel)]="searchTerm"
+            (ionInput)="onSearch()"
+            (ionFocus)="setActiveInput('search')"
+            placeholder="Search library..."
+            debounce="300">
+        </ion-searchbar>
         <ion-buttons slot="end">
+            <ion-title *ngIf="clientName" class="client-name">{{clientName}}</ion-title>
+            <ion-button (click)="goToPlayer()">
+                <ion-icon name="play-outline"></ion-icon>
+            </ion-button>
+            <ion-button (click)="toggleSearch()">
+                <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
+            </ion-button>
+            <ion-button (click)="toggleKeyboard()">
+                <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+            </ion-button>
             <ion-button (click)="configButtonPressed()">
                 <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
             </ion-button>
@@ -31,7 +49,7 @@
 <ion-content>
     <div *ngIf="category === 'audiobook' || category === 'music'; else mediaBlock">
         <app-virtual-grid 
-            [items]="artists" 
+            [items]="filteredArtists" 
             [covers]="covers"
             [itemsPerPage]="12"
             (itemClick)="artistCoverClicked($event)"
@@ -42,7 +60,7 @@
     
     <ng-template #mediaBlock>
         <app-virtual-grid 
-            [items]="media" 
+            [items]="filteredMedia" 
             [covers]="covers"
             [itemsPerPage]="12"
             (itemClick)="mediaCoverClicked($event)"
@@ -50,4 +68,51 @@
             (loadMoreArtwork)="loadMoreMediaArtwork($event)">
         </app-virtual-grid>
     </ng-template>
+
+    <!-- Virtual Keyboard -->
+    <div *ngIf="showKeyboard" class="virtual-keyboard">
+        <ion-grid>
+            <ion-row>
+                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[0]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[1]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let key of keyboardRows[2]">
+                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col size="2">
+                    <ion-button size="small" fill="outline" (click)="toggleCase()">{{isUpperCase ? 'abc' : 'ABC'}}</ion-button>
+                </ion-col>
+                <ion-col size="6">
+                    <ion-button size="small" fill="outline" (click)="addKey(' ')">Space</ion-button>
+                </ion-col>
+                <ion-col size="2">
+                    <ion-button size="small" fill="outline" (click)="backspace()">
+                        <ion-icon name="backspace-outline"></ion-icon>
+                    </ion-button>
+                </ion-col>
+                <ion-col size="2">
+                    <ion-button size="small" fill="solid" (click)="hideKeyboard()">Done</ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
 </ion-content>

@@ -34,6 +34,35 @@ ion-back-button {
     font-size: 30px !important;
 }
 
+.speaker-name {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin-right: 8px;
+}
+
+.error-card {
+    margin-top: 20px;
+    width: 350px;
+    height: 350px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-icon {
+    font-size: 48px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+}
+
+.error-text {
+    text-align: center;
+    color: var(--ion-color-medium);
+    font-size: 16px;
+}
+
 ion-button {
     --padding-start: 35px;
     --padding-end: 35px;
