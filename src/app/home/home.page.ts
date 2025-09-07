@@ -48,19 +48,15 @@ export class HomePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadLibraryData();
     this.loadAvailableCategories();
     this.loadClientName();
+    this.loadLibraryData();
   }
 
   loadLibraryData() {
-    // Load from client-specific key
+    // Use proper media service methods
     const clientId = this.getClientId();
     console.log('Loading library for client:', clientId);
-    const stored = localStorage.getItem(`libraryItems_${clientId}`);
-    console.log('Stored data for client', clientId, ':', stored);
-    const libraryItems = stored ? JSON.parse(stored) : [];
-    console.log('Library items:', libraryItems);
     
     // Clear previous data
     this.artists = [];
@@ -68,35 +64,25 @@ export class HomePage implements OnInit {
     this.filteredArtists = [];
     this.filteredMedia = [];
     
+    this.mediaService.setCategory(this.category);
+    
     if (this.category === 'audiobook' || this.category === 'music') {
-      const categoryItems = libraryItems.filter(item => item.category === this.category);
-      console.log('Category items for', this.category, ':', categoryItems.length);
-      
-      // Group by artist to create artist entries
-      const artistMap = new Map();
-      categoryItems.forEach(item => {
-        if (!artistMap.has(item.artist)) {
-          artistMap.set(item.artist, {
-            name: item.artist,
-            coverMedia: item,
-            albumCount: '1'
-          });
-        } else {
-          const existing = artistMap.get(item.artist);
-          existing.albumCount = (parseInt(existing.albumCount) + 1).toString();
-        }
+      this.mediaService.publishArtists();
+      this.mediaService.getArtists().subscribe(artists => {
+        console.log('Artists loaded:', artists.length);
+        this.artists = artists;
+        this.filteredArtists = this.artists;
+        this.loadArtistArtworkBatch(this.artists.slice(0, 12));
       });
-      
-      this.artists = Array.from(artistMap.values());
-      this.filteredArtists = this.artists;
-      this.loadArtistArtworkBatch(this.artists.slice(0, 12));
     } else {
-      this.media = libraryItems.filter(item => item.category === this.category);
-      console.log('Media items for', this.category, ':', this.media.length);
-      this.filteredMedia = this.media;
-      this.loadArtworkBatch(this.media.slice(0, 12));
+      this.mediaService.publishMedia();
+      this.mediaService.getMedia().subscribe(media => {
+        console.log('Media loaded:', media.length);
+        this.media = media;
+        this.filteredMedia = this.media;
+        this.loadArtworkBatch(this.media.slice(0, 12));
+      });
     }
-    console.log('Loaded artists:', this.artists.length, 'media:', this.media.length);
   }
 
   ionViewWillEnter() {
@@ -218,24 +204,24 @@ export class HomePage implements OnInit {
   }
 
   loadAvailableCategories() {
-    // Load from client-specific key
+    // Load from server API
     const clientId = this.getClientId();
     console.log('Loading categories for client:', clientId);
-    const stored = localStorage.getItem(`libraryItems_${clientId}`);
-    const libraryItems = stored ? JSON.parse(stored) : [];
-    console.log('Categories - library items:', libraryItems.length);
     
-    this.availableCategories = [...new Set(libraryItems.map((item: any) => item.category || 'audiobook'))] as string[];
-    
-    if (this.availableCategories.length === 0) {
-      this.availableCategories = ['audiobook', 'music', 'playlist', 'radio'];
-    }
-    
-    if (!this.availableCategories.includes(this.category)) {
-      this.category = this.availableCategories[0];
-    }
-    
-    this.loadLibraryData();
+    this.mediaService.updateRawMedia();
+    this.mediaService.getRawMediaObservable().subscribe(libraryItems => {
+      console.log('Categories - library items:', libraryItems.length);
+      
+      this.availableCategories = [...new Set(libraryItems.map((item: any) => item.category || 'audiobook'))] as string[];
+      
+      if (this.availableCategories.length === 0) {
+        this.availableCategories = ['audiobook', 'music', 'playlist', 'radio'];
+      }
+      
+      if (!this.availableCategories.includes(this.category)) {
+        this.category = this.availableCategories[0];
+      }
+    });
   }
 
   toggleKeyboard() {

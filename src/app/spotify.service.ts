@@ -178,16 +178,27 @@ export class SpotifyService {
   }
 
   errorHandler(errors: Observable<any>) {
+    let retryCount = 0;
     return errors.pipe(
-      flatMap((error) => (error.status !== 401 && error.status !== 429) ? throwError(error) : of(error)),
-      tap(_ => {
-        if (!this.refreshingToken) {
-          this.refreshToken();
-          this.refreshingToken = true;
+      flatMap((error) => {
+        if (error.status === 429) {
+          // Rate limited - Spotify has hidden 30+ second rate limit
+          const delayTime = retryCount === 0 ? 35000 : Math.min(35000 * Math.pow(2, retryCount - 1), 120000); // Start with 35s, max 2min
+          retryCount++;
+          console.log(`Rate limited, waiting ${delayTime/1000}s before retry ${retryCount}`);
+          return of(error).pipe(delay(delayTime));
+        } else if (error.status === 401) {
+          // Token expired
+          if (!this.refreshingToken) {
+            this.refreshToken();
+            this.refreshingToken = true;
+          }
+          return of(error).pipe(delay(1000));
+        } else {
+          return throwError(error);
         }
       }),
-      delay(500),
-      take(10)
+      take(3) // Reduce retry attempts further
     );
   }
 }
