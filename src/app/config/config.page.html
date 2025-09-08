@@ -39,13 +39,13 @@
 </div>
 
 <!-- Client Selection Dropdown -->
-<div class="client-selector" *ngIf="availableClients.length > 1">
-  <ion-item>
-    <ion-label>Select Client</ion-label>
-    <ion-select [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover">
+<div class="client-selector" *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library')">
+  <div class="client-dropdown">
+    <ion-icon name="person-circle"></ion-icon>
+    <ion-select [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover" placeholder="Select Client">
       <ion-select-option *ngFor="let client of availableClients" [value]="client.id">{{client.name}}</ion-select-option>
     </ion-select>
-  </ion-item>
+  </div>
 </div>
 
 <ion-content [class.keyboard-visible]="showKeyboard">
