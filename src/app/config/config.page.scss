@@ -200,7 +200,7 @@ ion-list {
   padding: var(--spacing-sm) var(--spacing-md);
 }
 
-.client-dropdown {
+.client-dropdown, .service-dropdown {
   display: flex;
   align-items: center;
   background: var(--surface-elevated);
