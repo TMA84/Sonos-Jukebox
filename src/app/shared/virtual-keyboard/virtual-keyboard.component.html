@@ -1,0 +1,72 @@
+<div *ngIf="isVisible" class="virtual-keyboard">
+  <div class="keyboard-container">
+    <!-- Main keyboard rows -->
+    <div class="keyboard-row" *ngFor="let row of getCurrentRows(); let i = index">
+      <!-- First row with numbers/letters -->
+      <ion-button 
+        *ngFor="let key of row" 
+        class="key-button letter-key"
+        fill="clear"
+        (click)="onKeyPress(key)">
+        {{ isUpperCase && currentLayout === 'letters' ? key.toUpperCase() : key }}
+      </ion-button>
+    </div>
+
+    <!-- Function keys row -->
+    <div class="keyboard-row function-row">
+      <!-- Layout switcher -->
+      <ion-button 
+        class="key-button function-key"
+        fill="clear"
+        (click)="switchLayout(currentLayout === 'letters' ? 'numbers' : 'letters')">
+        {{ currentLayout === 'letters' ? '123' : 'ABC' }}
+      </ion-button>
+
+      <!-- Symbols key (only show when not in symbols layout) -->
+      <ion-button 
+        *ngIf="currentLayout !== 'symbols'"
+        class="key-button function-key"
+        fill="clear"
+        (click)="switchLayout('symbols')">
+        #+*
+      </ion-button>
+
+      <!-- Space bar -->
+      <ion-button 
+        class="key-button space-key"
+        fill="clear"
+        (click)="onSpace()">
+        Leerzeichen
+      </ion-button>
+
+      <!-- Shift key (only for letters) -->
+      <ion-button 
+        *ngIf="currentLayout === 'letters'"
+        class="key-button function-key"
+        [class.active]="isUpperCase"
+        fill="clear"
+        (click)="toggleCase()">
+        <ion-icon name="arrow-up"></ion-icon>
+      </ion-button>
+
+      <!-- Backspace -->
+      <ion-button 
+        class="key-button function-key"
+        fill="clear"
+        (click)="onBackspace()">
+        <ion-icon name="backspace-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="keyboard-row bottom-row">
+      <ion-button 
+        class="key-button hide-key"
+        fill="solid"
+        color="primary"
+        (click)="onHide()">
+        Fertig
+      </ion-button>
+    </div>
+  </div>
+</div>
