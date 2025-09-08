@@ -1,5 +1,5 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header class="modern-header">
+  <ion-toolbar class="modern-toolbar">
     <ion-title>Configuration</ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
@@ -8,14 +8,14 @@
       <ion-select [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover" *ngIf="availableClients.length > 1">
         <ion-select-option *ngFor="let client of availableClients" [value]="client.id">{{client.name}}</ion-select-option>
       </ion-select>
-      <ion-select [(ngModel)]="selectedTab" (ionChange)="tabChanged($event)" interface="popover">
+      <ion-select class="modern-select" [(ngModel)]="selectedTab" (ionChange)="tabChanged($event)" interface="popover">
         <ion-select-option value="library">Library</ion-select-option>
         <ion-select-option value="clients">Clients</ion-select-option>
         <ion-select-option value="speakers">Speakers</ion-select-option>
         <ion-select-option value="services">Services</ion-select-option>
         <ion-select-option value="security">Security</ion-select-option>
       </ion-select>
-      <ion-button (click)="toggleKeyboard()">
+      <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
         <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -26,9 +26,9 @@
   <div [ngSwitch]="selectedTab">
     <!-- Clients Tab -->
     <div *ngSwitchCase="'clients'">
-      <ion-card>
+      <ion-card class="modern-card">
         <ion-card-header>
-          <ion-card-title>Client Configuration</ion-card-title>
+          <ion-card-title class="modern-card-title">Client Configuration</ion-card-title>
           <ion-card-subtitle>Client ID: {{clientId}}</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
@@ -36,15 +36,15 @@
             <ion-label position="stacked">Client Name</ion-label>
             <ion-input [(ngModel)]="clientName" placeholder="Enter friendly name" (ionFocus)="setActiveInput('clientName')"></ion-input>
           </ion-item>
-          <ion-button expand="block" (click)="saveClientName()" [disabled]="!clientName">
+          <ion-button class="modern-button primary" expand="block" (click)="saveClientName()" [disabled]="!clientName">
             Save Client Name
           </ion-button>
         </ion-card-content>
       </ion-card>
 
-      <ion-card>
+      <ion-card class="modern-card">
         <ion-card-header>
-          <ion-card-title>Create New Client</ion-card-title>
+          <ion-card-title class="modern-card-title">Create New Client</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <ion-item>

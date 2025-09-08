@@ -1,11 +1,11 @@
-<ion-header>
-    <ion-toolbar>
+<ion-header class="modern-header">
+    <ion-toolbar class="modern-toolbar">
         <ion-buttons slot="start">
             <ion-back-button defaultHref="/medialist"></ion-back-button>
         </ion-buttons>
         <ion-title>{{media?.title || 'Player'}}</ion-title>
         <ion-buttons slot="end">
-            <ion-select [(ngModel)]="selectedSpeaker" interface="popover" *ngIf="enableSpeakerSelection && availableSpeakers.length > 0 && media && media.title && media.artist" (ionChange)="speakerChanged($event)">
+            <ion-select class="modern-select" [(ngModel)]="selectedSpeaker" interface="popover" *ngIf="enableSpeakerSelection && availableSpeakers.length > 0 && media && media.title && media.artist" (ionChange)="speakerChanged($event)">
                 <ion-select-option *ngFor="let speaker of availableSpeakers" [value]="speaker">{{speaker}}</ion-select-option>
             </ion-select>
             <ion-title *ngIf="selectedSpeaker && (fromShortcut || (enableSpeakerSelection && (!media || !media.title || !media.artist)))" class="speaker-name">{{selectedSpeaker}}</ion-title>
@@ -17,10 +17,10 @@
     <ion-grid>
         <ion-row>
             <ion-col size="6">
-                <ion-card class="cover-card" *ngIf="!errorMessage">
+                <ion-card class="cover-card modern-card" *ngIf="!errorMessage">
                     <img src="{{this.cover || 'assets/default-cover.png'}} " draggable="false" style="-moz-user-select: none;" ondragstart="return false;">
                 </ion-card>
-                <ion-card *ngIf="errorMessage" class="error-card">
+                <ion-card *ngIf="errorMessage" class="error-card modern-card">
                     <ion-card-content>
                         <ion-icon name="musical-notes-outline" class="error-icon"></ion-icon>
                         <p class="error-text">{{errorMessage}}</p>
@@ -32,18 +32,18 @@
                 <ion-grid>
                     <ion-row class="play-controls">
                         <ion-col size="4" class="ion-text-center">
-                            <ion-button (click)="skipPrev()" color="light">
+                            <ion-button class="modern-button secondary" (click)="skipPrev()">
                                 <ion-icon slot="icon-only" name="play-back" class="small-icon"></ion-icon>
                             </ion-button>
                         </ion-col>
                         <ion-col size="4" class="ion-text-center">
-                            <ion-button (click)="playPause()" color="light">
+                            <ion-button class="modern-button primary" (click)="playPause()">
                                 <ion-icon *ngIf="playing" slot="icon-only" name="pause" class="small-icon"></ion-icon>
                                 <ion-icon *ngIf="!playing" slot="icon-only" name="play" class="small-icon"></ion-icon>
                             </ion-button>
                         </ion-col>
                         <ion-col size="4" class="ion-text-center">
-                            <ion-button (click)="skipNext()" color="light">
+                            <ion-button class="modern-button secondary" (click)="skipNext()">
                                 <ion-icon slot="icon-only" name="play-forward" class="small-icon"></ion-icon>
                             </ion-button>
                         </ion-col>

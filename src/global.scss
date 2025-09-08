@@ -25,6 +25,9 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
+/* Modern Design System */
+@import "./theme/modern.scss";
+
 /* Responsive Design for 800x480 and other displays */
 @media (max-width: 800px) {
   ion-toolbar {

@@ -1,106 +1,69 @@
-ion-toolbar {
-    --min-height: 44px;
+.modern-toolbar {
+  --background: rgba(255, 255, 255, 0.95);
+  --color: var(--text-primary);
+  backdrop-filter: var(--blur-background);
+  -webkit-backdrop-filter: var(--blur-background);
+}
+
+.modern-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.modern-button-icon {
+  --background: transparent;
+  --color: var(--primary);
+  --border-radius: var(--radius-md);
+  --padding-start: 12px;
+  --padding-end: 12px;
+  
+  &:hover {
+    --background: rgba(0, 122, 255, 0.1);
+  }
+}
+
+ion-segment {
+  --background: var(--surface-elevated);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-sm);
+  box-shadow: var(--shadow-small);
+  
+  ion-segment-button {
+    --color: var(--text-secondary);
+    --color-checked: var(--primary);
+    --background-checked: rgba(0, 122, 255, 0.1);
+    --border-radius: var(--radius-sm);
+    margin: 2px;
     
-    ion-button {
-        height: 36px !important;
-        width: 36px !important;
-        font-size: 16px !important;
-        --icon-font-size: 18px;
-    }
     ion-icon {
-        font-size: 18px;
+      font-size: 20px;
     }
-    ion-title {
-        font-size: 16px;
-    }
-    
-    ion-select {
-        color: var(--ion-color-primary);
-        font-size: 14px;
-        margin-right: 8px;
-    }
+  }
+}
+
+ion-searchbar {
+  --background: var(--surface);
+  --border-radius: var(--radius-md);
+  --box-shadow: var(--shadow-small);
+  --color: var(--text-primary);
+  margin: var(--spacing-sm);
 }
 
 ion-content {
-    --padding-start: 8px;
-    --padding-end: 8px;
-    --padding-top: 8px;
-}
-
-.truncate-text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-@media (max-width: 800px) {
-    ion-toolbar {
-        ion-button {
-            height: 36px !important;
-            width: 36px !important;
-            font-size: 14px !important;
-        }
-        ion-icon {
-            font-size: 16px;
-        }
-    }
-}
-
-@media (max-height: 480px) {
-    ion-toolbar {
-        --min-height: 44px;
-        
-        ion-button {
-            height: 36px !important;
-            width: 36px !important;
-            font-size: 12px !important;
-        }
-        
-        ion-icon {
-            font-size: 16px;
-        }
-    }
-    
-    ion-content {
-        --padding-start: 4px;
-        --padding-end: 4px;
-        --padding-top: 4px;
-    }
-}
-
-.virtual-keyboard {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--ion-color-light);
-  border-top: 1px solid var(--ion-color-medium);
-  padding: 5px;
-  z-index: 1000;
-  height: 50vh;
+  --background: var(--background);
   
-  ion-button {
-    margin: 1px;
-    --border-radius: 4px;
-    font-size: 10px;
-    height: 28px;
-    min-height: 28px;
-  }
-  
-  ion-grid {
-    --ion-grid-padding: 2px;
-  }
-  
-  ion-col {
-    --ion-grid-column-padding: 1px;
+  .modern-grid {
+    padding: var(--spacing-md);
   }
 }
 
-.client-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ion-color-primary);
-  text-align: center;
-  margin: 0;
-  padding: 4px 8px;
+ion-infinite-scroll-content {
+  --color: var(--text-secondary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .modern-toolbar {
+    --background: rgba(28, 28, 30, 0.95);
+  }
 }
