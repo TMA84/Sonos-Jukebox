@@ -110,15 +110,15 @@ ion-list {
 
 .service-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--spacing-sm);
   padding: var(--spacing-md);
 }
 
 .service-card {
   background: var(--surface-elevated);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -126,15 +126,15 @@ ion-list {
   box-shadow: var(--shadow-small);
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-large);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
     background: var(--background);
   }
   
   &.active {
     border-color: var(--primary);
     background: rgba(0, 122, 255, 0.1);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     
     .service-icon {
       color: var(--primary);
@@ -146,15 +146,15 @@ ion-list {
   }
   
   .service-icon {
-    font-size: 32px;
+    font-size: 24px;
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
     transition: color 0.3s ease;
   }
   
   h3 {
-    margin: var(--spacing-sm) 0 var(--spacing-xs) 0;
-    font-size: 16px;
+    margin: var(--spacing-xs) 0 var(--spacing-xs) 0;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
     transition: color 0.3s ease;
@@ -162,7 +162,7 @@ ion-list {
   
   p {
     margin: 0;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-tertiary);
   }
 }
