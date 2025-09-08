@@ -58,8 +58,7 @@ ion-content {
   }
   
   &.keyboard-visible {
-    overflow-y: auto;
-    scroll-behavior: smooth;
+    margin-bottom: 280px;
   }
 }
 
