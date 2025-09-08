@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService {
   private clientId: string;
+  private clientNameCache: string | null = null;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.clientId = this.generateClientId();
     this.checkUrlForClient();
   }
@@ -51,7 +56,37 @@ export class ClientService {
 
   setClientId(clientId: string): void {
     this.clientId = clientId;
+    this.clientNameCache = null; // Clear cache when client changes
     this.setCookie('sonos-client-id', clientId, 365);
+  }
+
+  getClientName(): Observable<string> {
+    if (this.clientNameCache) {
+      return of(this.clientNameCache);
+    }
+    
+    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    return this.http.get<any>(configUrl, {
+      params: { clientId: this.clientId }
+    }).pipe(
+      map(config => {
+        this.clientNameCache = config.name || '';
+        return this.clientNameCache;
+      }),
+      catchError(() => of(''))
+    );
+  }
+
+  getClientDisplayName(): Observable<string> {
+    return this.getClientName().pipe(
+      map(name => {
+        if (name && name.trim()) {
+          return name;
+        }
+        // Fallback to formatted client ID
+        return `Client ${this.clientId.replace('client-', '').replace('client_', '')}`;
+      })
+    );
   }
 
   private generateClientId(): string {

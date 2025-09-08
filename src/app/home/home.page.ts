@@ -300,16 +300,10 @@ export class HomePage implements OnInit {
   }
 
   loadClientName() {
-    const clientId = this.getClientId();
-    console.log('Loading client name for:', clientId);
-    const storedName = localStorage.getItem(`clientName_${clientId}`);
-    console.log('Found client name:', storedName);
-    this.clientName = storedName || '';
-    
-    // If no name found, try to get from current client service
-    if (!this.clientName && clientId !== 'default') {
-      this.clientName = `Client ${clientId.replace('client_', '')}`;
-    }
+    this.clientService.getClientDisplayName().subscribe(name => {
+      this.clientName = name;
+      console.log('Loaded client display name:', name);
+    });
   }
 
   goToPlayer() {
