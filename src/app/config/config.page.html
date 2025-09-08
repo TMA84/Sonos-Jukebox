@@ -21,17 +21,7 @@
         <ion-icon name="lock-closed-outline"></ion-icon>
       </ion-segment-button>
     </ion-segment>
-    <!-- Service Selection (only on services tab) -->
-    <div class="service-dropdown" *ngIf="selectedTab === 'services'">
-      <ion-icon name="settings"></ion-icon>
-      <ion-select [(ngModel)]="selectedService" interface="popover" placeholder="Select Service">
-        <ion-select-option value="spotify">Spotify</ion-select-option>
-        <ion-select-option value="amazon">Amazon Music</ion-select-option>
-        <ion-select-option value="apple">Apple Music</ion-select-option>
-        <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
-        <ion-select-option value="sonos">Sonos API</ion-select-option>
-      </ion-select>
-    </div>
+
     <ion-buttons slot="end">
       <ion-title class="client-name modern-title">Configuration</ion-title>
       <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
@@ -165,6 +155,19 @@
 
     <!-- Services Tab -->
     <div *ngSwitchCase="'services'">
+      <!-- Service Selection -->
+      <div class="service-selector">
+        <div class="service-dropdown">
+          <ion-icon name="settings"></ion-icon>
+          <ion-select [(ngModel)]="selectedService" interface="popover" placeholder="Select Service">
+            <ion-select-option value="spotify">Spotify</ion-select-option>
+            <ion-select-option value="amazon">Amazon Music</ion-select-option>
+            <ion-select-option value="apple">Apple Music</ion-select-option>
+            <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
+            <ion-select-option value="sonos">Sonos API</ion-select-option>
+          </ion-select>
+        </div>
+      </div>
 
       <!-- Spotify Configuration -->
       <ion-card class="modern-card" *ngIf="selectedService === 'spotify'">
