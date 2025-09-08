@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 import { ArtworkService } from '../artwork.service';
 import { PlayerService, PlayerCmds } from '../player.service';
@@ -27,6 +29,7 @@ export class PlayerPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private http: HttpClient,
     private artworkService: ArtworkService,
     private playerService: PlayerService,
     private clientService: ClientService
@@ -181,36 +184,41 @@ export class PlayerPage implements OnInit {
   }
 
   loadAvailableSpeakers() {
-    // Load speaker selection setting for current client
+    // Load speaker selection setting for current client from server
     const clientId = this.clientService.getClientId();
-    const setting = localStorage.getItem(`enableSpeakerSelection_${clientId}`);
-    this.enableSpeakerSelection = setting !== 'false' && !this.fromShortcut;
+    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
     
-    if (!this.enableSpeakerSelection) return;
-    
-    const configData = localStorage.getItem('sonosConfig');
-    
-    if (configData) {
-      const config = JSON.parse(configData);
-      this.availableSpeakers = config.rooms || [];
-    }
-    
-    // Check for temporary speaker selection first, then client default
-    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-    const currentSpeaker = tempSpeaker || defaultSpeaker;
-    
-    if (currentSpeaker && this.availableSpeakers.includes(currentSpeaker)) {
-      this.selectedSpeaker = currentSpeaker;
-    } else if (this.availableSpeakers.length > 0) {
-      this.selectedSpeaker = this.availableSpeakers[0];
-      // Only set localStorage if no temporary selection exists
-      if (!tempSpeaker) {
-        localStorage.setItem('selectedSpeaker', this.selectedSpeaker);
+    this.http.get<any>(configUrl, { 
+      params: { clientId: clientId }
+    }).subscribe(config => {
+      this.enableSpeakerSelection = config.enableSpeakerSelection !== false && !this.fromShortcut;
+      
+      if (!this.enableSpeakerSelection) return;
+      
+      const configData = localStorage.getItem('sonosConfig');
+      
+      if (configData) {
+        const sonosConfig = JSON.parse(configData);
+        this.availableSpeakers = sonosConfig.rooms || [];
       }
-    }
-    
-    console.log('Current selected speaker:', this.selectedSpeaker, '(temp:', tempSpeaker, 'default:', defaultSpeaker, ')');
+      
+      // Check for temporary speaker selection first, then client default
+      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+      const currentSpeaker = tempSpeaker || defaultSpeaker;
+      
+      if (currentSpeaker && this.availableSpeakers.includes(currentSpeaker)) {
+        this.selectedSpeaker = currentSpeaker;
+      } else if (this.availableSpeakers.length > 0) {
+        this.selectedSpeaker = this.availableSpeakers[0];
+        // Only set localStorage if no temporary selection exists
+        if (!tempSpeaker) {
+          localStorage.setItem('selectedSpeaker', this.selectedSpeaker);
+        }
+      }
+      
+      console.log('Current selected speaker:', this.selectedSpeaker, '(temp:', tempSpeaker, 'default:', defaultSpeaker, ')');
+    });
   }
 
   speakerChanged(event: any) {

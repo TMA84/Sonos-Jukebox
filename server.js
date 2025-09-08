@@ -308,7 +308,10 @@ app.post('/api/config/sonos', (req, res) => {
 app.get('/api/config/client', (req, res) => {
     const clientId = req.query.clientId || 'default';
     const clientConfig = config.clients?.[clientId] || {};
-    res.json({ name: clientConfig.name || '' });
+    res.json({ 
+        name: clientConfig.name || '',
+        enableSpeakerSelection: clientConfig.enableSpeakerSelection !== false
+    });
 });
 
 app.post('/api/config/client', (req, res) => {
@@ -316,10 +319,16 @@ app.post('/api/config/client', (req, res) => {
     
     if (!config.clients) config.clients = {};
     if (!config.clients[clientId]) config.clients[clientId] = {};
-    config.clients[clientId].name = req.body.name;
+    
+    if (req.body.name !== undefined) {
+        config.clients[clientId].name = req.body.name;
+    }
+    if (req.body.enableSpeakerSelection !== undefined) {
+        config.clients[clientId].enableSpeakerSelection = req.body.enableSpeakerSelection;
+    }
     
     jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
-        res.status(error ? 500 : 200).send(error ? 'Failed to save client name' : 'Client name saved');
+        res.status(error ? 500 : 200).send(error ? 'Failed to save client config' : 'Client config saved');
     });
 });
 
