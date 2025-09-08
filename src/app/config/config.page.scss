@@ -73,16 +73,10 @@
   }
 }
 
-body {
-  padding-bottom: 240px;
-}
-
 ion-content {
   --background: var(--background);
-  
-  &.keyboard-visible {
-    margin-bottom: 240px;
-  }
+  min-height: calc(100vh - 240px);
+  padding-bottom: 240px !important;
 }
 
 ion-item {
