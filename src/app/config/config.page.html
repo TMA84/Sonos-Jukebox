@@ -5,22 +5,47 @@
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-select [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover" *ngIf="availableClients.length > 1">
-        <ion-select-option *ngFor="let client of availableClients" [value]="client.id">{{client.name}}</ion-select-option>
-      </ion-select>
-      <ion-select class="modern-select" [(ngModel)]="selectedTab" (ionChange)="tabChanged($event)" interface="popover">
-        <ion-select-option value="library">Library</ion-select-option>
-        <ion-select-option value="clients">Clients</ion-select-option>
-        <ion-select-option value="speakers">Speakers</ion-select-option>
-        <ion-select-option value="services">Services</ion-select-option>
-        <ion-select-option value="security">Security</ion-select-option>
-      </ion-select>
       <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
         <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<!-- Tab Navigation -->
+<div class="tab-grid">
+  <div class="tab-button" [class.active]="selectedTab === 'library'" (click)="selectedTab = 'library'">
+    <ion-icon name="library"></ion-icon>
+    <span>Library</span>
+  </div>
+  <div class="tab-button" [class.active]="selectedTab === 'clients'" (click)="selectedTab = 'clients'">
+    <ion-icon name="people"></ion-icon>
+    <span>Clients</span>
+  </div>
+  <div class="tab-button" [class.active]="selectedTab === 'speakers'" (click)="selectedTab = 'speakers'">
+    <ion-icon name="volume-high"></ion-icon>
+    <span>Speakers</span>
+  </div>
+  <div class="tab-button" [class.active]="selectedTab === 'services'" (click)="selectedTab = 'services'">
+    <ion-icon name="settings"></ion-icon>
+    <span>Services</span>
+  </div>
+  <div class="tab-button" [class.active]="selectedTab === 'security'" (click)="selectedTab = 'security'">
+    <ion-icon name="lock-closed"></ion-icon>
+    <span>Security</span>
+  </div>
+</div>
+
+<!-- Client Selection (if multiple clients) -->
+<div class="client-grid" *ngIf="availableClients.length > 1">
+  <div class="client-button" 
+       *ngFor="let client of availableClients" 
+       [class.active]="selectedClientId === client.id" 
+       (click)="switchToClient(client.id)">
+    <ion-icon name="person"></ion-icon>
+    <span>{{client.name}}</span>
+  </div>
+</div>
 
 <ion-content [class.keyboard-visible]="showKeyboard">
   <div [ngSwitch]="selectedTab">
@@ -270,25 +295,52 @@
           <ion-card-title class="modern-card-title">Add Content</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-item>
-            <ion-label>Content Type</ion-label>
-            <ion-select [(ngModel)]="libraryCategory" interface="popover">
-              <ion-select-option value="audiobook">Audiobook</ion-select-option>
-              <ion-select-option value="music">Music</ion-select-option>
-              <ion-select-option value="playlist">Playlist</ion-select-option>
-              <ion-select-option value="radio">Radio</ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item>
-            <ion-label>Source</ion-label>
-            <ion-select [(ngModel)]="librarySource" interface="popover">
-              <ion-select-option value="spotify">Spotify</ion-select-option>
-              <ion-select-option value="library">Local Library</ion-select-option>
-              <ion-select-option value="amazonmusic">Amazon Music</ion-select-option>
-              <ion-select-option value="applemusic">Apple Music</ion-select-option>
-              <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
-            </ion-select>
-          </ion-item>
+          <div class="touch-selector">
+            <label>Content Type</label>
+            <div class="selector-grid">
+              <div class="selector-button" [class.active]="libraryCategory === 'audiobook'" (click)="libraryCategory = 'audiobook'">
+                <ion-icon name="book"></ion-icon>
+                <span>Audiobook</span>
+              </div>
+              <div class="selector-button" [class.active]="libraryCategory === 'music'" (click)="libraryCategory = 'music'">
+                <ion-icon name="musical-notes"></ion-icon>
+                <span>Music</span>
+              </div>
+              <div class="selector-button" [class.active]="libraryCategory === 'playlist'" (click)="libraryCategory = 'playlist'">
+                <ion-icon name="list"></ion-icon>
+                <span>Playlist</span>
+              </div>
+              <div class="selector-button" [class.active]="libraryCategory === 'radio'" (click)="libraryCategory = 'radio'">
+                <ion-icon name="radio"></ion-icon>
+                <span>Radio</span>
+              </div>
+            </div>
+          </div>
+          <div class="touch-selector">
+            <label>Source</label>
+            <div class="selector-grid">
+              <div class="selector-button" [class.active]="librarySource === 'spotify'" (click)="librarySource = 'spotify'">
+                <ion-icon name="musical-notes"></ion-icon>
+                <span>Spotify</span>
+              </div>
+              <div class="selector-button" [class.active]="librarySource === 'library'" (click)="librarySource = 'library'">
+                <ion-icon name="folder"></ion-icon>
+                <span>Local</span>
+              </div>
+              <div class="selector-button" [class.active]="librarySource === 'amazonmusic'" (click)="librarySource = 'amazonmusic'">
+                <ion-icon name="storefront"></ion-icon>
+                <span>Amazon</span>
+              </div>
+              <div class="selector-button" [class.active]="librarySource === 'applemusic'" (click)="librarySource = 'applemusic'">
+                <ion-icon name="logo-apple"></ion-icon>
+                <span>Apple</span>
+              </div>
+              <div class="selector-button" [class.active]="librarySource === 'tunein'" (click)="librarySource = 'tunein'">
+                <ion-icon name="radio"></ion-icon>
+                <span>TuneIn</span>
+              </div>
+            </div>
+          </div>
           <ion-item>
             <ion-label position="stacked">Artist</ion-label>
             <ion-input [(ngModel)]="libraryArtist" (ionFocus)="setActiveInput('libraryArtist')"></ion-input>
