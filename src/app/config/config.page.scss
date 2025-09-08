@@ -25,6 +25,16 @@
   }
 }
 
+.header-service-selector {
+  margin-right: var(--spacing-sm);
+  
+  .service-select {
+    --color: var(--text-primary);
+    --placeholder-color: var(--text-secondary);
+    min-width: 120px;
+  }
+}
+
 .modern-card {
   margin: var(--spacing-md);
   --background: var(--surface-elevated);
