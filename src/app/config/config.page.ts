@@ -222,28 +222,12 @@ export class ConfigPage implements OnInit {
   }
 
   loadClientName() {
-    // Load from localStorage first
-    const storedName = localStorage.getItem(`clientName_${this.clientId}`);
-    if (storedName) {
-      this.clientName = storedName;
-      return;
-    }
-    
-    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
-    this.http.get<any>(configUrl, { 
-      params: { clientId: this.clientId }
-    }).subscribe(config => {
-      this.clientName = config.name || '';
-      if (this.clientName) {
-        localStorage.setItem(`clientName_${this.clientId}`, this.clientName);
-      }
+    this.clientService.getClientName().subscribe(name => {
+      this.clientName = name;
     });
   }
 
   async saveClientName() {
-    // Save to localStorage
-    localStorage.setItem(`clientName_${this.clientId}`, this.clientName);
-    
     const saveUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
     this.http.post(saveUrl, { 
       clientId: this.clientId,
@@ -251,6 +235,8 @@ export class ConfigPage implements OnInit {
     }, { responseType: 'text' }).subscribe({
       next: async (response) => {
         console.log('Client name saved:', response);
+        // Clear cache to force reload of updated name
+        this.clientService['clientNameCache'] = null;
         const toast = await this.toastController.create({
           message: 'Client name saved successfully',
           duration: 2000,
@@ -273,16 +259,8 @@ export class ConfigPage implements OnInit {
   loadClients() {
     const clientsUrl = environment.production ? '../api/clients' : 'http://localhost:8200/api/clients';
     this.http.get<any[]>(clientsUrl).subscribe(clients => {
-      // Use server data as primary source, localStorage as fallback
       this.availableClients = clients.map(client => {
-        const storedName = localStorage.getItem(`clientName_${client.id}`);
-        const displayName = client.name || storedName || `Client ${client.id.replace('client_', '')}`;
-        
-        // Store name in localStorage for future use
-        if (client.name && !storedName) {
-          localStorage.setItem(`clientName_${client.id}`, client.name);
-        }
-        
+        const displayName = client.name || `Client ${client.id.replace('client-', '').replace('client_', '')}`;
         return {
           ...client,
           name: displayName
@@ -483,9 +461,6 @@ export class ConfigPage implements OnInit {
     }, { responseType: 'text' }).subscribe({
       next: async (response) => {
         console.log('Client created:', response);
-        
-        // Store client name in localStorage for caching
-        localStorage.setItem(`clientName_${newClientId}`, this.newClientName);
         
         this.clientService.setClientId(newClientId);
         this.clientId = newClientId;
