@@ -31,29 +31,24 @@
 </ion-header>
 
 <!-- Tab Navigation -->
-<div class="tab-scroll-container">
-  <div class="tab-grid">
-  <div class="tab-button" [class.active]="selectedTab === 'library'" (click)="selectedTab = 'library'">
-    <ion-icon name="library"></ion-icon>
-    <span>Library</span>
-  </div>
-  <div class="tab-button" [class.active]="selectedTab === 'clients'" (click)="selectedTab = 'clients'">
-    <ion-icon name="people"></ion-icon>
-    <span>Clients</span>
-  </div>
-  <div class="tab-button" [class.active]="selectedTab === 'speakers'" (click)="selectedTab = 'speakers'">
-    <ion-icon name="volume-high"></ion-icon>
-    <span>Speakers</span>
-  </div>
-  <div class="tab-button" [class.active]="selectedTab === 'services'" (click)="selectedTab = 'services'">
-    <ion-icon name="settings"></ion-icon>
-    <span>Services</span>
-  </div>
-  <div class="tab-button" [class.active]="selectedTab === 'security'" (click)="selectedTab = 'security'">
-    <ion-icon name="lock-closed"></ion-icon>
-    <span>Security</span>
-  </div>
-  </div>
+<div class="tab-container">
+  <ion-segment [(ngModel)]="selectedTab">
+    <ion-segment-button value="library">
+      <ion-icon name="library-outline"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="clients">
+      <ion-icon name="people-outline"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="speakers">
+      <ion-icon name="volume-high-outline"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="services">
+      <ion-icon name="settings-outline"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="security">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+    </ion-segment-button>
+  </ion-segment>
 </div>
 
 <!-- Client Selection Dropdown -->
