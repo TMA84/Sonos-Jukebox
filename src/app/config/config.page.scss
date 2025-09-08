@@ -108,8 +108,79 @@ ion-list {
   }
 }
 
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.service-card {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-small);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-large);
+    background: var(--background);
+  }
+  
+  &.active {
+    border-color: var(--primary);
+    background: rgba(0, 122, 255, 0.1);
+    transform: translateY(-2px);
+    
+    .service-icon {
+      color: var(--primary);
+    }
+    
+    h3 {
+      color: var(--primary);
+    }
+  }
+  
+  .service-icon {
+    font-size: 32px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+    transition: color 0.3s ease;
+  }
+  
+  h3 {
+    margin: var(--spacing-sm) 0 var(--spacing-xs) 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .modern-toolbar {
     --background: rgba(28, 28, 30, 0.95);
+  }
+  
+  .service-card {
+    background: var(--surface-elevated-dark);
+    
+    &:hover {
+      background: var(--surface-dark);
+    }
+    
+    &.active {
+      background: rgba(0, 122, 255, 0.15);
+    }
   }
 }

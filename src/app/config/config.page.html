@@ -134,23 +134,33 @@
 
     <!-- Services Tab -->
     <div *ngSwitchCase="'services'">
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Service Configuration</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label>Select Service</ion-label>
-            <ion-select [(ngModel)]="selectedService" interface="popover">
-              <ion-select-option value="spotify">Spotify</ion-select-option>
-              <ion-select-option value="amazon">Amazon Music</ion-select-option>
-              <ion-select-option value="apple">Apple Music</ion-select-option>
-              <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
-              <ion-select-option value="sonos">Sonos API</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
+      <div class="service-grid">
+        <div class="service-card" [class.active]="selectedService === 'spotify'" (click)="selectedService = 'spotify'">
+          <ion-icon name="musical-notes" class="service-icon"></ion-icon>
+          <h3>Spotify</h3>
+          <p>Music streaming</p>
+        </div>
+        <div class="service-card" [class.active]="selectedService === 'amazon'" (click)="selectedService = 'amazon'">
+          <ion-icon name="storefront" class="service-icon"></ion-icon>
+          <h3>Amazon Music</h3>
+          <p>Music streaming</p>
+        </div>
+        <div class="service-card" [class.active]="selectedService === 'apple'" (click)="selectedService = 'apple'">
+          <ion-icon name="logo-apple" class="service-icon"></ion-icon>
+          <h3>Apple Music</h3>
+          <p>Music streaming</p>
+        </div>
+        <div class="service-card" [class.active]="selectedService === 'tunein'" (click)="selectedService = 'tunein'">
+          <ion-icon name="radio" class="service-icon"></ion-icon>
+          <h3>TuneIn Radio</h3>
+          <p>Internet radio</p>
+        </div>
+        <div class="service-card" [class.active]="selectedService === 'sonos'" (click)="selectedService = 'sonos'">
+          <ion-icon name="volume-high" class="service-icon"></ion-icon>
+          <h3>Sonos API</h3>
+          <p>Speaker control</p>
+        </div>
+      </div>
 
       <!-- Spotify Configuration -->
       <ion-card class="modern-card" *ngIf="selectedService === 'spotify'">
