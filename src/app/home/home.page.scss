@@ -58,8 +58,9 @@ ion-content {
   }
   
   &.keyboard-visible {
-    padding-bottom: 500px;
-    margin-bottom: 0;
+    padding-bottom: 500px !important;
+    margin-bottom: 0 !important;
+    transition: padding-bottom 0.3s ease;
   }
 }
 
