@@ -2,6 +2,14 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.4
+
+### 🔧 Bug Fixes & Stability
+- **Fixed infinite scrolling** - Resolved visibility conditions for proper album loading in medialist page
+- **Improved loading states** - Albums grid now remains visible during loading for better user experience
+- **Enhanced error handling** - Better handling of simultaneous requests with proper disabled states
+- **Optimized pagination** - Prevents multiple API calls during scroll loading
+
 ## What's New in Version 2.1.3
 
 ### 🚀 Performance & UX Improvements
