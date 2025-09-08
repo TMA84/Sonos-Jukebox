@@ -46,7 +46,7 @@
     </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [class.keyboard-visible]="showKeyboard">
     <app-virtual-grid 
         [items]="filteredArtists" 
         [covers]="covers"
