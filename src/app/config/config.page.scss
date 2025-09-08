@@ -5,6 +5,12 @@
   -webkit-backdrop-filter: var(--blur-background);
 }
 
+.modern-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
 .modern-select {
   --background: var(--surface);
   --color: var(--text-primary);
