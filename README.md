@@ -2,6 +2,14 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.5
+
+### 🔧 Cache Management Fix
+- **Fixed library updates** - Home page now immediately shows newly added albums and artists
+- **Cache clearing** - Automatic cache invalidation when adding or deleting library content
+- **Data consistency** - Ensures fresh data loading after library modifications
+- **Improved user experience** - No more need to refresh page after adding content
+
 ## What's New in Version 2.1.4
 
 ### 🔧 Bug Fixes & Stability
