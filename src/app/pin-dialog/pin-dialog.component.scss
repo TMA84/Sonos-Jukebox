@@ -3,8 +3,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: 100vh;
   padding: var(--spacing-lg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .pin-container {
@@ -16,6 +21,10 @@
 
 .pin-display {
   margin-bottom: var(--spacing-xl);
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   
   .pin-text {
     font-size: 32px;
@@ -24,11 +33,16 @@
     letter-spacing: 8px;
     margin-bottom: var(--spacing-sm);
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .pin-length {
     font-size: 14px;
     color: var(--text-secondary);
+    height: 20px;
   }
 }
 
