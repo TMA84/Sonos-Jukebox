@@ -58,6 +58,8 @@ export class MediaService {
     };
 
     this.http.post(url, body).subscribe(response => {
+      // Clear cache to force reload of updated data
+      this.clearCache();
       this.updateRawMedia();
     });
   }
@@ -66,16 +68,21 @@ export class MediaService {
     const url = (environment.production) ? '../api/add' : 'http://localhost:8200/api/add';
     const mediaWithClient = { ...media, clientId: this.clientService.getClientId() };
 
-
-
     this.http.post(url, mediaWithClient).subscribe({
       next: (response) => {
+        // Clear cache to force reload of updated data
+        this.clearCache();
         this.updateRawMedia();
       },
       error: (error) => {
         console.error('Add failed:', error);
       }
     });
+  }
+
+  private clearCache() {
+    this.mediaCache.clear();
+    this.cacheExpiry.clear();
   }
 
   private isCacheValid(key: string): boolean {
