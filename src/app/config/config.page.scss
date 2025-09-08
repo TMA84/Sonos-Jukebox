@@ -25,14 +25,14 @@
   }
 }
 
-.toolbar-service-selector {
-  margin-right: var(--spacing-sm);
-  
-  .service-select {
-    --color: var(--text-primary);
-    --placeholder-color: var(--text-secondary);
-    min-width: 120px;
-  }
+.toolbar-service-select {
+  --color: var(--text-primary);
+  --placeholder-color: var(--text-secondary);
+  min-width: 120px;
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .modern-card {
