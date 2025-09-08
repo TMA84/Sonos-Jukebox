@@ -47,6 +47,10 @@ export class VirtualKeyboardComponent {
     this.keyPress.emit(' ');
   }
 
+  onTab() {
+    this.keyPress.emit('\t');
+  }
+
   toggleCase() {
     this.isUpperCase = !this.isUpperCase;
   }
