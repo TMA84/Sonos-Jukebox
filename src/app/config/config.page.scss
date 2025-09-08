@@ -73,9 +73,12 @@
   }
 }
 
+body {
+  padding-bottom: 240px;
+}
+
 ion-content {
   --background: var(--background);
-  margin-bottom: 240px;
   
   &.keyboard-visible {
     margin-bottom: 240px;

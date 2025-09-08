@@ -50,9 +50,12 @@ ion-searchbar {
   margin: var(--spacing-sm);
 }
 
+body {
+  padding-bottom: 240px;
+}
+
 ion-content {
   --background: var(--background);
-  margin-bottom: 240px;
   
   .modern-grid {
     padding: var(--spacing-md);
