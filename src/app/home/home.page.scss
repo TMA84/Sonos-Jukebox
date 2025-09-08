@@ -50,10 +50,14 @@ ion-searchbar {
   margin: var(--spacing-sm);
 }
 
+ion-app {
+  padding-bottom: 240px;
+}
+
 ion-content {
   --background: var(--background);
-  min-height: calc(100vh - 240px);
-  padding-bottom: 240px !important;
+  height: calc(100vh - 240px);
+  overflow-y: auto;
   
   .modern-grid {
     padding: var(--spacing-md);
