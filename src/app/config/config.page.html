@@ -391,6 +391,7 @@
       [isVisible]="showKeyboard"
       (keyPress)="addKey($event)"
       (backspace)="backspace()"
+      (tab)="nextInput()"
       (hide)="hideKeyboard()">
   </app-virtual-keyboard>
 </ion-content>
