@@ -1,34 +1,66 @@
-.media-card {
-  width: 100%;
-  margin: 8px auto;
-  --background: #262626;
+.modern-card {
+  --background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  margin: var(--spacing-xs);
   
-  img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: 8px 8px 0 0;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-large);
   }
   
-  ion-card-header {
-    padding: 8px;
-    
-    ion-card-title {
-      font-size: 0.9rem;
-      padding-bottom: 0;
+  .cover-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+}
+
+.modern-card-header {
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: rgba(0, 122, 255, 0.05);
+  }
+}
+
+.modern-card-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+ion-grid {
+  --ion-grid-padding: var(--spacing-md);
+  
+  ion-row {
+    ion-col {
+      --ion-grid-column-padding: var(--spacing-xs);
     }
   }
 }
 
-.truncate-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.no-results {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  padding: var(--spacing-xl);
 }
 
-ion-button {
-  --padding-start: 20px;
-  --padding-end: 20px;
-  margin: 16px 0;
+ion-infinite-scroll-content {
+  --color: var(--text-secondary);
 }

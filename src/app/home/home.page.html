@@ -1,5 +1,5 @@
-<ion-header>
-    <ion-toolbar>
+<ion-header class="modern-header">
+    <ion-toolbar class="modern-toolbar">
 
         <ion-buttons slot="start">
             <ion-button disabled="true" style="opacity: 0;">
@@ -29,17 +29,17 @@
             debounce="300">
         </ion-searchbar>
         <ion-buttons slot="end">
-            <ion-title *ngIf="clientName" class="client-name">{{clientName}}</ion-title>
-            <ion-button (click)="goToPlayer()">
+            <ion-title *ngIf="clientName" class="client-name modern-title">{{clientName}}</ion-title>
+            <ion-button class="modern-button-icon" (click)="goToPlayer()">
                 <ion-icon name="play-outline"></ion-icon>
             </ion-button>
-            <ion-button (click)="toggleSearch()">
+            <ion-button class="modern-button-icon" (click)="toggleSearch()">
                 <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
             </ion-button>
-            <ion-button (click)="toggleKeyboard()">
+            <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
                 <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
             </ion-button>
-            <ion-button (click)="configButtonPressed()">
+            <ion-button class="modern-button-icon" (click)="configButtonPressed()">
                 <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
             </ion-button>
         </ion-buttons>

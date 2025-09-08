@@ -1,162 +1,125 @@
-ion-back-button {
-    --min-height: 70px;
-    --min-width: 120px;
-    --icon-font-size: 30px;
+.modern-toolbar {
+  --background: rgba(255, 255, 255, 0.95);
+  --color: var(--text-primary);
+  backdrop-filter: var(--blur-background);
+  -webkit-backdrop-filter: var(--blur-background);
 }
 
-.cover-card {
-    margin-top: 20px;
-    width: 350px;
-    height: 350px;
-    margin-left: auto !important;
-    margin-right: auto !important;
+.modern-select {
+  --background: var(--surface);
+  --color: var(--text-primary);
+  --border-radius: var(--radius-md);
+  --padding-start: var(--spacing-md);
+  --padding-end: var(--spacing-md);
 }
 
-.play-controls {
-    margin-top: 90px;
-}
-
-.indicator-button {
-    opacity: 0.35;
-    pointer-events: none;
-}
-
-.volume-controls {
-    margin-top: 80px;
-}
-
-.truncate-text {
+.modern-card {
+  --background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+  margin: var(--spacing-sm);
+  
+  &.cover-card {
     overflow: hidden;
-    text-overflow: ellipsis;
+    
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius-lg);
+    }
+  }
+  
+  &.error-card {
+    text-align: center;
+    
+    .error-icon {
+      font-size: 48px;
+      color: var(--text-tertiary);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .error-text {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+  }
+}
+
+.modern-button {
+  --border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  width: 48px;
+  height: 48px;
+  
+  &.primary {
+    --background: var(--primary);
+    --color: white;
+    
+    &:hover {
+      --background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.secondary {
+    --background: var(--surface-elevated);
+    --color: var(--text-primary);
+    --border-color: var(--border-color);
+    --border-width: 1px;
+    --border-style: solid;
+    
+    &:hover {
+      --background: var(--background);
+    }
+  }
+}
+
+.play-controls, .volume-controls {
+  margin: var(--spacing-md) 0;
+  
+  ion-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .small-icon {
-    font-size: 30px !important;
+  font-size: 24px;
 }
 
 .speaker-name {
-    font-size: 14px;
-    color: var(--ion-color-medium);
-    margin-right: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
-.error-card {
-    margin-top: 20px;
-    width: 350px;
-    height: 350px;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+ion-content {
+  --background: var(--background);
 }
 
-.error-icon {
-    font-size: 48px;
-    color: var(--ion-color-medium);
-    margin-bottom: 16px;
+ion-card-title {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
-.error-text {
-    text-align: center;
-    color: var(--ion-color-medium);
-    font-size: 16px;
+ion-card-content {
+  color: var(--text-secondary);
+  
+  h2 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  p {
+    margin: var(--spacing-xs) 0;
+  }
 }
 
-ion-button {
-    --padding-start: 35px;
-    --padding-end: 35px;
-    --padding-top: 35px;
-    --padding-bottom: 35px;
-    font-size: 30px !important;
-}
-
-.volume-button {
-    --background: #262626;
-}
-
-@media (max-width: 800px) {
-    .cover-card {
-        width: 250px;
-        height: 250px;
-        margin-top: 10px;
-    }
-    
-    .play-controls {
-        margin-top: 40px;
-    }
-    
-    .volume-controls {
-        margin-top: 30px;
-    }
-    
-    ion-button {
-        --padding-start: 20px;
-        --padding-end: 20px;
-        --padding-top: 20px;
-        --padding-bottom: 20px;
-        font-size: 20px !important;
-    }
-    
-    .small-icon {
-        font-size: 24px !important;
-    }
-}
-
-@media (max-height: 480px) {
-    ion-back-button {
-        --min-height: 44px;
-        --min-width: 80px;
-        --icon-font-size: 20px;
-    }
-    
-    .cover-card {
-        width: 180px;
-        height: 180px;
-        margin-top: 5px;
-    }
-    
-    .play-controls {
-        margin-top: 20px;
-    }
-    
-    .volume-controls {
-        margin-top: 15px;
-    }
-    
-    ion-button {
-        --padding-start: 12px;
-        --padding-end: 12px;
-        --padding-top: 12px;
-        --padding-bottom: 12px;
-        font-size: 16px !important;
-    }
-    
-    .small-icon {
-        font-size: 20px !important;
-    }
-    
-    ion-card {
-        margin: 4px;
-        
-        ion-card-header {
-            padding: 6px;
-            
-            ion-card-title {
-                font-size: 14px;
-            }
-        }
-        
-        ion-card-content {
-            padding: 6px;
-            
-            h2 {
-                font-size: 14px;
-            }
-            
-            p {
-                font-size: 12px;
-            }
-        }
-    }
+@media (prefers-color-scheme: dark) {
+  .modern-toolbar {
+    --background: rgba(28, 28, 30, 0.95);
+  }
 }
