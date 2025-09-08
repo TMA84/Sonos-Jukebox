@@ -26,7 +26,7 @@ export class HomePage implements OnInit {
   needsUpdate = false;
   availableCategories: string[] = [];
   showKeyboard = false;
-  isUpperCase = false;
+
   showSearch = false;
   searchTerm = '';
   activeInput = '';
@@ -36,11 +36,7 @@ export class HomePage implements OnInit {
   hasMoreArtists = true;
   currentPage = 0;
   pageSize = 12;
-  keyboardRows = [
-    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
-  ];
+
 
   constructor(
     private mediaService: MediaService,
@@ -239,9 +235,7 @@ export class HomePage implements OnInit {
     this.showKeyboard = false;
   }
 
-  toggleCase() {
-    this.isUpperCase = !this.isUpperCase;
-  }
+
 
   toggleSearch() {
     this.showSearch = !this.showSearch;
@@ -272,10 +266,9 @@ export class HomePage implements OnInit {
   }
 
   addKey(key: string) {
-    const keyToAdd = this.isUpperCase ? key.toUpperCase() : key;
     switch (this.activeInput) {
       case 'search':
-        this.searchTerm += keyToAdd;
+        this.searchTerm += key;
         this.onSearch();
         break;
     }

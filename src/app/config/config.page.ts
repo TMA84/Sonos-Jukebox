@@ -31,13 +31,9 @@ export class ConfigPage implements OnInit {
   sonosConfig = { server: '', port: '' };
   selectedTab = 'library';
   showKeyboard = false;
-  isUpperCase = false;
+
   activeInput = '';
-  keyboardRows = [
-    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
-  ];
+
   libraryCategory = 'audiobook';
   librarySource = 'spotify';
   libraryArtist = '';
@@ -299,58 +295,57 @@ export class ConfigPage implements OnInit {
   }
 
   addKey(key: string) {
-    const keyToAdd = this.isUpperCase ? key.toUpperCase() : key;
     switch (this.activeInput) {
       case 'currentPin':
-        this.currentPin += keyToAdd;
+        this.currentPin += key;
         break;
       case 'newPin':
-        this.newPin += keyToAdd;
+        this.newPin += key;
         break;
       case 'confirmPin':
-        this.confirmPin += keyToAdd;
+        this.confirmPin += key;
         break;
       case 'clientName':
-        this.clientName += keyToAdd;
+        this.clientName += key;
         break;
       case 'spotifyClientId':
-        this.spotifyConfig.clientId += keyToAdd;
+        this.spotifyConfig.clientId += key;
         break;
       case 'spotifyClientSecret':
-        this.spotifyConfig.clientSecret += keyToAdd;
+        this.spotifyConfig.clientSecret += key;
         break;
       case 'sonosServer':
-        this.sonosConfig.server += keyToAdd;
+        this.sonosConfig.server += key;
         break;
       case 'sonosPort':
-        this.sonosConfig.port += keyToAdd;
+        this.sonosConfig.port += key;
         break;
       case 'amazonAccessKey':
-        this.amazonConfig.accessKey += keyToAdd;
+        this.amazonConfig.accessKey += key;
         break;
       case 'amazonSecretKey':
-        this.amazonConfig.secretKey += keyToAdd;
+        this.amazonConfig.secretKey += key;
         break;
       case 'appleDeveloperToken':
-        this.appleConfig.developerToken += keyToAdd;
+        this.appleConfig.developerToken += key;
         break;
       case 'appleTeamId':
-        this.appleConfig.teamId += keyToAdd;
+        this.appleConfig.teamId += key;
         break;
       case 'tuneinApiKey':
-        this.tuneinConfig.apiKey += keyToAdd;
+        this.tuneinConfig.apiKey += key;
         break;
       case 'tuneinPartnerId':
-        this.tuneinConfig.partnerId += keyToAdd;
+        this.tuneinConfig.partnerId += key;
         break;
       case 'newClientName':
-        this.newClientName += keyToAdd;
+        this.newClientName += key;
         break;
       case 'libraryArtist':
-        this.libraryArtist += keyToAdd;
+        this.libraryArtist += key;
         break;
       case 'libraryTitle':
-        this.libraryTitle += keyToAdd;
+        this.libraryTitle += key;
         break;
     }
   }
@@ -411,9 +406,7 @@ export class ConfigPage implements OnInit {
     }
   }
 
-  toggleCase() {
-    this.isUpperCase = !this.isUpperCase;
-  }
+
 
   async deleteClient(clientId: string) {
     if (clientId === this.clientId) {
