@@ -285,6 +285,9 @@ export class ConfigPage implements OnInit {
 
   toggleKeyboard() {
     this.showKeyboard = !this.showKeyboard;
+    if (this.showKeyboard) {
+      this.activeInput = 'clientName';
+    }
   }
 
   hideKeyboard() {

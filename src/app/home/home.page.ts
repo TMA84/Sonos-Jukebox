@@ -229,6 +229,9 @@ export class HomePage implements OnInit {
 
   toggleKeyboard() {
     this.showKeyboard = !this.showKeyboard;
+    if (this.showKeyboard) {
+      this.activeInput = 'search';
+    }
   }
 
   hideKeyboard() {
