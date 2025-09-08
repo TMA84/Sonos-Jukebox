@@ -2,6 +2,15 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.6
+
+### 🎨 Modern Design & UX Overhaul
+- **iPad-styled virtual keyboard** - German QWERTZ layout with ü, ö, ä, ß support across all pages
+- **Modern design system** - Comprehensive styling with backdrop blur, shadows, and animations
+- **Enhanced speaker management** - Client-specific default speakers with temporary session changes
+- **Centralized client names** - Server-side storage with consistent display across all pages
+- **Improved search experience** - Modern keyboard in album and artist search components
+
 ## What's New in Version 2.1.5
 
 ### 🔧 Cache Management Fix
