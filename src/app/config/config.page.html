@@ -1,6 +1,5 @@
 <ion-header class="modern-header">
   <ion-toolbar class="modern-toolbar">
-    <ion-title>Configuration</ion-title>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
@@ -13,6 +12,7 @@
       <ion-select-option value="sonos">Sonos API</ion-select-option>
     </ion-select>
     <ion-buttons slot="end">
+      <ion-title class="client-name modern-title">Configuration</ion-title>
       <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
         <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
       </ion-button>
