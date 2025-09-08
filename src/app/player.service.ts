@@ -135,7 +135,11 @@ export class PlayerService {
   getCurrentTrack(): Observable<any> {
     return new Observable(observer => {
       this.getConfig().subscribe(config => {
-        const selectedSpeaker = localStorage.getItem('selectedSpeaker') || config.rooms[0];
+        // Use temporary speaker selection if available, otherwise use client default
+        const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+        const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+        const selectedSpeaker = tempSpeaker || defaultSpeaker || config.rooms[0];
+        
         const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
         this.http.get(baseUrl + 'state').subscribe(
           (state: any) => {
@@ -156,7 +160,8 @@ export class PlayerService {
     return new Promise((resolve) => {
       // Clear the cached config to force reload with new speaker
       this.config = null;
-      localStorage.setItem('selectedSpeaker', speakerName);
+      // Store temporary speaker selection (cleared on page reload)
+      sessionStorage.setItem('tempSelectedSpeaker', speakerName);
       resolve();
     });
   }
@@ -186,7 +191,11 @@ export class PlayerService {
   private sendRequest(url: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getConfig().subscribe(config => {
-        const selectedSpeaker = localStorage.getItem('selectedSpeaker') || config.rooms[0];
+        // Use temporary speaker selection if available, otherwise use client default
+        const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+        const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+        const selectedSpeaker = tempSpeaker || defaultSpeaker || config.rooms[0];
+        
         const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
         this.http.get(baseUrl + url).subscribe({
           next: (response) => {

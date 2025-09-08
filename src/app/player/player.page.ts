@@ -195,20 +195,29 @@ export class PlayerPage implements OnInit {
       this.availableSpeakers = config.rooms || [];
     }
     
-    const currentSpeaker = localStorage.getItem('selectedSpeaker');
+    // Check for temporary speaker selection first, then client default
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+    const currentSpeaker = tempSpeaker || defaultSpeaker;
+    
     if (currentSpeaker && this.availableSpeakers.includes(currentSpeaker)) {
       this.selectedSpeaker = currentSpeaker;
     } else if (this.availableSpeakers.length > 0) {
       this.selectedSpeaker = this.availableSpeakers[0];
-      localStorage.setItem('selectedSpeaker', this.selectedSpeaker);
+      // Only set localStorage if no temporary selection exists
+      if (!tempSpeaker) {
+        localStorage.setItem('selectedSpeaker', this.selectedSpeaker);
+      }
     }
     
-    console.log('Current selected speaker:', this.selectedSpeaker);
+    console.log('Current selected speaker:', this.selectedSpeaker, '(temp:', tempSpeaker, 'default:', defaultSpeaker, ')');
   }
 
   speakerChanged(event: any) {
     const newSpeaker = event.detail.value;
-    const previousSpeaker = localStorage.getItem('selectedSpeaker');
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+    const previousSpeaker = tempSpeaker || defaultSpeaker;
     
     console.log('Switching from', previousSpeaker, 'to', newSpeaker);
     
@@ -218,9 +227,8 @@ export class PlayerPage implements OnInit {
       this.playerService.stopSpeaker(previousSpeaker);
     }
     
-    // Update selected speaker
+    // Update selected speaker (store as temporary selection)
     this.selectedSpeaker = newSpeaker;
-    localStorage.setItem('selectedSpeaker', this.selectedSpeaker);
     
     // Switch to new speaker and restart playback only if we have valid media
     this.playerService.switchSpeaker(this.selectedSpeaker).then(() => {
