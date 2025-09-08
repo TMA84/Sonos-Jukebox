@@ -31,6 +31,7 @@ export class ConfigPage implements OnInit {
   sonosConfig = { server: '', port: '' };
   selectedTab = 'library';
   showKeyboard = false;
+  selectedService = 'spotify';
 
   activeInput = '';
 

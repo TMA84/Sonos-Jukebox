@@ -136,24 +136,44 @@
     <div *ngSwitchCase="'services'">
       <ion-card class="modern-card">
         <ion-card-header>
-          <ion-card-title class="modern-card-title">Spotify Configuration</ion-card-title>
+          <ion-card-title class="modern-card-title">Service Configuration</ion-card-title>
         </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-label position="stacked">Client ID</ion-label>
-        <ion-input [(ngModel)]="spotifyConfig.clientId" placeholder="Enter Spotify Client ID" (ionFocus)="setActiveInput('spotifyClientId')"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Client Secret</ion-label>
-        <ion-input type="password" [(ngModel)]="spotifyConfig.clientSecret" placeholder="Enter Spotify Client Secret" (ionFocus)="setActiveInput('spotifyClientSecret')"></ion-input>
-      </ion-item>
-      <ion-button class="modern-button primary" expand="block" (click)="saveSpotifyConfig()" [disabled]="!spotifyConfig.clientId || !spotifyConfig.clientSecret">
-        Save Spotify Configuration
-      </ion-button>
+        <ion-card-content>
+          <ion-item>
+            <ion-label>Select Service</ion-label>
+            <ion-select [(ngModel)]="selectedService" interface="popover">
+              <ion-select-option value="spotify">Spotify</ion-select-option>
+              <ion-select-option value="amazon">Amazon Music</ion-select-option>
+              <ion-select-option value="apple">Apple Music</ion-select-option>
+              <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
+              <ion-select-option value="sonos">Sonos API</ion-select-option>
+            </ion-select>
+          </ion-item>
         </ion-card-content>
       </ion-card>
 
-      <ion-card class="modern-card">
+      <!-- Spotify Configuration -->
+      <ion-card class="modern-card" *ngIf="selectedService === 'spotify'">
+        <ion-card-header>
+          <ion-card-title class="modern-card-title">Spotify Configuration</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="stacked">Client ID</ion-label>
+            <ion-input [(ngModel)]="spotifyConfig.clientId" placeholder="Enter Spotify Client ID" (ionFocus)="setActiveInput('spotifyClientId')"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Client Secret</ion-label>
+            <ion-input type="password" [(ngModel)]="spotifyConfig.clientSecret" placeholder="Enter Spotify Client Secret" (ionFocus)="setActiveInput('spotifyClientSecret')"></ion-input>
+          </ion-item>
+          <ion-button class="modern-button primary" expand="block" (click)="saveSpotifyConfig()" [disabled]="!spotifyConfig.clientId || !spotifyConfig.clientSecret">
+            Save Spotify Configuration
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Amazon Music Configuration -->
+      <ion-card class="modern-card" *ngIf="selectedService === 'amazon'">
         <ion-card-header>
           <ion-card-title class="modern-card-title">Amazon Music Configuration</ion-card-title>
         </ion-card-header>
@@ -172,7 +192,8 @@
         </ion-card-content>
       </ion-card>
 
-      <ion-card class="modern-card">
+      <!-- Apple Music Configuration -->
+      <ion-card class="modern-card" *ngIf="selectedService === 'apple'">
         <ion-card-header>
           <ion-card-title class="modern-card-title">Apple Music Configuration</ion-card-title>
         </ion-card-header>
@@ -191,7 +212,8 @@
         </ion-card-content>
       </ion-card>
 
-      <ion-card class="modern-card">
+      <!-- TuneIn Radio Configuration -->
+      <ion-card class="modern-card" *ngIf="selectedService === 'tunein'">
         <ion-card-header>
           <ion-card-title class="modern-card-title">TuneIn Radio Configuration</ion-card-title>
         </ion-card-header>
@@ -210,7 +232,8 @@
         </ion-card-content>
       </ion-card>
 
-      <ion-card class="modern-card">
+      <!-- Sonos API Configuration -->
+      <ion-card class="modern-card" *ngIf="selectedService === 'sonos'">
         <ion-card-header>
           <ion-card-title class="modern-card-title">Sonos API Configuration</ion-card-title>
         </ion-card-header>
