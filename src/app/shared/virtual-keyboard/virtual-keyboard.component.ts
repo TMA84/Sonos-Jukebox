@@ -9,6 +9,7 @@ export class VirtualKeyboardComponent {
   @Input() isVisible = false;
   @Output() keyPress = new EventEmitter<string>();
   @Output() backspace = new EventEmitter<void>();
+  @Output() tab = new EventEmitter<void>();
   @Output() hide = new EventEmitter<void>();
 
   isUpperCase = false;
@@ -48,7 +49,7 @@ export class VirtualKeyboardComponent {
   }
 
   onTab() {
-    this.keyPress.emit('\t');
+    this.tab.emit();
   }
 
   toggleCase() {

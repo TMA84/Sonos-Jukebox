@@ -337,4 +337,15 @@ export class HomePage implements OnInit {
       }
     }, 500);
   }
+
+  nextInput() {
+    const inputOrder = ['search'];
+    
+    const currentIndex = inputOrder.indexOf(this.activeInput);
+    if (currentIndex >= 0 && currentIndex < inputOrder.length - 1) {
+      this.activeInput = inputOrder[currentIndex + 1];
+    } else {
+      this.activeInput = inputOrder[0];
+    }
+  }
 }

@@ -731,4 +731,20 @@ export class ConfigPage implements OnInit {
     this.switchToClient(newClientId);
     this.selectedClientId = newClientId;
   }
+
+  nextInput() {
+    const inputOrder = [
+      'clientName', 'newClientName', 'spotifyClientId', 'spotifyClientSecret',
+      'amazonAccessKey', 'amazonSecretKey', 'appleDeveloperToken', 'appleTeamId',
+      'tuneinApiKey', 'tuneinPartnerId', 'sonosServer', 'sonosPort',
+      'libraryArtist', 'libraryTitle', 'currentPin', 'newPin', 'confirmPin'
+    ];
+    
+    const currentIndex = inputOrder.indexOf(this.activeInput);
+    if (currentIndex >= 0 && currentIndex < inputOrder.length - 1) {
+      this.activeInput = inputOrder[currentIndex + 1];
+    } else {
+      this.activeInput = inputOrder[0];
+    }
+  }
 }
