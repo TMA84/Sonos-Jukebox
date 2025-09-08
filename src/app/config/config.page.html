@@ -4,17 +4,17 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    <!-- Service Selection (only on services tab) -->
-    <div class="toolbar-service-selector" slot="end" *ngIf="selectedTab === 'services'">
-      <ion-select [(ngModel)]="selectedService" interface="popover" class="service-select">
-        <ion-select-option value="spotify">Spotify</ion-select-option>
-        <ion-select-option value="amazon">Amazon Music</ion-select-option>
-        <ion-select-option value="apple">Apple Music</ion-select-option>
-        <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
-        <ion-select-option value="sonos">Sonos API</ion-select-option>
-      </ion-select>
-    </div>
     <ion-buttons slot="end">
+      <!-- Service Selection (only on services tab) -->
+      <div class="toolbar-service-selector" *ngIf="selectedTab === 'services'">
+        <ion-select [(ngModel)]="selectedService" interface="popover" class="service-select">
+          <ion-select-option value="spotify">Spotify</ion-select-option>
+          <ion-select-option value="amazon">Amazon Music</ion-select-option>
+          <ion-select-option value="apple">Apple Music</ion-select-option>
+          <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
+          <ion-select-option value="sonos">Sonos API</ion-select-option>
+        </ion-select>
+      </div>
       <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
         <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
       </ion-button>
