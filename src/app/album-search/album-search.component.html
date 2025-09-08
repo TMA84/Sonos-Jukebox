@@ -1,11 +1,11 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Search Albums</ion-title>
+<ion-header class="modern-header">
+  <ion-toolbar class="modern-toolbar">
+    <ion-title class="modern-title">Search Albums</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="toggleKeyboard()">
+      <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
         <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
       </ion-button>
-      <ion-button fill="clear" (click)="closeModal()">
+      <ion-button class="modern-button-icon" (click)="closeModal()">
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,33 +13,37 @@
 </ion-header>
 
 <ion-content>
-  <ion-searchbar 
-    [(ngModel)]="searchTerm"
-    (ionInput)="onSearch()"
-    placeholder="Search for artist or album..."
-    debounce="500">
-  </ion-searchbar>
+  <div class="search-container">
+    <ion-searchbar 
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearch()"
+      (ionFocus)="setActiveInput('search')"
+      placeholder="Search for artist or album..."
+      debounce="500">
+    </ion-searchbar>
+  </div>
 
   <div *ngIf="isSearching" class="loading-container">
     <ion-spinner></ion-spinner>
     <p>Searching...</p>
   </div>
 
-  <ion-list *ngIf="searchResults.length > 0">
-    <ion-item 
-      *ngFor="let album of searchResults" 
-      button 
-      (click)="selectAlbum(album)">
-      <ion-thumbnail slot="start">
-        <img [src]="album.cover || '../assets/images/nocover.png'" [alt]="album.title">
-      </ion-thumbnail>
-      <ion-label>
-        <h2>{{album.title}}</h2>
-        <p>{{album.artist}}</p>
-      </ion-label>
-      <ion-icon name="add-circle-outline" slot="end"></ion-icon>
-    </ion-item>
-  </ion-list>
+  <div *ngIf="searchResults.length > 0" class="results-container">
+    <div class="modern-card" *ngFor="let album of searchResults" (click)="selectAlbum(album)">
+      <div class="result-item">
+        <div class="result-thumbnail">
+          <img [src]="album.cover || '../assets/images/nocover.png'" [alt]="album.title">
+        </div>
+        <div class="result-content">
+          <h3>{{album.title}}</h3>
+          <p>{{album.artist}}</p>
+        </div>
+        <div class="result-action">
+          <ion-icon name="add-circle-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div *ngIf="searchTerm && !isSearching && searchResults.length === 0" class="no-results">
     <ion-icon name="search-outline"></ion-icon>

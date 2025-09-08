@@ -42,6 +42,12 @@ export class ConfigPage implements OnInit {
   libraryItems: any[] = [];
   enableSpeakerSelection = true;
   selectedClientId = '';
+  serviceConfigured = {
+    spotify: false,
+    amazonmusic: false,
+    applemusic: false,
+    tunein: false
+  };
 
   constructor(
     private http: HttpClient,
@@ -171,6 +177,12 @@ export class ConfigPage implements OnInit {
         server: config['node-sonos-http-api']?.server || '',
         port: config['node-sonos-http-api']?.port || ''
       };
+      
+      // Update service configuration status
+      this.serviceConfigured.spotify = !!(this.spotifyConfig.clientId && this.spotifyConfig.clientSecret);
+      this.serviceConfigured.amazonmusic = !!(this.amazonConfig.accessKey && this.amazonConfig.secretKey);
+      this.serviceConfigured.applemusic = !!(this.appleConfig.developerToken && this.appleConfig.teamId);
+      this.serviceConfigured.tunein = !!(this.tuneinConfig.apiKey && this.tuneinConfig.partnerId);
     });
   }
 

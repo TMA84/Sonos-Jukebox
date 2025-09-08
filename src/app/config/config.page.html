@@ -23,7 +23,11 @@
     </ion-segment>
 
     <ion-buttons slot="end">
-      <ion-title class="client-name modern-title">Configuration</ion-title>
+      <div class="select-spacer"></div>
+      <ion-select class="modern-select" [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover" placeholder="Select Client" *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library')" [interfaceOptions]="{cssClass: 'select-popover'}">
+        <ion-select-option *ngFor="let client of availableClients" [value]="client.id">{{client.name}}</ion-select-option>
+      </ion-select>
+      <ion-title *ngIf="clientName && (selectedTab === 'services' || selectedTab === 'security')" class="speaker-name">{{clientName}}</ion-title>
       <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
         <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
       </ion-button>
@@ -33,15 +37,7 @@
 
 
 
-<!-- Client Selection Dropdown -->
-<div class="client-selector" *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library')">
-  <div class="client-dropdown">
-    <ion-icon name="person-circle"></ion-icon>
-    <ion-select [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover" placeholder="Select Client">
-      <ion-select-option *ngFor="let client of availableClients" [value]="client.id">{{client.name}}</ion-select-option>
-    </ion-select>
-  </div>
-</div>
+
 
 <ion-content [class.keyboard-visible]="showKeyboard">
   <div [ngSwitch]="selectedTab">
@@ -159,7 +155,7 @@
       <div class="service-selector">
         <div class="service-dropdown">
           <ion-icon name="settings"></ion-icon>
-          <ion-select [(ngModel)]="selectedService" interface="popover" placeholder="Select Service">
+          <ion-select [(ngModel)]="selectedService" interface="popover" placeholder="Select Service" [interfaceOptions]="{cssClass: 'select-popover'}">
             <ion-select-option value="spotify">Spotify</ion-select-option>
             <ion-select-option value="amazon">Amazon Music</ion-select-option>
             <ion-select-option value="apple">Apple Music</ion-select-option>
@@ -301,7 +297,7 @@
           <div class="touch-selector">
             <label>Source</label>
             <div class="selector-grid">
-              <div class="selector-button" [class.active]="librarySource === 'spotify'" (click)="librarySource = 'spotify'">
+              <div class="selector-button" [class.active]="librarySource === 'spotify'" [class.disabled]="!serviceConfigured.spotify" (click)="serviceConfigured.spotify && (librarySource = 'spotify')">
                 <ion-icon name="musical-notes"></ion-icon>
                 <span>Spotify</span>
               </div>
@@ -309,15 +305,15 @@
                 <ion-icon name="folder"></ion-icon>
                 <span>Local</span>
               </div>
-              <div class="selector-button" [class.active]="librarySource === 'amazonmusic'" (click)="librarySource = 'amazonmusic'">
+              <div class="selector-button" [class.active]="librarySource === 'amazonmusic'" [class.disabled]="!serviceConfigured.amazonmusic" (click)="serviceConfigured.amazonmusic && (librarySource = 'amazonmusic')">
                 <ion-icon name="storefront"></ion-icon>
                 <span>Amazon</span>
               </div>
-              <div class="selector-button" [class.active]="librarySource === 'applemusic'" (click)="librarySource = 'applemusic'">
+              <div class="selector-button" [class.active]="librarySource === 'applemusic'" [class.disabled]="!serviceConfigured.applemusic" (click)="serviceConfigured.applemusic && (librarySource = 'applemusic')">
                 <ion-icon name="logo-apple"></ion-icon>
                 <span>Apple</span>
               </div>
-              <div class="selector-button" [class.active]="librarySource === 'tunein'" (click)="librarySource = 'tunein'">
+              <div class="selector-button" [class.active]="librarySource === 'tunein'" [class.disabled]="!serviceConfigured.tunein" (click)="serviceConfigured.tunein && (librarySource = 'tunein')">
                 <ion-icon name="radio"></ion-icon>
                 <span>TuneIn</span>
               </div>
@@ -347,13 +343,13 @@
           </ion-row>
           <ion-row *ngIf="librarySource === 'amazonmusic' || librarySource === 'applemusic' || librarySource === 'tunein'">
             <ion-col size="12">
-              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openServiceSearch()">
+              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openServiceSearch()" [disabled]="!serviceConfigured[librarySource]">
                 <ion-icon name="search-outline" slot="start"></ion-icon>
                 Search {{getServiceName()}}
               </ion-button>
             </ion-col>
           </ion-row>
-          <ion-button class="modern-button primary" expand="block" (click)="addToLibrary()" [disabled]="!libraryArtist || !libraryTitle">
+          <ion-button class="modern-button primary" expand="block" (click)="addToLibrary()" [disabled]="!libraryArtist || !libraryTitle || (librarySource !== 'library' && !serviceConfigured[librarySource])">
             <ion-icon name="add-outline" slot="start"></ion-icon>
             Add to Library
           </ion-button>

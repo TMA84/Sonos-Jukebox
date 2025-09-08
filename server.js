@@ -305,6 +305,105 @@ app.post('/api/config/sonos', (req, res) => {
     });
 });
 
+app.post('/api/config/amazon', (req, res) => {
+    config.amazonmusic = {
+        accessKey: req.body.accessKey,
+        secretKey: req.body.secretKey
+    };
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to save Amazon config' : 'Amazon config saved');
+    });
+});
+
+app.post('/api/config/apple', (req, res) => {
+    config.applemusic = {
+        developerToken: req.body.developerToken,
+        teamId: req.body.teamId
+    };
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to save Apple config' : 'Apple config saved');
+    });
+});
+
+app.post('/api/config/tunein', (req, res) => {
+    config.tunein = {
+        apiKey: req.body.apiKey,
+        partnerId: req.body.partnerId
+    };
+    
+    jsonfile.writeFile('./server/config/config.json', config, { spaces: 4 }, (error) => {
+        res.status(error ? 500 : 200).send(error ? 'Failed to save TuneIn config' : 'TuneIn config saved');
+    });
+});
+
+app.get('/api/search/amazon', (req, res) => {
+    const { query, type = 'album' } = req.query;
+    
+    if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+    }
+
+    // Mock Amazon Music search - replace with actual API integration
+    const mockResults = {
+        albums: [
+            {
+                id: 'amazon_' + Date.now(),
+                title: `${query} - Sample Album`,
+                artist: 'Sample Artist',
+                cover: 'https://via.placeholder.com/300x300?text=Amazon+Music'
+            }
+        ]
+    };
+    
+    res.json(mockResults);
+});
+
+app.get('/api/search/apple', (req, res) => {
+    const { query, type = 'album' } = req.query;
+    
+    if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+    }
+
+    // Mock Apple Music search - replace with actual API integration
+    const mockResults = {
+        albums: [
+            {
+                id: 'apple_' + Date.now(),
+                title: `${query} - Sample Album`,
+                artist: 'Sample Artist',
+                cover: 'https://via.placeholder.com/300x300?text=Apple+Music'
+            }
+        ]
+    };
+    
+    res.json(mockResults);
+});
+
+app.get('/api/search/tunein', (req, res) => {
+    const { query, type = 'station' } = req.query;
+    
+    if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+    }
+
+    // Mock TuneIn search - replace with actual API integration
+    const mockResults = {
+        stations: [
+            {
+                id: 'tunein_' + Date.now(),
+                title: `${query} Radio`,
+                artist: 'Radio Station',
+                cover: 'https://via.placeholder.com/300x300?text=TuneIn+Radio'
+            }
+        ]
+    };
+    
+    res.json(mockResults);
+});
+
 app.get('/api/config/client', (req, res) => {
     const clientId = req.query.clientId || 'default';
     const clientConfig = config.clients?.[clientId] || {};
