@@ -13,7 +13,8 @@
 </ion-header>
 
 <!-- Tab Navigation -->
-<div class="tab-grid">
+<div class="tab-scroll-container">
+  <div class="tab-grid">
   <div class="tab-button" [class.active]="selectedTab === 'library'" (click)="selectedTab = 'library'">
     <ion-icon name="library"></ion-icon>
     <span>Library</span>
@@ -34,17 +35,17 @@
     <ion-icon name="lock-closed"></ion-icon>
     <span>Security</span>
   </div>
+  </div>
 </div>
 
-<!-- Client Selection (if multiple clients) -->
-<div class="client-grid" *ngIf="availableClients.length > 1">
-  <div class="client-button" 
-       *ngFor="let client of availableClients" 
-       [class.active]="selectedClientId === client.id" 
-       (click)="switchToClient(client.id)">
-    <ion-icon name="person"></ion-icon>
-    <span>{{client.name}}</span>
-  </div>
+<!-- Client Selection Dropdown -->
+<div class="client-selector" *ngIf="availableClients.length > 1">
+  <ion-item>
+    <ion-label>Select Client</ion-label>
+    <ion-select [(ngModel)]="selectedClientId" (ionChange)="clientSelectionChanged($event)" interface="popover">
+      <ion-select-option *ngFor="let client of availableClients" [value]="client.id">{{client.name}}</ion-select-option>
+    </ion-select>
+  </ion-item>
 </div>
 
 <ion-content [class.keyboard-visible]="showKeyboard">
