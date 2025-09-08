@@ -45,8 +45,8 @@ export class MediaService {
       params: { clientId: this.clientService.getClientId() }
     }).subscribe(media => {
         this.rawMediaSubject.next(media);
-        // Start background loading for all categories
-        this.preloadAllCategories(media);
+        // Disabled background loading to prevent rate limiting
+        // this.preloadAllCategories(media);
     });
   }
 
@@ -218,7 +218,9 @@ export class MediaService {
   }
 
   publishArtists() {
-    this.updateMedia().subscribe((media: Media[]) => {
+    this.getArtists().subscribe((artists: Artist[]) => {
+      // Convert artists back to media format for compatibility
+      const media = artists.map(artist => artist.coverMedia);
       this.artistSubject.next(media);
     });
   }
@@ -235,40 +237,41 @@ export class MediaService {
     });
   }
 
-  // Get all artists for the current category
+  // Get all artists for the current category (optimized - no album loading)
   getArtists(): Observable<Artist[]> {
-    return this.artistSubject.pipe(
-      map((media: Media[]) => {
-        // Create temporary object with artists as keys and albumCounts as values
-        const mediaCounts = media.reduce((tempCounts, currentMedia) => {
-          tempCounts[currentMedia.artist] = (tempCounts[currentMedia.artist] || 0) + 1;
-          return tempCounts;
-        }, {});
-
-        // Create temporary object with artists as keys and covers (first media cover) as values
-        const covers = media.sort((a, b) => a.title <= b.title ? -1 : 1).reduce((tempCovers, currentMedia) => {
-            if (!tempCovers[currentMedia.artist]) { tempCovers[currentMedia.artist] = currentMedia.cover; }
-            return tempCovers;
-        }, {});
-
-        // Create temporary object with artists as keys and first media as values
-        const coverMedia = media.sort((a, b) => a.title <= b.title ? -1 : 1).reduce((tempMedia, currentMedia) => {
-          if (!tempMedia[currentMedia.artist]) { tempMedia[currentMedia.artist] = currentMedia; }
-          return tempMedia;
-      }, {});
-
-        // Build Array of Artist objects sorted by Artist name
-        const artists: Artist[] = Object.keys(mediaCounts).sort().map(currentName => {
-          const artist: Artist = {
-            name: currentName,
-            albumCount: mediaCounts[currentName],
-            cover: covers[currentName],
-            coverMedia: coverMedia[currentName]
-          };
-          return artist;
+    const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
+    
+    return this.http.get<Media[]>(url, {
+      params: { clientId: this.clientService.getClientId() }
+    }).pipe(
+      map(rawMedia => {
+        // Filter for current category
+        const items = rawMedia
+          .map(item => ({ ...item, category: item.category || 'audiobook' }))
+          .filter(item => item.category === this.category);
+        
+        // Create artists from raw data without loading albums
+        const artistMap = new Map<string, Artist>();
+        
+        items.forEach(item => {
+          if (item.artist && !artistMap.has(item.artist)) {
+            artistMap.set(item.artist, {
+              name: item.artist,
+              albumCount: '0', // Will be loaded on-demand
+              cover: item.cover || '../assets/images/nocover.png',
+              coverMedia: {
+                id: item.id || '',
+                artist: item.artist,
+                title: item.title || item.artist,
+                cover: item.cover || '../assets/images/nocover.png',
+                type: item.type || 'spotify',
+                category: item.category
+              }
+            });
+          }
         });
-
-        return artists;
+        
+        return Array.from(artistMap.values()).sort((a, b) => a.name.localeCompare(b.name));
       })
     );
   }

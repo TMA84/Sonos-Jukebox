@@ -55,37 +55,35 @@ export class MedialistPage implements OnInit {
   }
 
   loadMediaFromArtist() {
-    // Check if this is an artist entry (has artistid)
-    if (this.artist.coverMedia && this.artist.coverMedia.artistid) {
-      // This is an artist entry, fetch individual albums
-      this.fetchArtistAlbums(this.artist.coverMedia.artistid);
-    } else {
-      // Use media service to get albums from this artist
-      const category = this.artist.coverMedia?.category || 'audiobook';
-      console.log('Loading media for artist:', this.artist.name, 'category:', category);
-      
-      this.mediaService.setCategory(category);
-      
-      // First subscribe to artist media, then publish
-      this.mediaService.getMediaFromArtist(this.artist).subscribe({
-        next: (media) => {
-          console.log('Artist:', this.artist.name, 'Albums found:', media.length);
-          this.allMedia = media;
-          this.media = this.allMedia;
-          if (this.media.length > 0) {
-            this.loadArtworkBatch(this.media.slice(0, 12));
-          }
-        },
-        error: (err) => {
-          console.error('Failed to load media for artist:', this.artist.name, err);
+    // Load albums from raw data first to get artist ID
+    const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
+    const clientId = this.getArtistClientId();
+    
+    this.http.get<Media[]>(url, {
+      params: { clientId }
+    }).subscribe({
+      next: (rawMedia) => {
+        // Find the artist entry in raw data
+        const artistEntry = rawMedia.find(item => 
+          item.artist === this.artist.name && 
+          (item.category || 'audiobook') === (this.artist.coverMedia?.category || 'audiobook')
+        );
+        
+        if (artistEntry && artistEntry.artistid) {
+          // Load albums from Spotify API
+          this.fetchArtistAlbums(artistEntry.artistid);
+        } else {
+          console.error('No artist ID found for:', this.artist.name);
           this.allMedia = [];
           this.media = [];
         }
-      });
-      
-      // Now publish the data
-      this.mediaService.publishArtistMedia();
-    }
+      },
+      error: (err) => {
+        console.error('Failed to load raw media data:', err);
+        this.allMedia = [];
+        this.media = [];
+      }
+    });
   }
 
   fetchArtistAlbums(artistId: string, loadMore = false): Promise<void> {
@@ -158,6 +156,7 @@ export class MedialistPage implements OnInit {
 
   loadMoreAlbums(event?: any) {
     console.log('loadMoreAlbums called, searchTerm:', this.searchTerm.trim());
+    console.log('hasMoreAlbums:', this.hasMoreAlbums, 'isLoading:', this.isLoading);
     
     // Handle search results pagination
     if (this.searchTerm.trim()) {
@@ -172,15 +171,46 @@ export class MedialistPage implements OnInit {
       return;
     }
     
-    // Handle normal album loading
-    if (this.artist.coverMedia && this.artist.coverMedia.artistid && this.hasMoreAlbums) {
-      this.fetchArtistAlbums(this.artist.coverMedia.artistid, true).then(() => {
-        if (event) {
-          event.target.complete();
+    // Handle normal album loading - find artist ID from raw data
+    if (this.hasMoreAlbums && !this.isLoading) {
+      const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
+      const clientId = this.getArtistClientId();
+      
+      this.http.get<Media[]>(url, {
+        params: { clientId }
+      }).subscribe({
+        next: (rawMedia) => {
+          const artistEntry = rawMedia.find(item => 
+            item.artist === this.artist.name && 
+            (item.category || 'audiobook') === (this.artist.coverMedia?.category || 'audiobook')
+          );
+          
+          if (artistEntry && artistEntry.artistid) {
+            this.fetchArtistAlbums(artistEntry.artistid, true).then(() => {
+              if (event) {
+                event.target.complete();
+              }
+            });
+          } else {
+            console.log('No artist ID found for loading more albums');
+            if (event) {
+              event.target.complete();
+              event.target.disabled = true;
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load raw media for more albums:', err);
+          if (event) {
+            event.target.complete();
+          }
         }
       });
     } else if (event) {
       event.target.complete();
+      if (!this.hasMoreAlbums) {
+        event.target.disabled = true;
+      }
     }
   }
 
