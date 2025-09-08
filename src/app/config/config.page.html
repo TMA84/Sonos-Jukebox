@@ -22,7 +22,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [class.keyboard-visible]="showKeyboard">
   <div [ngSwitch]="selectedTab">
     <!-- Clients Tab -->
     <div *ngSwitchCase="'clients'">

@@ -75,6 +75,10 @@
 
 ion-content {
   --background: var(--background);
+  
+  &.keyboard-visible {
+    padding-bottom: 320px;
+  }
 }
 
 ion-item {

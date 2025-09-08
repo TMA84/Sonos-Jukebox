@@ -56,6 +56,10 @@ ion-content {
   .modern-grid {
     padding: var(--spacing-md);
   }
+  
+  &.keyboard-visible {
+    padding-bottom: 320px;
+  }
 }
 
 ion-infinite-scroll-content {
