@@ -4,13 +4,23 @@
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <!-- Service Selection (only on services tab) -->
-    <ion-select [(ngModel)]="selectedService" interface="popover" class="toolbar-service-select" *ngIf="selectedTab === 'services'">
-      <ion-select-option value="spotify">Spotify</ion-select-option>
-      <ion-select-option value="amazon">Amazon Music</ion-select-option>
-      <ion-select-option value="apple">Apple Music</ion-select-option>
-      <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
-      <ion-select-option value="sonos">Sonos API</ion-select-option>
-    </ion-select>
+    <ion-segment [(ngModel)]="selectedService" *ngIf="selectedTab === 'services'">
+      <ion-segment-button value="spotify">
+        <ion-icon name="musical-notes-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="amazon">
+        <ion-icon name="storefront-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="apple">
+        <ion-icon name="logo-apple"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="tunein">
+        <ion-icon name="radio-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="sonos">
+        <ion-icon name="volume-high-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
     <ion-buttons slot="end">
       <ion-title class="client-name modern-title">Configuration</ion-title>
       <ion-button class="modern-button-icon" (click)="toggleKeyboard()">

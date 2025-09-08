@@ -31,14 +31,23 @@
   }
 }
 
-.toolbar-service-select {
-  --color: var(--text-primary);
-  --placeholder-color: var(--text-secondary);
-  min-width: 120px;
-  position: absolute;
-  right: 60px;
-  top: 50%;
-  transform: translateY(-50%);
+ion-segment {
+  --background: var(--surface-elevated);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-sm);
+  box-shadow: var(--shadow-small);
+  
+  ion-segment-button {
+    --color: var(--text-secondary);
+    --color-checked: var(--primary);
+    --background-checked: rgba(0, 122, 255, 0.1);
+    --border-radius: var(--radius-sm);
+    margin: 2px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
 }
 
 .modern-card {
