@@ -286,7 +286,40 @@ export class ConfigPage implements OnInit {
   toggleKeyboard() {
     this.showKeyboard = !this.showKeyboard;
     if (this.showKeyboard) {
-      this.activeInput = 'clientName';
+      this.setFirstInputForCurrentTab();
+    }
+  }
+
+  setFirstInputForCurrentTab() {
+    switch (this.selectedTab) {
+      case 'clients':
+        this.activeInput = 'clientName';
+        break;
+      case 'speakers':
+        this.activeInput = '';
+        break;
+      case 'services':
+        this.activeInput = this.getFirstServiceInput();
+        break;
+      case 'library':
+        this.activeInput = 'libraryArtist';
+        break;
+      case 'security':
+        this.activeInput = 'currentPin';
+        break;
+      default:
+        this.activeInput = 'clientName';
+    }
+  }
+
+  getFirstServiceInput(): string {
+    switch (this.selectedService) {
+      case 'spotify': return 'spotifyClientId';
+      case 'amazon': return 'amazonAccessKey';
+      case 'apple': return 'appleDeveloperToken';
+      case 'tunein': return 'tuneinApiKey';
+      case 'sonos': return 'sonosServer';
+      default: return 'spotifyClientId';
     }
   }
 
