@@ -722,12 +722,39 @@ export class ConfigPage implements OnInit {
   }
 
   loadSpeakerSelectionSetting() {
-    const setting = localStorage.getItem(`enableSpeakerSelection_${this.clientId}`);
-    this.enableSpeakerSelection = setting !== 'false';
+    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    this.http.get<any>(configUrl, { 
+      params: { clientId: this.clientId }
+    }).subscribe(config => {
+      this.enableSpeakerSelection = config.enableSpeakerSelection !== false;
+    });
   }
 
-  saveSpeakerSelectionSetting() {
-    localStorage.setItem(`enableSpeakerSelection_${this.clientId}`, this.enableSpeakerSelection.toString());
+  async saveSpeakerSelectionSetting() {
+    const saveUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    this.http.post(saveUrl, { 
+      clientId: this.clientId,
+      enableSpeakerSelection: this.enableSpeakerSelection
+    }, { responseType: 'text' }).subscribe({
+      next: async (response) => {
+        console.log('Speaker selection setting saved:', response);
+        const toast = await this.toastController.create({
+          message: 'Speaker selection setting saved',
+          duration: 2000,
+          color: 'success'
+        });
+        toast.present();
+      },
+      error: async (err) => {
+        console.error('Failed to save speaker selection setting:', err);
+        const toast = await this.toastController.create({
+          message: 'Failed to save speaker selection setting',
+          duration: 2000,
+          color: 'danger'
+        });
+        toast.present();
+      }
+    });
   }
 
   clientSelectionChanged(event: any) {
