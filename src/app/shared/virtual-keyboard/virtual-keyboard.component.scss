@@ -1,12 +1,15 @@
 .virtual-keyboard {
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 10000;
   padding: 8px;
-  margin-top: auto;
+  height: 280px;
 }
 
 .keyboard-container {
