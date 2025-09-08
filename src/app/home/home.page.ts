@@ -33,6 +33,9 @@ export class HomePage implements OnInit {
   filteredArtists: Artist[] = [];
   filteredMedia: Media[] = [];
   clientName = '';
+  hasMoreArtists = true;
+  currentPage = 0;
+  pageSize = 12;
   keyboardRows = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
@@ -80,14 +83,13 @@ export class HomePage implements OnInit {
     
     this.mediaService.setCategory(this.category);
     
-    // Load artists for all categories
+    // Load artists directly without albums/tracks to avoid rate limiting
     this.mediaService.getArtists().subscribe(artists => {
       console.log('Artists loaded:', artists.length);
       this.artists = artists;
-      this.filteredArtists = this.artists;
-      this.loadArtistArtworkBatch(this.artists.slice(0, 12));
+      this.currentPage = 0;
+      this.loadInitialArtists();
     });
-    this.mediaService.publishArtists();
   }
 
   ionViewWillEnter() {
@@ -113,7 +115,11 @@ export class HomePage implements OnInit {
   }
 
   update() {
-    this.mediaService.publishArtists();
+    this.mediaService.getArtists().subscribe(artists => {
+      this.artists = artists;
+      this.currentPage = 0;
+      this.loadInitialArtists();
+    });
     this.needsUpdate = false;
   }
 
@@ -251,19 +257,18 @@ export class HomePage implements OnInit {
 
   onSearch() {
     if (!this.searchTerm.trim()) {
-      this.filteredArtists = this.artists;
-      this.filteredMedia = this.media;
+      this.loadInitialArtists();
       return;
     }
 
     const term = this.searchTerm.toLowerCase();
-    this.filteredArtists = this.artists.filter(artist => 
+    const searchResults = this.artists.filter(artist => 
       artist.name.toLowerCase().includes(term)
     );
-    this.filteredMedia = this.media.filter(media => 
-      media.title.toLowerCase().includes(term) || 
-      media.artist.toLowerCase().includes(term)
-    );
+    
+    this.filteredArtists = searchResults.slice(0, this.pageSize);
+    this.hasMoreArtists = searchResults.length > this.pageSize;
+    this.currentPage = 0;
   }
 
   addKey(key: string) {
@@ -314,5 +319,35 @@ export class HomePage implements OnInit {
       }
     };
     this.router.navigate(['/player'], navigationExtras);
+  }
+
+  loadInitialArtists() {
+    this.currentPage = 0;
+    const startIndex = 0;
+    const endIndex = this.pageSize;
+    this.filteredArtists = this.artists.slice(startIndex, endIndex);
+    this.hasMoreArtists = this.artists.length > endIndex;
+    this.loadArtistArtworkBatch(this.filteredArtists.slice(0, 6));
+  }
+
+  loadMoreArtists(event: any) {
+    setTimeout(() => {
+      this.currentPage++;
+      const startIndex = this.currentPage * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      const newArtists = this.artists.slice(startIndex, endIndex);
+      
+      this.filteredArtists = [...this.filteredArtists, ...newArtists];
+      this.hasMoreArtists = this.artists.length > endIndex;
+      
+      // Load artwork for new artists
+      this.loadArtistArtworkBatch(newArtists);
+      
+      event.target.complete();
+      
+      if (!this.hasMoreArtists) {
+        event.target.disabled = true;
+      }
+    }, 500);
   }
 }

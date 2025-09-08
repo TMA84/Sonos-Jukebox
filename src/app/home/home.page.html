@@ -55,6 +55,11 @@
         (nameClick)="artistNameClicked($event)"
         (loadMoreArtwork)="loadMoreArtistArtwork($event)">
     </app-virtual-grid>
+    
+    <ion-infinite-scroll (ionInfinite)="loadMoreArtists($event)" [disabled]="!hasMoreArtists">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more artists...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
 
     <!-- Virtual Keyboard -->
     <div *ngIf="showKeyboard" class="virtual-keyboard">

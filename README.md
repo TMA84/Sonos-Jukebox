@@ -2,6 +2,14 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.3
+
+### 🚀 Performance & UX Improvements
+- **Infinite scrolling** - Smooth browsing through large artist and album collections
+- **Optimized Spotify rate limiting** - Prevents API rate limits with smart loading strategies
+- **On-demand album loading** - Albums load only when artists are selected, reducing startup time
+- **Enhanced pagination** - Better handling of large content libraries with progressive loading
+
 ## What's New in Version 2.1.2
 
 ### 🎯 Enhanced User Experience
