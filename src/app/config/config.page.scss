@@ -255,7 +255,7 @@ ion-list {
   border: 2px solid transparent;
   min-height: 70px;
   
-  &:hover {
+  &:hover:not(.disabled) {
     transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
   }
@@ -274,6 +274,20 @@ ion-list {
     }
   }
   
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--surface);
+    
+    ion-icon {
+      color: var(--text-tertiary);
+    }
+    
+    span {
+      color: var(--text-tertiary);
+    }
+  }
+  
   ion-icon {
     font-size: 20px;
     margin-bottom: var(--spacing-xs);
@@ -285,6 +299,11 @@ ion-list {
     color: var(--text-primary);
     text-align: center;
   }
+}
+
+.select-spacer {
+  width: 120px;
+  min-width: 120px;
 }
 
 @media (prefers-color-scheme: dark) {

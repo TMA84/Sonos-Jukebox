@@ -69,5 +69,7 @@ export class AlbumSearchComponent {
     this.onSearch();
   }
 
-
+  setActiveInput(input: string) {
+    // Only one input in this component
+  }
 }

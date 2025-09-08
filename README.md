@@ -2,6 +2,41 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.7
+
+### 🎨 Modern Search Experience
+- **Redesigned search components** - Album, artist, and service search now use modern card-based layouts
+- **Enhanced visual hierarchy** - Improved typography, spacing, and hover effects across all search interfaces
+- **Consistent styling** - All search modals now match the config page's modern design system
+- **Better user feedback** - Smooth transitions and modern loading states
+
+### 🔧 API Integration & Configuration
+- **Amazon Music API** - Added search endpoint with mock implementation ready for integration
+- **Apple Music API** - Added search endpoint with mock implementation ready for integration  
+- **TuneIn Radio API** - Added search endpoint with mock implementation ready for integration
+- **Smart source management** - Library sources are automatically disabled when API credentials are missing
+- **Visual feedback** - Disabled sources show clear visual indicators and prevent user errors
+
+### 🖱️ Enhanced Dropdown Experience
+- **Modern dropdown styling** - All select menus now feature backdrop blur, shadows, and smooth animations
+- **Consistent popover design** - Unified look across client selectors and service dropdowns
+- **Improved accessibility** - Better hover states and selection feedback
+
+### 🎵 Player Interface Improvements
+- **Reorganized layout** - "Now Playing" information moved directly under player controls for better flow
+- **Cleaner interface** - More logical grouping of player elements
+
+### ⚙️ Configuration Management
+- **Streamlined client selection** - Client dropdown moved to header for easier access
+- **Context-aware display** - Shows client selector on relevant tabs, client name on global settings
+- **Consistent spacing** - Proper layout spacing maintained across all configuration tabs
+
+### 🛠️ Build & Performance Optimizations
+- **Resolved build warnings** - Updated TypeScript target to ES2022
+- **Optimized dependencies** - Properly configured CommonJS dependencies
+- **Cleaner compilation** - Excluded unused files from TypeScript compilation
+- **Updated Angular configuration** - Removed deprecated settings
+
 ## What's New in Version 2.1.6
 
 ### 🎨 Modern Design & UX Overhaul

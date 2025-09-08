@@ -66,5 +66,7 @@ export class ArtistSearchComponent {
     this.onSearch();
   }
 
-
+  setActiveInput(input: string) {
+    // Only one input in this component
+  }
 }

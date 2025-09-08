@@ -66,22 +66,22 @@
                             </ion-button>
                         </ion-col>
                     </ion-row>
+                    
+                    <ion-row *ngIf="currentTrack" class="now-playing">
+                        <ion-col size="12">
+                            <ion-card>
+                                <ion-card-header>
+                                    <ion-card-title>Now Playing</ion-card-title>
+                                </ion-card-header>
+                                <ion-card-content>
+                                    <h2>{{currentTrack?.title}}</h2>
+                                    <p>{{currentTrack?.artist}}</p>
+                                    <p *ngIf="currentTrack?.album">{{currentTrack.album}}</p>
+                                </ion-card-content>
+                            </ion-card>
+                        </ion-col>
+                    </ion-row>
                 </ion-grid>
-            </ion-col>
-        </ion-row>
-        
-        <ion-row *ngIf="currentTrack">
-            <ion-col size="12">
-                <ion-card>
-                    <ion-card-header>
-                        <ion-card-title>Now Playing</ion-card-title>
-                    </ion-card-header>
-                    <ion-card-content>
-                        <h2>{{currentTrack?.title}}</h2>
-                        <p>{{currentTrack?.artist}}</p>
-                        <p *ngIf="currentTrack?.album">{{currentTrack.album}}</p>
-                    </ion-card-content>
-                </ion-card>
             </ion-col>
         </ion-row>
     </ion-grid>

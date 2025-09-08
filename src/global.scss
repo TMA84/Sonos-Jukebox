@@ -171,3 +171,59 @@
     min-width: 40px;
   }
 }
+
+/* Modern Dropdown Styling */
+.select-popover {
+  --background: var(--surface-elevated);
+  --border-radius: var(--radius-lg);
+  --box-shadow: var(--shadow-large);
+  border: 1px solid var(--border-color);
+  backdrop-filter: var(--blur-background);
+  -webkit-backdrop-filter: var(--blur-background);
+  
+  .popover-content {
+    --background: transparent;
+  }
+  
+  ion-radio-group {
+    ion-item {
+      --background: transparent;
+      --color: var(--text-primary);
+      --border-color: transparent;
+      --padding-start: var(--spacing-md);
+      --padding-end: var(--spacing-md);
+      --min-height: 48px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        --background: rgba(0, 122, 255, 0.1);
+      }
+      
+      ion-radio {
+        --color: var(--primary);
+        --color-checked: var(--primary);
+        margin-right: var(--spacing-sm);
+      }
+      
+      ion-label {
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+    }
+    
+    ion-item.item-radio-checked {
+      --background: rgba(0, 122, 255, 0.15);
+      
+      ion-label {
+        color: var(--primary);
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .select-popover {
+    --background: rgba(28, 28, 30, 0.95);
+  }
+}

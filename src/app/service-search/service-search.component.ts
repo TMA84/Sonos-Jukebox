@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Media } from '../media';
 
 @Component({
@@ -15,6 +17,8 @@ export class ServiceSearchComponent {
   searchTerm = '';
   searchResults: any[] = [];
   isSearching = false;
+  showKeyboard = false;
+  activeInput = 'search';
 
   serviceConfig = {
     applemusic: { name: 'Apple Music', placeholder: 'Search Apple Music...' },
@@ -22,17 +26,36 @@ export class ServiceSearchComponent {
     tunein: { name: 'TuneIn Radio', placeholder: 'Search radio stations...' }
   };
 
-  constructor(private modalController: ModalController) { }
+  constructor(
+    private modalController: ModalController,
+    private http: HttpClient
+  ) { }
 
   onSearch() {
-    if (!this.searchTerm.trim()) return;
+    if (!this.searchTerm.trim()) {
+      this.searchResults = [];
+      return;
+    }
     
     this.isSearching = true;
-    // Simulate search results for demo
-    setTimeout(() => {
-      this.searchResults = this.generateMockResults();
-      this.isSearching = false;
-    }, 1000);
+    const searchUrl = environment.production ? `../api/search/${this.service}` : `http://localhost:8200/api/search/${this.service}`;
+    
+    this.http.get<any>(searchUrl, {
+      params: { 
+        query: this.searchTerm,
+        type: this.service === 'tunein' ? 'station' : 'album'
+      }
+    }).subscribe({
+      next: (response) => {
+        this.searchResults = this.service === 'tunein' ? response.stations : response.albums;
+        this.isSearching = false;
+      },
+      error: (error) => {
+        console.error('Search error:', error);
+        this.searchResults = this.generateMockResults();
+        this.isSearching = false;
+      }
+    });
   }
 
   generateMockResults(): any[] {
@@ -67,5 +90,36 @@ export class ServiceSearchComponent {
 
   closeModal() {
     this.modalController.dismiss();
+  }
+
+  toggleKeyboard() {
+    this.showKeyboard = !this.showKeyboard;
+  }
+
+  hideKeyboard() {
+    this.showKeyboard = false;
+  }
+
+  setActiveInput(input: string) {
+    this.activeInput = input;
+  }
+
+  addKey(key: string) {
+    if (this.activeInput === 'search') {
+      this.searchTerm += key;
+      this.onSearch();
+    }
+  }
+
+  backspace() {
+    if (this.activeInput === 'search') {
+      this.searchTerm = this.searchTerm.slice(0, -1);
+      this.onSearch();
+    }
+  }
+
+  nextInput() {
+    // Only one input in this component
+    this.activeInput = 'search';
   }
 }
