@@ -12,12 +12,7 @@ export class ArtistSearchComponent {
   searchResults: any[] = [];
   isSearching = false;
   showKeyboard = false;
-  isUpperCase = false;
-  keyboardRows = [
-    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
-  ];
+
 
   constructor(
     private spotifyService: SpotifyService,
@@ -62,7 +57,7 @@ export class ArtistSearchComponent {
   }
 
   addKey(key: string) {
-    this.searchTerm += this.isUpperCase ? key.toUpperCase() : key;
+    this.searchTerm += key;
     this.onSearch();
   }
 
@@ -71,7 +66,5 @@ export class ArtistSearchComponent {
     this.onSearch();
   }
 
-  toggleCase() {
-    this.isUpperCase = !this.isUpperCase;
-  }
+
 }
