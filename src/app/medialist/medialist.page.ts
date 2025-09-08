@@ -34,6 +34,8 @@ export class MedialistPage implements OnInit {
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
     ['z', 'x', 'c', 'v', 'b', 'n', 'm']
   ];
+  showError = false;
+  errorMessage = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -86,7 +88,7 @@ export class MedialistPage implements OnInit {
     });
   }
 
-  fetchArtistAlbums(artistId: string, loadMore = false): Promise<void> {
+  fetchArtistAlbums(artistId: string, loadMore = false, retryCount = 0): Promise<void> {
     return new Promise((resolve) => {
       if (this.isLoading || (!loadMore && !this.hasMoreAlbums)) {
         resolve();
@@ -132,23 +134,34 @@ export class MedialistPage implements OnInit {
           console.error('Failed to fetch artist albums:', err);
           this.isLoading = false;
           
-          if (!loadMore) {
-            // Fallback to mock data only on initial load
-            this.allMedia = [
-              {
-                artist: this.artist.name,
-                title: 'Album 1',
-                type: 'spotify',
-                category: this.artist.coverMedia.category || 'music',
-                cover: this.artist.coverMedia.cover,
-                artistid: artistId,
-                contentType: 'album'
-              }
-            ];
-            this.media = this.allMedia;
-            this.loadArtworkBatch(this.media.slice(0, 12));
+          // Retry up to 3 times with exponential backoff
+          if (retryCount < 3) {
+            const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+            console.log(`Retrying in ${delay}ms... (attempt ${retryCount + 1}/3)`);
+            setTimeout(() => {
+              this.fetchArtistAlbums(artistId, loadMore, retryCount + 1).then(resolve);
+            }, delay);
+          } else {
+            console.error('Max retries reached, showing error message');
+            this.hasMoreAlbums = false;
+            this.showError = true;
+            if (err.status === 429) {
+              this.errorMessage = 'Spotify rate limit reached. Please wait a moment and try again.';
+            } else if (err.status === 401) {
+              this.errorMessage = 'Spotify authentication failed. Please check your Spotify credentials in settings.';
+            } else if (err.status === 404) {
+              this.errorMessage = 'Artist not found on Spotify. This artist may not be available.';
+            } else if (err.status === 500 && err.error?.error === 'Spotify not configured') {
+              this.errorMessage = 'Spotify is not configured. Please add your Spotify credentials in settings.';
+            } else {
+              this.errorMessage = `Unable to load albums: ${err.error?.error || err.message || 'Network or server error'}`;
+            }
+            if (!loadMore) {
+              this.allMedia = [];
+              this.media = [];
+            }
+            resolve();
           }
-          resolve();
         }
       });
     });
@@ -327,5 +340,13 @@ export class MedialistPage implements OnInit {
       return this.artist.clientId;
     }
     return localStorage.getItem('clientId') || 'default';
+  }
+
+  retryLoadAlbums() {
+    this.showError = false;
+    this.errorMessage = '';
+    this.offset = 0;
+    this.hasMoreAlbums = true;
+    this.loadMediaFromArtist();
   }
 }

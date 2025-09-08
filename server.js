@@ -129,6 +129,14 @@ app.get('/api/spotify/artist-albums', (req, res) => {
         return res.status(400).json({ error: 'Artist ID is required' });
     }
 
+    // Check if Spotify is configured
+    if (!config.spotify?.clientId || !config.spotify?.clientSecret) {
+        return res.status(500).json({ 
+            error: 'Spotify not configured',
+            details: 'Please configure Spotify credentials in settings'
+        });
+    }
+
     // Get access token and fetch artist albums
     spotifyApi.clientCredentialsGrant().then(
         function(data) {
@@ -144,12 +152,34 @@ app.get('/api/spotify/artist-albums', (req, res) => {
     ).then(
         function(data) {
             res.json({ albums: data.body });
-        },
+        }
+    ).catch(
         function(err) {
-            console.error('Failed to fetch artist albums:', err.message);
-            res.status(500).json({ 
-                error: 'Failed to fetch artist albums',
-                details: err.message 
+            console.error('Spotify API Error:', {
+                message: err.message,
+                statusCode: err.statusCode,
+                body: err.body
+            });
+            
+            let errorMessage = 'Failed to fetch artist albums';
+            let statusCode = 500;
+            
+            if (err.statusCode === 401) {
+                errorMessage = 'Spotify authentication failed. Please check your credentials.';
+                statusCode = 401;
+            } else if (err.statusCode === 429) {
+                errorMessage = 'Spotify rate limit exceeded. Please wait and try again.';
+                statusCode = 429;
+            } else if (err.statusCode === 404) {
+                errorMessage = 'Artist not found on Spotify.';
+                statusCode = 404;
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            res.status(statusCode).json({ 
+                error: errorMessage,
+                details: err.body || err.message || 'Unknown error'
             });
         }
     );
