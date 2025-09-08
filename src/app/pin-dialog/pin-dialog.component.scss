@@ -130,7 +130,58 @@
     font-size: 24px;
   }
   
-  .pin-display .pin-text {
-    font-size: 28px;
+  .pin-display {
+    height: 60px;
+    margin-bottom: var(--spacing-md);
+    
+    .pin-text {
+      font-size: 24px;
+      min-height: 30px;
+    }
+    
+    .pin-length {
+      font-size: 12px;
+      height: 16px;
+    }
+  }
+}
+
+@media (max-width: 800px) and (max-height: 480px) {
+  .pin-container {
+    max-width: 280px;
+  }
+  
+  .pin-display {
+    height: 50px;
+    margin-bottom: var(--spacing-sm);
+    
+    .pin-text {
+      font-size: 20px;
+      min-height: 25px;
+      letter-spacing: 4px;
+    }
+    
+    .pin-length {
+      font-size: 11px;
+      height: 14px;
+    }
+  }
+  
+  .modern-keypad {
+    gap: var(--spacing-sm);
+  }
+  
+  .keypad-row {
+    gap: var(--spacing-sm);
+  }
+  
+  .keypad-button {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+    
+    &.function-button ion-icon {
+      font-size: 20px;
+    }
   }
 }
