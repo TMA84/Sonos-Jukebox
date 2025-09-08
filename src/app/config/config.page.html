@@ -3,6 +3,24 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
+    <!-- Tab Navigation -->
+    <ion-segment [(ngModel)]="selectedTab">
+      <ion-segment-button value="library">
+        <ion-icon name="library-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="clients">
+        <ion-icon name="people-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="speakers">
+        <ion-icon name="volume-high-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="services">
+        <ion-icon name="settings-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="security">
+        <ion-icon name="lock-closed-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
     <!-- Service Selection (only on services tab) -->
     <ion-segment [(ngModel)]="selectedService" *ngIf="selectedTab === 'services'">
       <ion-segment-button value="spotify">
@@ -30,26 +48,7 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- Tab Navigation -->
-<div class="tab-container">
-  <ion-segment [(ngModel)]="selectedTab">
-    <ion-segment-button value="library">
-      <ion-icon name="library-outline"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="clients">
-      <ion-icon name="people-outline"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="speakers">
-      <ion-icon name="volume-high-outline"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="services">
-      <ion-icon name="settings-outline"></ion-icon>
-    </ion-segment-button>
-    <ion-segment-button value="security">
-      <ion-icon name="lock-closed-outline"></ion-icon>
-    </ion-segment-button>
-  </ion-segment>
-</div>
+
 
 <!-- Client Selection Dropdown -->
 <div class="client-selector" *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library')">
