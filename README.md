@@ -2,6 +2,25 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.1.8
+
+### 🔧 User Interface Improvements
+- **Removed switch client card** - Streamlined client management by removing redundant client switching interface from config page
+- **Scrollable tab navigation** - Added horizontal scrolling for tab selectors on small displays (smartphones)
+- **Optimized header spacing** - Reduced select spacer to minimal 10px for cleaner layout
+
+### ⌨️ Virtual Keyboard Enhancements
+- **Responsive design** - Keyboard now adapts to all screen sizes and orientations
+- **Compact layout** - Reduced keyboard height to 180px for better screen real estate
+- **Full-width keys** - Keys now stretch to use entire screen width for better usability
+- **Smaller space key** - Optimized space bar size for better key distribution
+- **Landscape optimization** - Improved keyboard sizing for horizontal orientation
+
+### 🔐 Security & Navigation
+- **Unified PIN protection** - Fixed double PIN entry issue by consolidating authentication
+- **Route guard implementation** - Added proper security for direct URL access to configuration
+- **Streamlined access** - Single PIN entry for both button and URL-based config access
+
 ## What's New in Version 2.1.7
 
 ### 🎨 Modern Search Experience

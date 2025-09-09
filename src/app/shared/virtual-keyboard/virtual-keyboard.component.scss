@@ -9,12 +9,12 @@
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 10000;
   padding: 4px 4px 0 4px;
-  height: 240px;
+  height: 180px;
 }
 
 .keyboard-container {
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 
 .keyboard-row {
@@ -42,20 +42,18 @@
   --border-radius: 8px;
   --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
-  height: 44px;
-  font-size: 18px;
+  height: 28px;
+  font-size: 12px;
   font-weight: 400;
   margin: 0;
-  min-width: 32px;
 
   &.letter-key {
     flex: 1;
-    max-width: 44px;
   }
 
   &.function-key {
-    min-width: 60px;
-    font-size: 14px;
+    flex: 1;
+    font-size: 10px;
     
     &.active {
       --background: rgba(0, 122, 255, 0.9);
@@ -64,19 +62,18 @@
   }
 
   &.space-key {
-    flex: 3;
-    min-width: 200px;
+    flex: 1.5;
   }
 
   &.hide-key {
-    min-width: 80px;
+    flex: 1;
     --background: rgba(0, 122, 255, 0.9);
     --background-hover: rgba(0, 122, 255, 1);
     --color: white;
   }
 
   ion-icon {
-    font-size: 20px;
+    font-size: 14px;
   }
 }
 
@@ -118,6 +115,50 @@
     
     &.letter-key {
       max-width: 52px;
+    }
+  }
+}
+
+@media (orientation: portrait) and (max-width: 600px) {
+  .keyboard-container {
+    max-width: 95vw;
+  }
+  
+  .virtual-keyboard {
+    height: 180px;
+  }
+  
+  .key-button {
+    height: 32px;
+    font-size: 14px;
+    
+    &.letter-key {
+      max-width: 28px;
+    }
+    
+    &.function-key {
+      min-width: 45px;
+      font-size: 12px;
+    }
+  }
+}
+
+@media (orientation: landscape) {
+  .virtual-keyboard {
+    height: 180px;
+  }
+  
+  .key-button {
+    height: 32px;
+    font-size: 14px;
+    
+    &.letter-key {
+      max-width: 28px;
+    }
+    
+    &.function-key {
+      min-width: 45px;
+      font-size: 12px;
     }
   }
 }

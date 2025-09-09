@@ -6,7 +6,7 @@
                 <ion-icon name=""></ion-icon>
             </ion-button>
         </ion-buttons>
-        <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)">
+        <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
             <ion-segment-button *ngIf="availableCategories.includes('audiobook')" value="audiobook">
                 <ion-icon name="book-outline"></ion-icon>
             </ion-segment-button>

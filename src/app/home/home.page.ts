@@ -191,19 +191,8 @@ export class HomePage implements OnInit {
     this.loadArtistArtworkBatch(items);
   }
 
-  async configButtonPressed() {
-    const modal = await this.modalController.create({
-      component: PinDialogComponent,
-      cssClass: 'pin-dialog-modal'
-    });
-
-    modal.onDidDismiss().then((result) => {
-      if (result.data === true) {
-        this.router.navigate(['/config']);
-      }
-    });
-
-    return await modal.present();
+  configButtonPressed() {
+    this.router.navigate(['/config']);
   }
 
   loadAvailableCategories() {

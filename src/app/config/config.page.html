@@ -4,7 +4,7 @@
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <!-- Tab Navigation -->
-    <ion-segment [(ngModel)]="selectedTab">
+    <ion-segment [(ngModel)]="selectedTab" scrollable="true">
       <ion-segment-button value="library">
         <ion-icon name="library-outline"></ion-icon>
       </ion-segment-button>
@@ -75,28 +75,7 @@
         </ion-card-content>
       </ion-card>
 
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Switch Client</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-button class="modern-button secondary" expand="block" (click)="loadClients()" fill="outline">
-            <ion-icon name="refresh-outline" slot="start"></ion-icon>
-            Load Available Clients
-          </ion-button>
-          <ion-list *ngIf="availableClients.length > 0">
-            <ion-item *ngFor="let client of availableClients">
-              <ion-label (click)="switchToClient(client.id)" button>
-                <h2>{{client.name || client.id}}</h2>
-                <p>{{client.room || 'No speaker configured'}}</p>
-              </ion-label>
-              <ion-button fill="clear" color="danger" (click)="deleteClient(client.id)" slot="end">
-                <ion-icon name="trash-outline"></ion-icon>
-              </ion-button>
-            </ion-item>
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
+
     </div>
 
     <!-- Speakers Tab -->
