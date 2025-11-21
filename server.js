@@ -59,6 +59,11 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'www'))); // Static path to compiled Ionic app
 
+// Serve files from mounted host directories
+// Uncomment and configure as needed:
+// app.use('/media', express.static(path.join(__dirname, 'media')));
+// app.use('/custom-assets', express.static(path.join(__dirname, 'data')));
+
 
 // Routes
 app.get('/api/data', (req, res) => {

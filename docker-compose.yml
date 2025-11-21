@@ -7,6 +7,13 @@ services:
       - "8200:8200"
     volumes:
       - ./server/config:/app/server/config
+      # Mount host files/directories here
+      # Example: Mount a music library
+      # - /path/on/host/music:/app/media/music:ro
+      # Example: Mount custom assets
+      # - /path/on/host/images:/app/www/assets/custom:ro
+      # Example: Mount any data directory
+      # - /path/on/host/data:/app/data:ro
     environment:
       - NODE_ENV=production
     restart: unless-stopped
