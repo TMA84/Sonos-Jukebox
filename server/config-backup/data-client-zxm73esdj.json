@@ -1,0 +1,232 @@
+[
+    {
+        "artist": "Imagine Dragons",
+        "title": "All Imagine Dragons Albums",
+        "type": "spotify",
+        "category": "music",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebab47d8dae2b24f5afe7f9d38",
+        "artistid": "53XhwfbYqKCa1cC15pYq2q",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "LEGO Ninjago",
+        "title": "All LEGO Ninjago Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb093b0e2e930aba2c35c0ff09",
+        "artistid": "3YVNhnRJA4fODe4IyUIeWN",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Die drei ???",
+        "title": "All Die drei ??? Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb7de827ab626c867816052015",
+        "artistid": "3meJIgRw7YleJrmbpbJK6S",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Die drei ??? Kids",
+        "title": "All Die drei ??? Kids Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb4b258838de4271df70886fb8",
+        "artistid": "0vLsqW05dyLvjuKKftAEGA",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "LEGO City",
+        "title": "All LEGO City Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb65a5c58d5bfdb672587bc057",
+        "artistid": "7lWAti8HlNyw39Z5OI92Ep",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "LEGO DreamZzz",
+        "title": "All LEGO DreamZzz Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebada47a35c72a7e289fef6a9e",
+        "artistid": "7xRyIff5r2FDLPFU05CLxW",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "TKKG",
+        "title": "All TKKG Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb1e8366050ddb70f1267cde51",
+        "artistid": "61qDotnjM0jnY5lkfOP7ve",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "TKKG Junior",
+        "title": "All TKKG Junior Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb0f511337cb02c31ca9d7e9b8",
+        "artistid": "1ZFGYimyLnfKewOL84ABEp",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "PAW Patrol",
+        "title": "All PAW Patrol Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb1bbe4af5bcc527e8900ccf5f",
+        "artistid": "1JPhbKU3boL67fftU3U1ED",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Rubble & Crew",
+        "title": "All Rubble & Crew Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb1ee6855545c5b7e9e00616a6",
+        "artistid": "4ahqZN6XKbdBDJPKy68woy",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Peppa Pig",
+        "title": "All Peppa Pig Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb7a8b2a97b5df2f31357e703f",
+        "artistid": "2gJLanGIV9JqQuKBCWy9ZG",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Die Schule der magischen Tiere",
+        "title": "All Die Schule der magischen Tiere Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb899cb1ec226c79df43d2a604",
+        "artistid": "1BElEHaU2xaZg7FOGsSird",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Hotel Transsilvanien",
+        "title": "All Hotel Transsilvanien Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebc8441ec7303c231068c5acff",
+        "artistid": "6sXqKe1GLapt8gXmJzmj38",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Arthur und die Minimoys",
+        "title": "All Arthur und die Minimoys Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebbeb60363e61a46517e1f1fa5",
+        "artistid": "32w9Ol2YzRNGSDyjAFi6NR",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Alvin und die Chipmunks",
+        "title": "All Alvin und die Chipmunks Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb3d433fe6ba4048c4b3e5aa70",
+        "artistid": "3hz6X6o3yqDHxc5W0gKoBN",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Wieso? Weshalb? Warum?",
+        "title": "All Wieso? Weshalb? Warum? Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb6eb8b1b7e422e65e9dadd600",
+        "artistid": "79fds5dgda0VCYelERV8Gi",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Was Ist Was",
+        "title": "All Was Ist Was Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5eb3773c35f2257ee389135e03d",
+        "artistid": "7zNPHpOB4uBduLjmEZzzpy",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Woozle Goozle",
+        "title": "All Woozle Goozle Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebdf7f1145a98bf88956e23097",
+        "artistid": "4m8OWF3pSDztFgIr0Ixr48",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Rufus T. Feuerflieg",
+        "title": "All Rufus T. Feuerflieg Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebe229e9777931aa5d25652b03",
+        "artistid": "78z5hVRwhXP3wV5c7OyFlO",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Schandmaul",
+        "title": "All Schandmaul Albums",
+        "type": "spotify",
+        "category": "music",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebeef8a83d2ac187aa78aca83d",
+        "artistid": "388Jc5WX2TxTOgGwXidDM7",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "LukasBS",
+        "title": "All LukasBS Albums",
+        "type": "spotify",
+        "category": "music",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebf5ebabc796b0e37f0cba5b88",
+        "artistid": "6UXLYfkcd2st5enW3bxvlQ",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Lady Gaga",
+        "title": "All Lady Gaga Albums",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab6761610000e5ebaadc18cac8d48124357c38e6",
+        "artistid": "1HY2Jd0NmPuamShAr6KMms",
+        "contentType": "artist",
+        "clientId": "client-zxm73esdj"
+    },
+    {
+        "artist": "Schandmaul",
+        "title": "So Weit - So Gut",
+        "type": "spotify",
+        "category": "audiobook",
+        "cover": "https://i.scdn.co/image/ab67616d0000b2733750ba7d97dda92304826336",
+        "id": "1cEd0fCoaThypKKsex9btb",
+        "contentType": "album",
+        "clientId": "client-zxm73esdj"
+    }
+]

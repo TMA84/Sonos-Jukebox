@@ -46,13 +46,13 @@ export class PinDialogComponent implements OnInit {
 
   checkPin() {
     if (this.pin === this.correctPin) {
-      this.modalController.dismiss(true);
+      this.modalController.dismiss({ authenticated: true });
     } else {
       this.pin = '';
     }
   }
 
   closeModal() {
-    this.modalController.dismiss(false);
+    this.modalController.dismiss({ authenticated: false });
   }
 }
