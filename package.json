@@ -6,8 +6,9 @@
     "scripts": {
         "ng": "ng",
         "start": "node server-sqlite.js",
-      "start-old": "node server.js",
-      "migrate": "node migrate-to-sqlite.js",
+      "start-sqlite": "node server-sqlite.js",
+        "start-old": "node server.js",
+        "migrate": "node migrate-to-sqlite.js",
         "build": "ng build --configuration production",
         "deploy": "ng build --configuration production"
     },
@@ -23,6 +24,7 @@
         "cors": "^2.8.5",
         "express": "^4.21.1",
         "jsonfile": "^6.1.0",
+        "node-cache": "^5.1.2",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.0",
         "simple-keyboard": "^3.7.0",

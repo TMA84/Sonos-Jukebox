@@ -27,11 +27,15 @@ export class PinDialogComponent implements OnInit {
   addDigit(digit: string) {
     if (this.pin.length < 12) {
       this.pin += digit;
+      // Auto-check when PIN reaches 6 digits (most common length)
+      if (this.pin.length === 6) {
+        setTimeout(() => this.checkPin(), 500);
+      }
     }
   }
 
   checkPinManually() {
-    if (this.pin.length >= 4) {
+    if (this.pin.length >= 1) {
       this.checkPin();
     }
   }

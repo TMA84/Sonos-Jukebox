@@ -39,7 +39,7 @@
         <button class="keypad-button" (click)="addDigit('0')">
           0
         </button>
-        <button class="keypad-button function-button" (click)="checkPinManually()" [disabled]="pin.length < 4">
+        <button class="keypad-button function-button" (click)="checkPinManually()" [disabled]="pin.length < 1">
           <ion-icon name="checkmark-outline"></ion-icon>
         </button>
       </div>
