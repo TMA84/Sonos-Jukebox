@@ -155,26 +155,31 @@
       </ion-card>
 
       <!-- Sleep Timer Card -->
-      <ion-card class="config-card">
+      <ion-card class="modern-card">
         <ion-card-header>
-          <ion-card-title>Sleep Timer</ion-card-title>
-          <ion-card-subtitle>Automatically pause playback after specified time</ion-card-subtitle>
+          <ion-card-title class="modern-card-title">Sleep Timer</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <ion-item>
             <ion-label>Default Sleep Timer (minutes)</ion-label>
-            <ion-input 
-              type="number" 
-              [(ngModel)]="sleepTimer" 
-              (ionBlur)="saveSleepTimer()"
-              placeholder="0 = disabled"
-              min="0"
-              max="180">
-            </ion-input>
+            <div slot="end" class="timer-controls">
+              <ion-button fill="clear" size="small" (click)="decrementTimer()" [disabled]="sleepTimer <= 0">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <span class="timer-value">{{sleepTimer}}</span>
+              <ion-button fill="clear" size="small" (click)="incrementTimer()" [disabled]="sleepTimer >= 180">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
           </ion-item>
           <ion-item *ngIf="sleepTimer > 0">
             <ion-label color="medium">
               <p>Playback will automatically pause after {{sleepTimer}} minutes</p>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngIf="sleepTimer === 0">
+            <ion-label color="medium">
+              <p>Sleep timer is disabled</p>
             </ion-label>
           </ion-item>
         </ion-card-content>

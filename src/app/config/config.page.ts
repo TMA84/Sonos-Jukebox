@@ -143,6 +143,20 @@ export class ConfigPage implements OnInit {
     });
   }
 
+  incrementTimer() {
+    if (this.sleepTimer < 180) {
+      this.sleepTimer += 5;
+      this.saveSleepTimer();
+    }
+  }
+
+  decrementTimer() {
+    if (this.sleepTimer > 0) {
+      this.sleepTimer = Math.max(0, this.sleepTimer - 5);
+      this.saveSleepTimer();
+    }
+  }
+
   changePin() {
     const pinUrl = environment.production ? '../api/config/pin' : 'http://localhost:8200/api/config/pin';
     
