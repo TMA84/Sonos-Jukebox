@@ -87,6 +87,7 @@ export class PlayerPage implements OnInit {
           this.playing = track.playbackState === 'PLAYING';
           
           // Create media object from current track
+          console.log('Creating media from current track:', track);
           this.media = {
             title: track.album || track.title,
             artist: track.artist,
@@ -94,6 +95,7 @@ export class PlayerPage implements OnInit {
             category: 'music',
             id: this.extractSpotifyId(track)
           };
+          console.log('Created media object:', this.media);
           
           console.log('Loaded current playing track:', this.media.title);
         } else {
@@ -274,9 +276,16 @@ export class PlayerPage implements OnInit {
   private extractSpotifyId(track: any): string | undefined {
     // Try to extract Spotify ID from current track URI or trackUri
     const uri = track.uri || track.trackUri || '';
+    console.log('Extracting ID from URI:', uri);
+    
     // Handle URL-encoded URIs
     const decodedUri = decodeURIComponent(uri);
-    const match = decodedUri.match(/spotify[:%]track[:%]([a-zA-Z0-9]{22})/);
-    return match ? match[1] : undefined;
+    console.log('Decoded URI:', decodedUri);
+    
+    const match = decodedUri.match(/spotify:track:([a-zA-Z0-9]{22})/);
+    const id = match ? match[1] : undefined;
+    console.log('Extracted Spotify ID:', id);
+    
+    return id;
   }
 }

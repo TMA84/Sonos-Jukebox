@@ -112,7 +112,13 @@ export class PlayerService {
           uri = 'spotify:user:spotify:playlist:' + media.id;
         } else {
           if (media.id) {
-            uri = 'spotify:album:' + media.id;
+            // If media has contentType 'track' or was created from current track, use track URI
+            // Otherwise use album URI for library albums
+            if (media.contentType === 'track' || !media.contentType) {
+              uri = 'spotify:track:' + media.id;
+            } else {
+              uri = 'spotify:album:' + media.id;
+            }
           } else {
             // For search-based media without ID, we'll need to search first
             console.warn('Playing media without Spotify ID not yet supported');
@@ -168,7 +174,9 @@ export class PlayerService {
         title: state.currentTrack?.title || 'Unknown',
         artist: state.currentTrack?.artist || 'Unknown Artist',
         album: state.currentTrack?.album || '',
-        playbackState: state.playbackState
+        playbackState: state.playbackState,
+        uri: state.currentTrack?.uri,
+        trackUri: state.currentTrack?.trackUri
       }))
     );
   }
