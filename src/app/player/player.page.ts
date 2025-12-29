@@ -91,7 +91,8 @@ export class PlayerPage implements OnInit {
             title: track.album || track.title,
             artist: track.artist,
             type: 'spotify',
-            category: 'music'
+            category: 'music',
+            id: this.extractSpotifyId(track)
           };
           
           console.log('Loaded current playing track:', this.media.title);
@@ -191,7 +192,7 @@ export class PlayerPage implements OnInit {
     this.http.get<any>(configUrl, { 
       params: { clientId: clientId }
     }).subscribe(config => {
-      this.enableSpeakerSelection = config.enableSpeakerSelection !== false && !this.fromShortcut;
+      this.enableSpeakerSelection = config.enableSpeakerSelection !== false;
       
       if (!this.enableSpeakerSelection) return;
       
@@ -200,25 +201,40 @@ export class PlayerPage implements OnInit {
       if (configData) {
         const sonosConfig = JSON.parse(configData);
         this.availableSpeakers = sonosConfig.rooms || [];
+        this.setSelectedSpeaker();
+      } else {
+        // Load speakers from server if not in localStorage
+        const speakersUrl = environment.production ? '../api/speakers' : 'http://localhost:8200/api/speakers';
+        this.http.get<any[]>(speakersUrl).subscribe({
+          next: (speakers) => {
+            this.availableSpeakers = speakers.map(s => s.roomName || s.coordinator?.roomName || 'Unknown Speaker');
+            this.setSelectedSpeaker();
+          },
+          error: () => {
+            this.availableSpeakers = [];
+          }
+        });
       }
-      
-      // Check for temporary speaker selection first, then client default
-      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-      const currentSpeaker = tempSpeaker || defaultSpeaker;
-      
-      if (currentSpeaker && this.availableSpeakers.includes(currentSpeaker)) {
-        this.selectedSpeaker = currentSpeaker;
-      } else if (this.availableSpeakers.length > 0) {
-        this.selectedSpeaker = this.availableSpeakers[0];
-        // Only set localStorage if no temporary selection exists
-        if (!tempSpeaker) {
-          localStorage.setItem('selectedSpeaker', this.selectedSpeaker);
-        }
-      }
-      
-      console.log('Current selected speaker:', this.selectedSpeaker, '(temp:', tempSpeaker, 'default:', defaultSpeaker, ')');
     });
+  }
+
+  private setSelectedSpeaker() {
+    // Check for temporary speaker selection first, then client default
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+    const currentSpeaker = tempSpeaker || defaultSpeaker;
+    
+    if (currentSpeaker && this.availableSpeakers.includes(currentSpeaker)) {
+      this.selectedSpeaker = currentSpeaker;
+    } else if (this.availableSpeakers.length > 0) {
+      this.selectedSpeaker = this.availableSpeakers[0];
+      // Only set localStorage if no temporary selection exists
+      if (!tempSpeaker) {
+        localStorage.setItem('selectedSpeaker', this.selectedSpeaker);
+      }
+    }
+    
+    console.log('Current selected speaker:', this.selectedSpeaker, '(temp:', tempSpeaker, 'default:', defaultSpeaker, ')');
   }
 
   speakerChanged(event: any) {
@@ -253,5 +269,14 @@ export class PlayerPage implements OnInit {
         console.log('No valid media to play on new speaker, skipping playback. Media:', this.media);
       }
     });
+  }
+
+  private extractSpotifyId(track: any): string | undefined {
+    // Try to extract Spotify ID from current track URI or trackUri
+    const uri = track.uri || track.trackUri || '';
+    // Handle URL-encoded URIs
+    const decodedUri = decodeURIComponent(uri);
+    const match = decodedUri.match(/spotify[:%]track[:%]([a-zA-Z0-9]{22})/);
+    return match ? match[1] : undefined;
   }
 }

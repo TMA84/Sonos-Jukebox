@@ -5,10 +5,10 @@
         </ion-buttons>
         <ion-title>{{media?.title || 'Player'}}</ion-title>
         <ion-buttons slot="end">
-            <ion-select class="modern-select" [(ngModel)]="selectedSpeaker" interface="popover" *ngIf="enableSpeakerSelection && availableSpeakers.length > 0 && media && media.title && media.artist" (ionChange)="speakerChanged($event)">
+            <ion-select class="modern-select" [(ngModel)]="selectedSpeaker" interface="popover" *ngIf="enableSpeakerSelection && availableSpeakers.length > 0" (ionChange)="speakerChanged($event)">
                 <ion-select-option *ngFor="let speaker of availableSpeakers" [value]="speaker">{{speaker}}</ion-select-option>
             </ion-select>
-            <ion-title *ngIf="selectedSpeaker && (fromShortcut || (enableSpeakerSelection && (!media || !media.title || !media.artist)))" class="speaker-name">{{selectedSpeaker}}</ion-title>
+            <ion-title *ngIf="selectedSpeaker && !enableSpeakerSelection" class="speaker-name">{{selectedSpeaker}}</ion-title>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
