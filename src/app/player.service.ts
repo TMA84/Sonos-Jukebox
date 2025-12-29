@@ -129,19 +129,19 @@ export class PlayerService {
     // Get client's room and play
     const playUrl = environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play';
     
-    // Get client info to determine room
-    this.getConfig().subscribe(config => {
-      const room = localStorage.getItem('selectedSpeaker') || 'Living Room';
-      
-      this.http.post(playUrl, { room, uri }).subscribe({
-        next: (response) => {
-          console.log('Successfully started playback:', response);
-        },
-        error: (error) => {
+    // Use temporary speaker selection if available, otherwise use client default
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+    const room = tempSpeaker || defaultSpeaker || 'Living Room';
+    
+    this.http.post(playUrl, { room, uri }).subscribe({
+      next: (response) => {
+        console.log('Successfully started playback:', response);
+      },
+      error: (error) => {
           console.error('Failed to play media:', error);
         }
       });
-    });
   }
 
   say(text: string) {
@@ -185,22 +185,17 @@ export class PlayerService {
 
   stopSpeaker(speakerName: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.getConfig().subscribe(config => {
-        const encodedSpeaker = encodeURIComponent(speakerName);
-        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + encodedSpeaker + '/';
-        console.log('Stopping speaker with URL:', baseUrl + 'pause');
-        
-        // Send pause command to stop the speaker
-        this.http.get(baseUrl + 'pause').subscribe({
-          next: (response) => {
-            console.log('Successfully stopped speaker:', speakerName, response);
-            resolve();
-          },
-          error: (err) => {
-            console.error('Failed to stop speaker:', speakerName, 'URL:', baseUrl + 'pause', 'Error:', err);
-            resolve();
-          }
-        });
+      const pauseUrl = environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause';
+      
+      this.http.post(pauseUrl, { room: speakerName }).subscribe({
+        next: (response) => {
+          console.log('Successfully stopped speaker:', speakerName, response);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Failed to stop speaker:', speakerName, 'Error:', err);
+          resolve(); // Resolve anyway to not block speaker switching
+        }
       });
     });
   }
