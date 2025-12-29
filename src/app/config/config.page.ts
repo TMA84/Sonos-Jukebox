@@ -66,14 +66,15 @@ export class ConfigPage implements OnInit {
     this.loadClientName();
     this.loadLibraryItems();
     this.loadSpeakerSelectionSetting();
+    this.findSpeakers(); // Automatically load speakers on page load
   }
 
   loadCurrentConfig() {
-    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
     this.http.get<any>(configUrl, { 
       params: { clientId: this.clientId }
     }).subscribe(config => {
-      this.selectedSpeaker = config.currentRoom || '';
+      this.selectedSpeaker = config.room || '';
     });
   }
 
