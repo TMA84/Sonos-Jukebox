@@ -144,12 +144,13 @@ export class SpotifyService {
   }
 
   searchAlbums(query: string): Observable<Media[]> {
-    return defer(() => this.spotifyApi.searchAlbums(query, { limit: 20, market: 'DE' })).pipe(
-      retryWhen(errors => {
-        return this.errorHandler(errors);
-      }),
-      map((response: SpotifyAlbumsResponse) => {
-        return response.albums.items.map(item => {
+    const searchUrl = environment.production ? '../api/spotify/search/albums' : 'http://localhost:8200/api/spotify/search/albums';
+    
+    return this.http.get<any>(searchUrl, { 
+      params: { q: query, limit: '20' }
+    }).pipe(
+      map((response: any) => {
+        return response.items.map(item => {
           const media: Media = {
             id: item.id,
             artist: item.artists[0].name,
@@ -165,12 +166,13 @@ export class SpotifyService {
   }
 
   searchArtists(query: string): Observable<any[]> {
-    return defer(() => this.spotifyApi.searchArtists(query, { limit: 20 })).pipe(
-      retryWhen(errors => {
-        return this.errorHandler(errors);
-      }),
+    const searchUrl = environment.production ? '../api/spotify/search/artists' : 'http://localhost:8200/api/spotify/search/artists';
+    
+    return this.http.get<any>(searchUrl, { 
+      params: { q: query, limit: '20' }
+    }).pipe(
       map((response: any) => {
-        return response.artists.items.map(item => ({
+        return response.items.map(item => ({
           id: item.id,
           name: item.name,
           image: item.images[0]?.url,
