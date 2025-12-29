@@ -289,6 +289,41 @@ app.post('/api/add', async (req, res) => {
     }
 });
 
+// Delete media item by index (legacy endpoint for frontend compatibility)
+app.post('/api/delete', async (req, res) => {
+    try {
+        const { index, clientId } = req.body;
+        
+        if (typeof index !== 'number' || !clientId) {
+            return res.status(400).json({ error: 'Index and clientId are required' });
+        }
+        
+        // Get all media items for this client ordered by creation date
+        const mediaItems = await dbAll(
+            'SELECT id FROM media_items WHERE clientId = ? ORDER BY createdAt ASC', 
+            [clientId]
+        );
+        
+        if (index < 0 || index >= mediaItems.length) {
+            return res.status(404).json({ error: 'Media item not found at index' });
+        }
+        
+        // Delete the item at the specified index
+        const itemToDelete = mediaItems[index];
+        const result = await dbRun('DELETE FROM media_items WHERE id = ?', [itemToDelete.id]);
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Failed to delete media item' });
+        }
+        
+        console.log(`Deleted media item at index ${index} for client ${clientId}`);
+        res.json({ success: true, deletedId: itemToDelete.id });
+    } catch (error) {
+        console.error('Error deleting media item by index:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Delete media item
 app.delete('/api/media/:id', async (req, res) => {
     try {
