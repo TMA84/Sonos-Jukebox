@@ -16,30 +16,28 @@
       <div class="pin-length">{{pin.length}}/12 digits</div>
     </div>
     
-    <div class="modern-keypad">
+    <div class="pin-keypad">
       <div class="keypad-row">
-        <button class="keypad-button" *ngFor="let digit of ['1','2','3']" (click)="addDigit(digit)">
-          {{digit}}
-        </button>
+        <button class="keypad-btn" (click)="addDigit('1')">1</button>
+        <button class="keypad-btn" (click)="addDigit('2')">2</button>
+        <button class="keypad-btn" (click)="addDigit('3')">3</button>
       </div>
       <div class="keypad-row">
-        <button class="keypad-button" *ngFor="let digit of ['4','5','6']" (click)="addDigit(digit)">
-          {{digit}}
-        </button>
+        <button class="keypad-btn" (click)="addDigit('4')">4</button>
+        <button class="keypad-btn" (click)="addDigit('5')">5</button>
+        <button class="keypad-btn" (click)="addDigit('6')">6</button>
       </div>
       <div class="keypad-row">
-        <button class="keypad-button" *ngFor="let digit of ['7','8','9']" (click)="addDigit(digit)">
-          {{digit}}
-        </button>
+        <button class="keypad-btn" (click)="addDigit('7')">7</button>
+        <button class="keypad-btn" (click)="addDigit('8')">8</button>
+        <button class="keypad-btn" (click)="addDigit('9')">9</button>
       </div>
       <div class="keypad-row">
-        <button class="keypad-button function-button" (click)="clearPin()">
+        <button class="keypad-btn action-btn" (click)="clearPin()">
           <ion-icon name="backspace-outline"></ion-icon>
         </button>
-        <button class="keypad-button" (click)="addDigit('0')">
-          0
-        </button>
-        <button class="keypad-button function-button" (click)="checkPinManually()" [disabled]="pin.length < 1">
+        <button class="keypad-btn" (click)="addDigit('0')">0</button>
+        <button class="keypad-btn action-btn" (click)="checkPinManually()" [disabled]="pin.length < 1">
           <ion-icon name="checkmark-outline"></ion-icon>
         </button>
       </div>
