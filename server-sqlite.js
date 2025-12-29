@@ -637,11 +637,14 @@ app.get('/api/spotify/search/tracks', async (req, res) => {
 // Sonos player control endpoints
 app.get('/api/sonos', async (req, res) => {
     try {
-        const { clientId } = req.query;
+        const { clientId, room: requestedRoom } = req.query;
         
-        // Get client's configured room
-        const client = await dbGet('SELECT room FROM clients WHERE id = ?', [clientId]);
-        const room = client?.room || 'Living Room';
+        // Use requested room if provided, otherwise get client's configured room
+        let room = requestedRoom;
+        if (!room) {
+            const client = await dbGet('SELECT room FROM clients WHERE id = ?', [clientId]);
+            room = client?.room || 'Living Room';
+        }
         
         // Get Sonos API configuration
         const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);

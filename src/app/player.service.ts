@@ -167,9 +167,17 @@ export class PlayerService {
   getCurrentTrack(): Observable<any> {
     const url = environment.production ? '../api/sonos' : 'http://localhost:8200/api/sonos';
     
-    return this.http.get<any>(url, {
-      params: { clientId: this.clientService.getClientId() }
-    }).pipe(
+    // Use temporary speaker selection if available
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+    const selectedRoom = tempSpeaker || defaultSpeaker;
+    
+    let params: any = { clientId: this.clientService.getClientId() };
+    if (selectedRoom) {
+      params.room = selectedRoom;
+    }
+    
+    return this.http.get<any>(url, { params }).pipe(
       map((state: any) => ({
         title: state.currentTrack?.title || 'Unknown',
         artist: state.currentTrack?.artist || 'Unknown Artist',
