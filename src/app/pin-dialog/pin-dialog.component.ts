@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -6,7 +6,8 @@ import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-pin-dialog',
   templateUrl: './pin-dialog.component.html',
-  styleUrls: ['./pin-dialog.component.scss']
+  styleUrls: ['./pin-dialog.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class PinDialogComponent implements OnInit {
   pin = '';
