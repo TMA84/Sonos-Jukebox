@@ -41,7 +41,7 @@ export class PinDialogComponent implements OnInit {
   }
 
   getPinDisplay(): string {
-    return this.pin.replace(/./g, '•');
+    return '●'.repeat(this.pin.length);
   }
 
   clearPin() {
