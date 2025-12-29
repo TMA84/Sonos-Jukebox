@@ -456,6 +456,67 @@ app.get('/api/spotify/search/artists', async (req, res) => {
     }
 });
 
+app.get('/api/spotify/artists/:id/albums', async (req, res) => {
+    try {
+        if (!spotifyApi) {
+            await initializeSpotify();
+        }
+        
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = parseInt(req.query.offset) || 0;
+        
+        await refreshSpotifyToken();
+        const result = await spotifyApi.getArtistAlbums(req.params.id, { 
+            include_groups: 'album,single', 
+            limit, 
+            offset, 
+            market: 'DE' 
+        });
+        res.json(result.body);
+    } catch (error) {
+        console.error('Spotify get artist albums error:', error);
+        res.status(500).json({ error: 'Failed to get artist albums' });
+    }
+});
+
+app.get('/api/spotify/albums/:id', async (req, res) => {
+    try {
+        if (!spotifyApi) {
+            await initializeSpotify();
+        }
+        
+        await refreshSpotifyToken();
+        const result = await spotifyApi.getAlbum(req.params.id, { market: 'DE' });
+        res.json(result.body);
+    } catch (error) {
+        console.error('Spotify get album error:', error);
+        res.status(500).json({ error: 'Failed to get album' });
+    }
+});
+
+app.get('/api/spotify/search/tracks', async (req, res) => {
+    try {
+        if (!spotifyApi) {
+            await initializeSpotify();
+        }
+        
+        const query = req.query.q;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = parseInt(req.query.offset) || 0;
+        
+        if (!query) {
+            return res.status(400).json({ error: 'Query parameter required' });
+        }
+        
+        await refreshSpotifyToken();
+        const result = await spotifyApi.searchTracks(query, { limit, offset, market: 'DE' });
+        res.json(result.body.tracks);
+    } catch (error) {
+        console.error('Spotify search tracks error:', error);
+        res.status(500).json({ error: 'Failed to search tracks' });
+    }
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, 'www')));
 

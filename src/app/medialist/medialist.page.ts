@@ -96,12 +96,12 @@ export class MedialistPage implements OnInit {
       }
       
       this.isLoading = true;
-      const searchUrl = environment.production ? '../api/spotify/artist-albums' : 'http://localhost:8200/api/spotify/artist-albums';
+      const searchUrl = environment.production ? `../api/spotify/artists/${artistId}/albums` : `http://localhost:8200/api/spotify/artists/${artistId}/albums`;
       
-      this.http.get<any>(`${searchUrl}?artistId=${artistId}&offset=${this.offset}&limit=${this.limit}`).subscribe({
+      this.http.get<any>(`${searchUrl}?offset=${this.offset}&limit=${this.limit}`).subscribe({
         next: (response) => {
-          if (response.albums && response.albums.items) {
-            const newAlbums = response.albums.items.map(album => ({
+          if (response && response.items) {
+            const newAlbums = response.items.map(album => ({
               artist: this.artist.name,
               title: album.name,
               type: 'spotify',
@@ -118,7 +118,7 @@ export class MedialistPage implements OnInit {
             }
             this.media = this.allMedia;
             
-            this.hasMoreAlbums = response.albums.next !== null;
+            this.hasMoreAlbums = response.next !== null;
             this.offset += this.limit;
             
             this.loadArtworkBatch(newAlbums.slice(0, 12));
