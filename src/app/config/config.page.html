@@ -61,6 +61,33 @@
 
       <ion-card class="modern-card">
         <ion-card-header>
+          <ion-card-title class="modern-card-title">All Clients</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list *ngIf="availableClients.length > 0">
+            <ion-item *ngFor="let client of availableClients">
+              <ion-label>
+                <h2>{{client.name}}</h2>
+                <p>{{client.id}}</p>
+              </ion-label>
+              <ion-button 
+                fill="clear" 
+                color="danger" 
+                slot="end" 
+                (click)="deleteClient(client.id)"
+                [disabled]="client.id === clientId">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ion-list>
+          <ion-item *ngIf="availableClients.length === 0">
+            <ion-label color="medium">No clients configured</ion-label>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="modern-card">
+        <ion-card-header>
           <ion-card-title class="modern-card-title">Create New Client</ion-card-title>
         </ion-card-header>
         <ion-card-content>

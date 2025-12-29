@@ -208,6 +208,44 @@ app.put('/api/clients/:id', async (req, res) => {
     }
 });
 
+// Delete client
+app.post('/api/clients/delete', async (req, res) => {
+    try {
+        const { clientId } = req.body;
+        
+        if (!clientId) {
+            return res.status(400).json({ error: 'Client ID required' });
+        }
+        
+        // Soft delete by setting isActive to 0
+        await dbRun('UPDATE clients SET isActive = 0, updatedAt = CURRENT_TIMESTAMP WHERE id = ?', [clientId]);
+        
+        res.send('Client deleted successfully');
+    } catch (error) {
+        console.error('Error deleting client:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Create client (alternative endpoint for frontend compatibility)
+app.post('/api/clients/create', async (req, res) => {
+    try {
+        const { clientId, name } = req.body;
+        
+        if (!clientId || !name) {
+            return res.status(400).json({ error: 'Client ID and name required' });
+        }
+        
+        await dbRun('INSERT INTO clients (id, name, room, enableSpeakerSelection) VALUES (?, ?, ?, ?)', 
+                   [clientId, name, '', 1]);
+        
+        res.send('Client created successfully');
+    } catch (error) {
+        console.error('Error creating client:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Get media data for client
 app.get('/api/data', async (req, res) => {
     try {
