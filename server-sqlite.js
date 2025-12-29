@@ -298,9 +298,9 @@ app.post('/api/delete', async (req, res) => {
             return res.status(400).json({ error: 'Index and clientId are required' });
         }
         
-        // Get all media items for this client ordered by creation date
+        // Get all media items for this client ordered by creation date (same as /api/data)
         const mediaItems = await dbAll(
-            'SELECT id FROM media_items WHERE clientId = ? ORDER BY createdAt ASC', 
+            'SELECT id FROM media_items WHERE clientId = ? ORDER BY createdAt DESC', 
             [clientId]
         );
         
