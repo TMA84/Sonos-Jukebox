@@ -229,17 +229,11 @@
 }
 /* PIN Dialog Styles */
 .pin-content {
-  --background: var(--background);
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  padding: var(--spacing-lg);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  min-height: 70vh;
+  padding: 8px;
 }
 
 .pin-container {
@@ -250,18 +244,18 @@
 }
 
 .pin-display {
-  margin-bottom: var(--spacing-xl);
-  height: 80px;
+  margin-bottom: 24px;
+  height: 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   
-  .pin-text {
+.pin-display .pin-text {
     font-size: 32px;
     font-weight: 300;
-    color: var(--text-primary);
+    color: #ffffff;
     letter-spacing: 12px;
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: 8px;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     min-height: 40px;
     display: flex;
