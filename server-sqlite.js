@@ -383,6 +383,85 @@ app.post('/api/pin/update', async (req, res) => {
     }
 });
 
+// Client configuration endpoint
+app.get('/api/config/client', async (req, res) => {
+    try {
+        const { clientId } = req.query;
+        
+        if (!clientId) {
+            return res.status(400).json({ error: 'Client ID required' });
+        }
+        
+        const client = await dbGet('SELECT * FROM clients WHERE id = ?', [clientId]);
+        if (!client) {
+            return res.status(404).json({ error: 'Client not found' });
+        }
+        
+        res.json({
+            id: client.id,
+            name: client.name,
+            room: client.room,
+            enableSpeakerSelection: !!client.enableSpeakerSelection
+        });
+    } catch (error) {
+        console.error('Error getting client config:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/api/config/client', async (req, res) => {
+    try {
+        const { clientId, name, room, enableSpeakerSelection } = req.body;
+        
+        if (!clientId) {
+            return res.status(400).json({ error: 'Client ID required' });
+        }
+        
+        // Update client configuration
+        await dbRun('UPDATE clients SET name = ?, room = ?, enableSpeakerSelection = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?', 
+                   [name, room, enableSpeakerSelection ? 1 : 0, clientId]);
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating client config:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Speaker configuration endpoint
+app.post('/api/config/speaker', async (req, res) => {
+    try {
+        const { speaker, clientId } = req.body;
+        
+        // Update client's room/speaker setting
+        await dbRun('UPDATE clients SET room = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?', 
+                   [speaker, clientId]);
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating speaker config:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Sonos configuration endpoint
+app.post('/api/config/sonos', async (req, res) => {
+    try {
+        const { server, port } = req.body;
+        
+        // Update Sonos API configuration
+        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
+                   ['sonos_api_host', server, 'Sonos API Host']);
+        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
+                   ['sonos_api_port', port, 'Sonos API Port']);
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating Sonos config:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Spotify configuration endpoint
 app.post('/api/config/spotify', async (req, res) => {
     try {
@@ -514,6 +593,164 @@ app.get('/api/spotify/search/tracks', async (req, res) => {
     } catch (error) {
         console.error('Spotify search tracks error:', error);
         res.status(500).json({ error: 'Failed to search tracks' });
+    }
+});
+
+// Sonos player control endpoints
+app.get('/api/sonos', async (req, res) => {
+    try {
+        const { clientId } = req.query;
+        
+        // Get client's configured room
+        const client = await dbGet('SELECT room FROM clients WHERE id = ?', [clientId]);
+        const room = client?.room || 'Living Room';
+        
+        // Get Sonos API configuration
+        const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+        const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+        
+        const host = hostConfig?.value || 'localhost';
+        const port = portConfig?.value || '5005';
+        
+        // Get current state from Sonos API
+        const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/state`);
+        const state = await response.json();
+        
+        res.json(state);
+    } catch (error) {
+        console.error('Error getting Sonos state:', error);
+        res.status(500).json({ error: 'Failed to get Sonos state' });
+    }
+});
+
+app.post('/api/sonos/play', async (req, res) => {
+    try {
+        const { room, uri } = req.body;
+        
+        // Get Sonos API configuration
+        const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+        const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+        
+        const host = hostConfig?.value || 'localhost';
+        const port = portConfig?.value || '5005';
+        
+        // Play on Sonos
+        const url = uri ? 
+            `http://${host}:${port}/${encodeURIComponent(room)}/spotify/now/${uri}` :
+            `http://${host}:${port}/${encodeURIComponent(room)}/play`;
+            
+        console.log('Playing on Sonos:', { room, uri, url });
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        console.log('Sonos response:', result);
+        res.json(result);
+    } catch (error) {
+        console.error('Error playing on Sonos:', error);
+        res.status(500).json({ error: 'Failed to play on Sonos' });
+    }
+});
+
+app.post('/api/sonos/pause', async (req, res) => {
+    try {
+        const { room } = req.body;
+        
+        // Get Sonos API configuration
+        const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+        const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+        
+        const host = hostConfig?.value || 'localhost';
+        const port = portConfig?.value || '5005';
+        
+        const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/pause`);
+        const result = await response.json();
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Error pausing Sonos:', error);
+        res.status(500).json({ error: 'Failed to pause Sonos' });
+    }
+});
+
+app.post('/api/sonos/next', async (req, res) => {
+    try {
+        const { room } = req.body;
+        
+        // Get Sonos API configuration
+        const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+        const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+        
+        const host = hostConfig?.value || 'localhost';
+        const port = portConfig?.value || '5005';
+        
+        const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/next`);
+        const result = await response.json();
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Error skipping to next on Sonos:', error);
+        res.status(500).json({ error: 'Failed to skip to next on Sonos' });
+    }
+});
+
+app.post('/api/sonos/previous', async (req, res) => {
+    try {
+        const { room } = req.body;
+        
+        // Get Sonos API configuration
+        const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+        const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+        
+        const host = hostConfig?.value || 'localhost';
+        const port = portConfig?.value || '5005';
+        
+        const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/previous`);
+        const result = await response.json();
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Error skipping to previous on Sonos:', error);
+        res.status(500).json({ error: 'Failed to skip to previous on Sonos' });
+    }
+});
+
+app.post('/api/sonos/volume', async (req, res) => {
+    try {
+        const { room, change } = req.body;
+        
+        // Get Sonos API configuration
+        const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+        const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+        
+        const host = hostConfig?.value || 'localhost';
+        const port = portConfig?.value || '5005';
+        
+        const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/volume/${change}`);
+        const result = await response.json();
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Error changing volume on Sonos:', error);
+        res.status(500).json({ error: 'Failed to change volume on Sonos' });
+    }
+});
+
+// Speakers endpoint using configured Sonos API
+app.get('/api/speakers', async (req, res) => {
+    try {
+        const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+        const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+        
+        const host = hostConfig?.value || 'localhost';
+        const port = portConfig?.value || '5005';
+        
+        const response = await fetch(`http://${host}:${port}/zones`);
+        const zones = await response.json();
+        
+        res.json(zones);
+    } catch (error) {
+        console.error('Error fetching speakers:', error);
+        res.status(500).json({ error: 'Failed to fetch speakers' });
     }
 });
 

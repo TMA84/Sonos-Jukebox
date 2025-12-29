@@ -5,7 +5,7 @@ import { SonosApiConfig } from './sonos-api';
 import { ClientService } from './client.service';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
-import { publishReplay, refCount } from 'rxjs/operators';
+import { publishReplay, refCount, map } from 'rxjs/operators';
 
 export enum PlayerCmds {
   PLAY = 'play',
@@ -53,9 +53,48 @@ export class PlayerService {
   }
 
   sendCmd(cmd: PlayerCmds) {
-    this.sendRequest(cmd).catch(error => {
-      console.error('Failed to send command:', error);
-    });
+    const room = localStorage.getItem('selectedSpeaker') || 'Living Room';
+    
+    switch (cmd) {
+      case PlayerCmds.PLAY:
+        this.http.post(environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play', { room }).subscribe({
+          next: () => console.log('Play command sent'),
+          error: (error) => console.error('Failed to send play command:', error)
+        });
+        break;
+      case PlayerCmds.PAUSE:
+        this.http.post(environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause', { room }).subscribe({
+          next: () => console.log('Pause command sent'),
+          error: (error) => console.error('Failed to send pause command:', error)
+        });
+        break;
+      case PlayerCmds.NEXT:
+        this.http.post(environment.production ? '../api/sonos/next' : 'http://localhost:8200/api/sonos/next', { room }).subscribe({
+          next: () => console.log('Next command sent'),
+          error: (error) => console.error('Failed to send next command:', error)
+        });
+        break;
+      case PlayerCmds.PREVIOUS:
+        this.http.post(environment.production ? '../api/sonos/previous' : 'http://localhost:8200/api/sonos/previous', { room }).subscribe({
+          next: () => console.log('Previous command sent'),
+          error: (error) => console.error('Failed to send previous command:', error)
+        });
+        break;
+      case PlayerCmds.VOLUMEUP:
+        this.http.post(environment.production ? '../api/sonos/volume' : 'http://localhost:8200/api/sonos/volume', { room, change: '+5' }).subscribe({
+          next: () => console.log('Volume up command sent'),
+          error: (error) => console.error('Failed to send volume up command:', error)
+        });
+        break;
+      case PlayerCmds.VOLUMEDOWN:
+        this.http.post(environment.production ? '../api/sonos/volume' : 'http://localhost:8200/api/sonos/volume', { room, change: '-5' }).subscribe({
+          next: () => console.log('Volume down command sent'),
+          error: (error) => console.error('Failed to send volume down command:', error)
+        });
+        break;
+      default:
+        console.warn('Command not yet supported:', cmd);
+    }
   }
 
   playMedia(media: Media) {
@@ -65,56 +104,43 @@ export class PlayerService {
       return;
     }
     
-    let url: string;
+    let uri: string;
 
     switch (media.type) {
-      case 'applemusic': {
-        if (media.category === 'playlist') {
-          url = 'applemusic/now/playlist:' + encodeURIComponent(media.id);
-        } else {
-          url = 'applemusic/now/album:' + encodeURIComponent(media.id);
-        }
-        break;
-      }
-      case 'amazonmusic': {
-        if (media.category === 'playlist') {
-          url = 'amazonmusic/now/playlist:' + encodeURIComponent(media.id);
-        } else {
-          url = 'amazonmusic/now/album:' + encodeURIComponent(media.id);
-        }
-        break;
-      }
-      case 'library': {
-        if (!media.id) {
-          media.id = media.title;
-        }
-        if (media.category === 'playlist') {
-          url = 'playlist/' + encodeURIComponent(media.id);
-        } else {
-          url = 'musicsearch/library/album/' + encodeURIComponent(media.id);
-        }
-        break;
-      }
       case 'spotify': {
         if (media.category === 'playlist') {
-          url = 'spotify/now/spotify:user:spotify:playlist:' + encodeURIComponent(media.id);
+          uri = 'spotify:user:spotify:playlist:' + media.id;
         } else {
           if (media.id) {
-            url = 'spotify/now/spotify:album:' + encodeURIComponent(media.id);
+            uri = 'spotify:album:' + media.id;
           } else {
-            url = 'musicsearch/spotify/album/artist:"' + encodeURIComponent(media.artist) + '" album:"' + encodeURIComponent(media.title) + '"';
+            // For search-based media without ID, we'll need to search first
+            console.warn('Playing media without Spotify ID not yet supported');
+            return;
           }
         }
         break;
       }
-      case 'tunein': {
-        url = 'tunein/play/' + encodeURIComponent(media.id);
-        break;
-      }
+      default:
+        console.warn('Media type not yet supported:', media.type);
+        return;
     }
 
-    this.sendRequest(url).catch(error => {
-      console.error('Failed to play media:', error.error?.error || error.message);
+    // Get client's room and play
+    const playUrl = environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play';
+    
+    // Get client info to determine room
+    this.getConfig().subscribe(config => {
+      const room = localStorage.getItem('selectedSpeaker') || 'Living Room';
+      
+      this.http.post(playUrl, { room, uri }).subscribe({
+        next: (response) => {
+          console.log('Successfully started playback:', response);
+        },
+        error: (error) => {
+          console.error('Failed to play media:', error);
+        }
+      });
     });
   }
 
@@ -133,27 +159,18 @@ export class PlayerService {
   }
 
   getCurrentTrack(): Observable<any> {
-    return new Observable(observer => {
-      this.getConfig().subscribe(config => {
-        // Use temporary speaker selection if available, otherwise use client default
-        const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-        const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-        const selectedSpeaker = tempSpeaker || defaultSpeaker || config.rooms[0];
-        
-        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
-        this.http.get(baseUrl + 'state').subscribe(
-          (state: any) => {
-            observer.next({
-              title: state.currentTrack?.title || 'Unknown',
-              artist: state.currentTrack?.artist || 'Unknown Artist',
-              album: state.currentTrack?.album || '',
-              playbackState: state.playbackState
-            });
-          },
-          error => observer.next(null)
-        );
-      });
-    });
+    const url = environment.production ? '../api/sonos' : 'http://localhost:8200/api/sonos';
+    
+    return this.http.get<any>(url, {
+      params: { clientId: this.clientService.getClientId() }
+    }).pipe(
+      map((state: any) => ({
+        title: state.currentTrack?.title || 'Unknown',
+        artist: state.currentTrack?.artist || 'Unknown Artist',
+        album: state.currentTrack?.album || '',
+        playbackState: state.playbackState
+      }))
+    );
   }
 
   switchSpeaker(speakerName: string): Promise<void> {
