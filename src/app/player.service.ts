@@ -54,12 +54,18 @@ export class PlayerService {
   }
 
   sendCmd(cmd: PlayerCmds) {
-    const room = localStorage.getItem('selectedSpeaker') || 'Living Room';
+    // Use temporary speaker selection if available, otherwise use client default
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+    const room = tempSpeaker || defaultSpeaker || 'Living Room';
     
     switch (cmd) {
       case PlayerCmds.PLAY:
         this.http.post(environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play', { room }).subscribe({
-          next: () => console.log('Play command sent'),
+          next: () => {
+            console.log('Play command sent');
+            this.startSleepTimer();
+          },
           error: (error) => console.error('Failed to send play command:', error)
         });
         break;
