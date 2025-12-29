@@ -16,6 +16,7 @@ import { ServiceSearchComponent } from '../service-search/service-search.compone
 export class ConfigPage implements OnInit {
   speakers: any[] = [];
   selectedSpeaker = '';
+  sleepTimer = 0;
   isLoading = false;
   currentPin = '';
   newPin = '';
@@ -75,6 +76,7 @@ export class ConfigPage implements OnInit {
       params: { clientId: this.clientId }
     }).subscribe(config => {
       this.selectedSpeaker = config.room || '';
+      this.sleepTimer = config.sleepTimer || 0;
     });
   }
 
@@ -121,6 +123,22 @@ export class ConfigPage implements OnInit {
       },
       error: (err) => {
         console.error('Failed to save speaker:', err);
+      }
+    });
+  }
+
+  saveSleepTimer() {
+    const saveUrl = environment.production ? '../api/config/sleepTimer' : 'http://localhost:8200/api/config/sleepTimer';
+    
+    this.http.post(saveUrl, { 
+      sleepTimer: this.sleepTimer, 
+      clientId: this.clientId 
+    }).subscribe({
+      next: () => {
+        console.log('Sleep timer saved for client:', this.clientId, this.sleepTimer);
+      },
+      error: (err) => {
+        console.error('Failed to save sleep timer:', err);
       }
     });
   }

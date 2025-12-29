@@ -24,6 +24,7 @@ export enum PlayerCmds {
 export class PlayerService {
 
   private config: Observable<SonosApiConfig> = null;
+  private sleepTimer: any = null;
 
   constructor(
     private http: HttpClient,
@@ -143,6 +144,7 @@ export class PlayerService {
     this.http.post(playUrl, { room, uri }).subscribe({
       next: (response) => {
         console.log('Successfully started playback:', response);
+        this.startSleepTimer();
       },
       error: (error) => {
           console.error('Failed to play media:', error);
@@ -187,6 +189,42 @@ export class PlayerService {
         trackUri: state.currentTrack?.trackUri
       }))
     );
+  }
+
+  private startSleepTimer() {
+    // Clear any existing timer
+    if (this.sleepTimer) {
+      clearTimeout(this.sleepTimer);
+    }
+
+    // Get client's sleep timer setting
+    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    this.http.get<any>(configUrl, {
+      params: { clientId: this.clientService.getClientId() }
+    }).subscribe(config => {
+      const sleepMinutes = config.sleepTimer || 0;
+      
+      if (sleepMinutes > 0) {
+        console.log(`Sleep timer set for ${sleepMinutes} minutes`);
+        this.sleepTimer = setTimeout(() => {
+          this.pausePlayback();
+          console.log('Sleep timer expired - pausing playback');
+        }, sleepMinutes * 60 * 1000);
+      }
+    });
+  }
+
+  private pausePlayback() {
+    const pauseUrl = environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause';
+    
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+    const room = tempSpeaker || defaultSpeaker || 'Living Room';
+    
+    this.http.post(pauseUrl, { room }).subscribe({
+      next: () => console.log('Playback paused by sleep timer'),
+      error: (error) => console.error('Failed to pause playback:', error)
+    });
   }
 
   switchSpeaker(speakerName: string): Promise<void> {

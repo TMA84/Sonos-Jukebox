@@ -482,6 +482,22 @@ app.post('/api/config/speaker', async (req, res) => {
     }
 });
 
+// Sleep timer configuration endpoint
+app.post('/api/config/sleepTimer', async (req, res) => {
+    try {
+        const { sleepTimer, clientId } = req.body;
+        
+        // Update client's sleep timer setting
+        await dbRun('UPDATE clients SET sleepTimer = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?', 
+                   [sleepTimer, clientId]);
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating sleep timer config:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Sonos configuration endpoint
 app.post('/api/config/sonos', async (req, res) => {
     try {
