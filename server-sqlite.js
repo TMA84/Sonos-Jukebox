@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const SpotifyWebApi = require('spotify-web-api-node');
-const { v4: uuidv4 } = require('crypto');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 app.use(cors());
@@ -105,6 +105,47 @@ app.get('/api/config', async (req, res) => {
         }
     } catch (error) {
         console.error('Error getting config:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get full configuration in nested format for frontend
+app.get('/api/config/full', async (req, res) => {
+    try {
+        const configRows = await dbAll('SELECT key, value FROM config');
+        const configObj = {};
+        
+        configRows.forEach(row => {
+            configObj[row.key] = row.value;
+        });
+        
+        // Transform flat config to nested format expected by frontend
+        const nestedConfig = {
+            spotify: {
+                clientId: configObj.spotify_client_id || '',
+                clientSecret: configObj.spotify_client_secret || ''
+            },
+            amazonmusic: {
+                accessKey: configObj.amazon_access_key || '',
+                secretKey: configObj.amazon_secret_key || ''
+            },
+            applemusic: {
+                developerToken: configObj.apple_developer_token || '',
+                teamId: configObj.apple_team_id || ''
+            },
+            tunein: {
+                apiKey: configObj.tunein_api_key || '',
+                partnerId: configObj.tunein_partner_id || ''
+            },
+            'node-sonos-http-api': {
+                server: configObj.sonos_api_host || '',
+                port: configObj.sonos_api_port || ''
+            }
+        };
+        
+        res.json(nestedConfig);
+    } catch (error) {
+        console.error('Error getting full config:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -339,6 +380,79 @@ app.post('/api/pin/update', async (req, res) => {
     } catch (error) {
         console.error('Error updating PIN:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Spotify configuration endpoint
+app.post('/api/config/spotify', async (req, res) => {
+    try {
+        const { clientId, clientSecret } = req.body;
+        
+        // Update both Spotify credentials
+        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
+                   ['spotify_client_id', clientId, 'Spotify Client ID']);
+        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
+                   ['spotify_client_secret', clientSecret, 'Spotify Client Secret']);
+        
+        // Reinitialize Spotify API with new credentials
+        await initializeSpotify();
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating Spotify config:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Spotify API routes
+app.get('/api/spotify/status', (req, res) => {
+    const configured = spotifyApi && spotifyApi.getClientId() && spotifyApi.getClientSecret();
+    res.json({ configured: !!configured });
+});
+
+app.get('/api/spotify/search/albums', async (req, res) => {
+    try {
+        if (!spotifyApi) {
+            await initializeSpotify();
+        }
+        
+        const query = req.query.q;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = parseInt(req.query.offset) || 0;
+        
+        if (!query) {
+            return res.status(400).json({ error: 'Query parameter required' });
+        }
+        
+        await refreshSpotifyToken();
+        const result = await spotifyApi.searchAlbums(query, { limit, offset, market: 'DE' });
+        res.json(result.body.albums);
+    } catch (error) {
+        console.error('Spotify search albums error:', error);
+        res.status(500).json({ error: 'Failed to search albums' });
+    }
+});
+
+app.get('/api/spotify/search/artists', async (req, res) => {
+    try {
+        if (!spotifyApi) {
+            await initializeSpotify();
+        }
+        
+        const query = req.query.q;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = parseInt(req.query.offset) || 0;
+        
+        if (!query) {
+            return res.status(400).json({ error: 'Query parameter required' });
+        }
+        
+        await refreshSpotifyToken();
+        const result = await spotifyApi.searchArtists(query, { limit, offset, market: 'DE' });
+        res.json(result.body.artists);
+    } catch (error) {
+        console.error('Spotify search artists error:', error);
+        res.status(500).json({ error: 'Failed to search artists' });
     }
 });
 
