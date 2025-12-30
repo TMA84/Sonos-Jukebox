@@ -390,8 +390,12 @@
             Search {{getSearchTypeLabel()}}
           </ion-button>
           <ion-button class="modern-button primary" expand="block" (click)="addToLibrary()" [disabled]="!libraryArtist || !libraryTitle || (librarySource !== 'library' && !serviceConfigured[librarySource])">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Add to Library
+            <ion-icon name="{{editingIndex >= 0 ? 'checkmark-outline' : 'add-outline'}}" slot="start"></ion-icon>
+            {{editingIndex >= 0 ? 'Update Item' : 'Add to Library'}}
+          </ion-button>
+          <ion-button *ngIf="editingIndex >= 0" class="modern-button secondary" expand="block" fill="outline" (click)="clearForm()">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Cancel Edit
           </ion-button>
         </ion-card-content>
       </ion-card>
@@ -412,6 +416,9 @@
                 <p>{{item.artist}} - {{item.type}}</p>
                 <p><small>{{item.category}} | {{item.contentType || 'album'}}</small></p>
               </ion-label>
+              <ion-button fill="clear" color="primary" (click)="editLibraryItem(i)" slot="end">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
               <ion-button fill="clear" color="danger" (click)="removeFromLibrary(i)" slot="end">
                 <ion-icon name="trash-outline"></ion-icon>
               </ion-button>

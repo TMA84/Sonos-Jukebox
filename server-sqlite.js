@@ -324,6 +324,44 @@ app.post('/api/delete', async (req, res) => {
     }
 });
 
+// Update media item by index
+app.post('/api/update', async (req, res) => {
+    try {
+        const { index, item } = req.body;
+        
+        if (typeof index !== 'number' || !item || !item.clientId) {
+            return res.status(400).json({ error: 'Index, item, and clientId are required' });
+        }
+        
+        // Get all media items for this client ordered by creation date (same as /api/data)
+        const mediaItems = await dbAll(
+            'SELECT id FROM media_items WHERE clientId = ? ORDER BY createdAt DESC', 
+            [item.clientId]
+        );
+        
+        if (index < 0 || index >= mediaItems.length) {
+            return res.status(404).json({ error: 'Media item not found at index' });
+        }
+        
+        // Update the item at the specified index
+        const itemToUpdate = mediaItems[index];
+        const result = await dbRun(
+            'UPDATE media_items SET title = ?, artist = ?, type = ?, category = ?, contentType = ? WHERE id = ?',
+            [item.title, item.artist, item.type, item.category, item.contentType, itemToUpdate.id]
+        );
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Failed to update media item' });
+        }
+        
+        console.log(`Updated media item at index ${index} for client ${item.clientId}`);
+        res.json({ success: true, updatedId: itemToUpdate.id });
+    } catch (error) {
+        console.error('Error updating media item by index:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Delete media item
 app.delete('/api/media/:id', async (req, res) => {
     try {

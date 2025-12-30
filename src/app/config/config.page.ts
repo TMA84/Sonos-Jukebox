@@ -42,6 +42,7 @@ export class ConfigPage implements OnInit {
   libraryArtist = '';
   libraryTitle = '';
   libraryItems: any[] = [];
+  editingIndex: number = -1;
   enableSpeakerSelection = true;
   selectedClientId = '';
   serviceConfigured = {
@@ -584,6 +585,16 @@ export class ConfigPage implements OnInit {
 
 
 
+  editLibraryItem(index: number) {
+    const item = this.libraryItems[index];
+    this.editingIndex = index;
+    this.libraryArtist = item.artist;
+    this.libraryTitle = item.title;
+    this.libraryCategory = item.category;
+    this.librarySource = item.type;
+    this.searchType = item.contentType || 'album';
+  }
+
   addToLibrary() {
     if (!this.libraryArtist || !this.libraryTitle) return;
     
@@ -592,23 +603,46 @@ export class ConfigPage implements OnInit {
       title: this.libraryTitle,
       type: this.librarySource,
       category: this.libraryCategory,
-      contentType: 'album',
+      contentType: this.searchType,
       clientId: this.clientId
     };
     
-    // Save to server via API
-    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
-    this.http.post(addUrl, item).subscribe({
-      next: () => {
-        console.log('Manual item added to server:', item);
-        this.loadLibraryItems(); // Reload from server
-        this.libraryArtist = '';
-        this.libraryTitle = '';
-      },
-      error: (err) => {
-        console.error('Failed to add manual item to server:', err);
-      }
-    });
+    if (this.editingIndex >= 0) {
+      // Update existing item
+      const updateUrl = environment.production ? '../api/update' : 'http://localhost:8200/api/update';
+      this.http.post(updateUrl, {
+        index: this.editingIndex,
+        item: item
+      }).subscribe({
+        next: () => {
+          console.log('Item updated on server:', item);
+          this.loadLibraryItems();
+          this.clearForm();
+        },
+        error: (err) => {
+          console.error('Failed to update item on server:', err);
+        }
+      });
+    } else {
+      // Add new item
+      const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+      this.http.post(addUrl, item).subscribe({
+        next: () => {
+          console.log('Manual item added to server:', item);
+          this.loadLibraryItems();
+          this.clearForm();
+        },
+        error: (err) => {
+          console.error('Failed to add manual item to server:', err);
+        }
+      });
+    }
+  }
+
+  clearForm() {
+    this.libraryArtist = '';
+    this.libraryTitle = '';
+    this.editingIndex = -1;
   }
 
   removeFromLibrary(index: number) {
