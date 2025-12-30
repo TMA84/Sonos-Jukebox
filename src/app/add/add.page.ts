@@ -8,6 +8,7 @@ import { NgForm } from '@angular/forms';
 import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
 import { ArtistSearchComponent } from '../artist-search/artist-search.component';
+import { RadioSearchComponent } from '../radio-search/radio-search.component';
 import { ConfigService } from '../config.service';
 
 
@@ -283,6 +284,10 @@ export class AddPage implements OnInit, AfterViewInit {
   }
 
   async openServiceSearch(service: 'applemusic' | 'amazonmusic' | 'tunein') {
+    if (service === 'tunein') {
+      return this.openRadioSearch();
+    }
+    
     const modal = await this.modalController.create({
       component: ServiceSearchComponent,
       componentProps: {
@@ -299,6 +304,36 @@ export class AddPage implements OnInit, AfterViewInit {
     });
 
     return await modal.present();
+  }
+
+  async openRadioSearch() {
+    const modal = await this.modalController.create({
+      component: RadioSearchComponent,
+      cssClass: 'radio-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addStationFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  addStationFromSearch(station: any) {
+    const media = {
+      category: 'radio',
+      type: 'tunein',
+      artist: station.genre || 'Radio',
+      title: station.name,
+      cover: station.image,
+      id: station.id
+    };
+
+    this.mediaService.addRawMedia(media);
+    this.reloadHome();
+    this.router.navigate(['/config']);
   }
 
   async openArtistSearch() {
