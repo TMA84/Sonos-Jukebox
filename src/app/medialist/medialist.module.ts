@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { MedialistPageRoutingModule } from './medialist-routing.module';
-import { SharedModule } from '../shared/shared.module';
 
 import { MedialistPage } from './medialist.page';
 
@@ -14,8 +13,7 @@ import { MedialistPage } from './medialist.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    MedialistPageRoutingModule,
-    SharedModule
+    MedialistPageRoutingModule
   ],
   declarations: [MedialistPage]
 })
