@@ -199,16 +199,25 @@ export class PlayerService {
   }
 
   say(text: string) {
+    // Skip TTS for empty or invalid text
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      return;
+    }
+
     this.getConfig().subscribe(config => {
-      let url = 'say/' + encodeURIComponent(text) + '/' + ((config.tts?.language?.length > 0) ? config.tts.language : 'de-de');
+      try {
+        let url = 'say/' + encodeURIComponent(text.trim()) + '/' + ((config.tts?.language?.length > 0) ? config.tts.language : 'de-de');
 
-      if (config.tts?.volume?.length > 0) {
-        url += '/' + config.tts.volume;
+        if (config.tts?.volume?.length > 0) {
+          url += '/' + config.tts.volume;
+        }
+
+        this.sendRequest(url).catch(error => {
+          console.error('Failed to say text:', error);
+        });
+      } catch (error) {
+        console.error('Failed to construct TTS URL for text:', text, error);
       }
-
-      this.sendRequest(url).catch(error => {
-        console.error('Failed to say text:', error);
-      });
     });
   }
 
