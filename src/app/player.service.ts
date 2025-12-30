@@ -314,7 +314,7 @@ export class PlayerService {
         // Use temporary speaker selection if available, otherwise use client default
         const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
         const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-        const selectedSpeaker = tempSpeaker || defaultSpeaker || config.rooms[0];
+        const selectedSpeaker = tempSpeaker || defaultSpeaker || 'Living Room';
         
         const baseUrl = 'http://' + config.server + ':' + config.port + '/' + encodeURIComponent(selectedSpeaker) + '/';
         this.http.get(baseUrl + url).subscribe({
