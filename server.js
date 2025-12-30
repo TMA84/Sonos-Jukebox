@@ -19,6 +19,45 @@ if (!fs.existsSync(dbDir)) {
 // Initialize SQLite database
 const db = new sqlite3.Database('./server/data/database.sqlite');
 
+// Initialize database tables
+async function initializeDatabase() {
+    try {
+        // Create config table
+        await dbRun(`CREATE TABLE IF NOT EXISTS config (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )`);
+
+        // Create clients table
+        await dbRun(`CREATE TABLE IF NOT EXISTS clients (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            room TEXT,
+            isActive INTEGER DEFAULT 1,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        // Create media_items table
+        await dbRun(`CREATE TABLE IF NOT EXISTS media_items (
+            id TEXT PRIMARY KEY,
+            clientId TEXT NOT NULL,
+            title TEXT NOT NULL,
+            artist TEXT NOT NULL,
+            cover TEXT,
+            type TEXT,
+            category TEXT,
+            contentType TEXT,
+            metadata TEXT,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (clientId) REFERENCES clients(id)
+        )`);
+
+        console.log('Database tables initialized successfully');
+    } catch (error) {
+        console.error('Error initializing database:', error);
+    }
+}
+
 // Database helper functions
 const dbGet = (sql, params = []) => {
     return new Promise((resolve, reject) => {
@@ -1105,6 +1144,7 @@ app.get('*', (req, res) => {
 // Initialize and start server
 async function startServer() {
     try {
+        await initializeDatabase();
         await initializeSpotify();
         
         const port = process.env.PORT || 8200;
