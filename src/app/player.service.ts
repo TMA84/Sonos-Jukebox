@@ -36,11 +36,12 @@ export class PlayerService {
     // publishReplay(1) tells rxjs to cache the last response of the request
     // refCount() keeps the observable alive until all subscribers unsubscribed
     if (!this.config) {
-      const url = (environment.production) ? '../api/sonos' : 'http://localhost:8200/api/sonos';
+      const url = (environment.production) ? '../api/config/full' : 'http://localhost:8200/api/config/full';
 
-      this.config = this.http.get<SonosApiConfig>(url, {
+      this.config = this.http.get<any>(url, {
         params: { clientId: this.clientService.getClientId() }
       }).pipe(
+        map((config: any) => config['node-sonos-http-api']),
         publishReplay(1), // cache result
         refCount()
       );
