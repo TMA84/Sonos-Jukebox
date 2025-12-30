@@ -160,6 +160,24 @@ export class PlayerService {
         }
         break;
       }
+      case 'tunein': {
+        // For TuneIn radio, get streamUrl from metadata
+        let metadata;
+        try {
+          metadata = typeof (media as any).metadata === 'string' ? JSON.parse((media as any).metadata) : (media as any).metadata;
+        } catch (e) {
+          console.error('Failed to parse radio metadata:', e);
+          return;
+        }
+        
+        if (metadata?.streamUrl) {
+          uri = metadata.streamUrl;
+        } else {
+          console.error('No streamUrl found for radio station:', media);
+          return;
+        }
+        break;
+      }
       default:
         console.warn('Media type not yet supported:', media.type);
         return;
