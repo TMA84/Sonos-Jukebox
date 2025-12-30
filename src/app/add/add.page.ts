@@ -31,7 +31,14 @@ export class AddPage implements OnInit, AfterViewInit {
   selectedInputElem: any;
   valid = false;
   spotifyConfigured = false;
+  tuneinConfigured = true; // TuneIn uses public API, always available
+  amazonConfigured = false;
+  appleConfigured = false;
   showKeyboard = false;
+  artistName = '';
+  titleName = '';
+  clients: any[] = [];
+  selectedClient = '';
   isUpperCase = false;
   activeInput: any = null;
   keyboardRows = [
@@ -128,6 +135,16 @@ export class AddPage implements OnInit, AfterViewInit {
       this.source = 'spotify';
     }
 
+    this.validate();
+  }
+
+  selectCategory(category: string) {
+    this.category = category;
+    this.categoryChanged();
+  }
+
+  selectSource(source: string) {
+    this.source = source;
     this.validate();
   }
 
