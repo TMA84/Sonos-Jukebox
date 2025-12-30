@@ -1,0 +1,50 @@
+<ion-modal [isOpen]="isVisible" (didDismiss)="closeModal()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Search Radio Stations</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <div class="search-container">
+        <ion-searchbar
+          [(ngModel)]="searchQuery"
+          (ionInput)="onSearchInput($event)"
+          placeholder="Search radio stations..."
+          debounce="500">
+        </ion-searchbar>
+
+        <div *ngIf="isLoading" class="loading-container">
+          <ion-spinner></ion-spinner>
+          <p>Searching stations...</p>
+        </div>
+
+        <div class="results-container" *ngIf="searchResults.length > 0">
+          <div class="station-card" 
+               *ngFor="let station of searchResults" 
+               (click)="selectStation(station)">
+            <img [src]="station.image" 
+                 [alt]="station.name"
+                 onerror="this.src='assets/images/radio-placeholder.png'">
+            <div class="station-info">
+              <h3>{{ station.name }}</h3>
+              <p class="genre">{{ station.genre }}</p>
+              <p class="bitrate">{{ station.bitrate }}kbps</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="searchQuery.length > 2 && searchResults.length === 0 && !isLoading" 
+             class="no-results">
+          <p>No radio stations found for "{{ searchQuery }}"</p>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

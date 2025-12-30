@@ -8,6 +8,7 @@ import { AddPageRoutingModule } from './add-routing.module';
 
 import { AddPage } from './add.page';
 import { SharedModule } from '../shared/shared.module';
+import { RadioSearchComponent } from '../radio-search/radio-search.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { SharedModule } from '../shared/shared.module';
     AddPageRoutingModule,
     SharedModule
   ],
-  declarations: [AddPage]
+  declarations: [AddPage, RadioSearchComponent]
 })
 export class AddPageModule {}

@@ -38,16 +38,33 @@ export class ServiceSearchComponent {
     }
     
     this.isSearching = true;
-    const searchUrl = environment.production ? `../api/search/${this.service}` : `http://localhost:8200/api/search/${this.service}`;
+    let searchUrl: string;
+    let params: any;
     
-    this.http.get<any>(searchUrl, {
-      params: { 
+    if (this.service === 'tunein') {
+      searchUrl = environment.production ? `../api/tunein/search/stations` : `http://localhost:8200/api/tunein/search/stations`;
+      params = { q: this.searchTerm, limit: '20' };
+    } else {
+      searchUrl = environment.production ? `../api/search/${this.service}` : `http://localhost:8200/api/search/${this.service}`;
+      params = { 
         query: this.searchTerm,
-        type: this.service === 'tunein' ? 'station' : 'album'
-      }
-    }).subscribe({
+        type: 'album'
+      };
+    }
+    
+    this.http.get<any>(searchUrl, { params }).subscribe({
       next: (response) => {
-        this.searchResults = this.service === 'tunein' ? response.stations : response.albums;
+        if (this.service === 'tunein') {
+          this.searchResults = response.stations.items.map((station: any) => ({
+            id: station.id,
+            title: station.name,
+            artist: station.genre,
+            cover: station.image,
+            streamUrl: station.streamUrl
+          }));
+        } else {
+          this.searchResults = response.albums;
+        }
         this.isSearching = false;
       },
       error: (error) => {

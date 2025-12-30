@@ -716,6 +716,55 @@ app.get('/api/spotify/search/tracks', async (req, res) => {
     }
 });
 
+// TuneIn Radio API endpoints
+app.get('/api/tunein/search/stations', async (req, res) => {
+    try {
+        const query = req.query.q;
+        const limit = parseInt(req.query.limit) || 20;
+        
+        if (!query) {
+            return res.status(400).json({ error: 'Query parameter required' });
+        }
+        
+        // TuneIn search API call
+        const searchUrl = `http://opml.radiotime.com/Search.ashx?query=${encodeURIComponent(query)}`;
+        const response = await fetch(searchUrl);
+        const xmlData = await response.text();
+        
+        // Parse XML response
+        const stations = [];
+        const outlineMatches = xmlData.match(/<outline[^>]*type="audio"[^>]*>/g) || [];
+        
+        for (let i = 0; i < Math.min(outlineMatches.length, limit); i++) {
+            const outline = outlineMatches[i];
+            const textMatch = outline.match(/text="([^"]*)"/) || [];
+            const urlMatch = outline.match(/URL="([^"]*)"/) || [];
+            const imageMatch = outline.match(/image="([^"]*)"/) || [];
+            const guideIdMatch = outline.match(/guide_id="([^"]*)"/) || [];
+            const bitrateMatch = outline.match(/bitrate="([^"]*)"/) || [];
+            const genreIdMatch = outline.match(/genre_id="([^"]*)"/) || [];
+            
+            if (textMatch[1] && urlMatch[1]) {
+                stations.push({
+                    id: guideIdMatch[1] || `s${Date.now()}_${i}`,
+                    name: textMatch[1],
+                    description: textMatch[1],
+                    image: imageMatch[1] || 'https://cdn-profiles.tunein.com/default/images/logoq.jpg',
+                    genre: genreIdMatch[1] || 'Unknown',
+                    bitrate: bitrateMatch[1] || '128',
+                    reliability: '99',
+                    streamUrl: urlMatch[1]
+                });
+            }
+        }
+        
+        res.json({ stations: { items: stations } });
+    } catch (error) {
+        console.error('TuneIn search error:', error);
+        res.status(500).json({ error: 'TuneIn search failed' });
+    }
+});
+
 // Sonos player control endpoints
 app.get('/api/sonos', async (req, res) => {
     try {
