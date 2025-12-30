@@ -194,8 +194,6 @@
           <ion-icon name="settings"></ion-icon>
           <ion-select [(ngModel)]="selectedService" interface="popover" placeholder="Select Service" [interfaceOptions]="{cssClass: 'select-popover'}">
             <ion-select-option value="spotify">Spotify</ion-select-option>
-            <ion-select-option value="amazon">Amazon Music</ion-select-option>
-            <ion-select-option value="apple">Apple Music</ion-select-option>
             <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
             <ion-select-option value="sonos">Sonos API</ion-select-option>
           </ion-select>
@@ -222,63 +220,20 @@
         </ion-card-content>
       </ion-card>
 
-      <!-- Amazon Music Configuration -->
-      <ion-card class="modern-card" *ngIf="selectedService === 'amazon'">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Amazon Music Configuration</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Access Key</ion-label>
-            <ion-input [(ngModel)]="amazonConfig.accessKey" placeholder="Enter Amazon Access Key" (ionFocus)="setActiveInput('amazonAccessKey')"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Secret Key</ion-label>
-            <ion-input type="password" [(ngModel)]="amazonConfig.secretKey" placeholder="Enter Amazon Secret Key" (ionFocus)="setActiveInput('amazonSecretKey')"></ion-input>
-          </ion-item>
-          <ion-button class="modern-button primary" expand="block" (click)="saveAmazonConfig()" [disabled]="!amazonConfig.accessKey || !amazonConfig.secretKey">
-            Save Amazon Configuration
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Apple Music Configuration -->
-      <ion-card class="modern-card" *ngIf="selectedService === 'apple'">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Apple Music Configuration</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Developer Token</ion-label>
-            <ion-input [(ngModel)]="appleConfig.developerToken" placeholder="Enter Apple Developer Token" (ionFocus)="setActiveInput('appleDeveloperToken')"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Team ID</ion-label>
-            <ion-input [(ngModel)]="appleConfig.teamId" placeholder="Enter Apple Team ID" (ionFocus)="setActiveInput('appleTeamId')"></ion-input>
-          </ion-item>
-          <ion-button class="modern-button primary" expand="block" (click)="saveAppleConfig()" [disabled]="!appleConfig.developerToken || !appleConfig.teamId">
-            Save Apple Configuration
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-
       <!-- TuneIn Radio Configuration -->
       <ion-card class="modern-card" *ngIf="selectedService === 'tunein'">
         <ion-card-header>
-          <ion-card-title class="modern-card-title">TuneIn Radio Configuration</ion-card-title>
+          <ion-card-title class="modern-card-title">TuneIn Radio</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <ion-item>
-            <ion-label position="stacked">API Key</ion-label>
-            <ion-input [(ngModel)]="tuneinConfig.apiKey" placeholder="Enter TuneIn API Key" (ionFocus)="setActiveInput('tuneinApiKey')"></ion-input>
+            <ion-label>
+              <h2>TuneIn Radio Integration</h2>
+              <p>TuneIn Radio is ready to use - no configuration required!</p>
+              <p>Search for radio stations directly in the Library tab.</p>
+            </ion-label>
+            <ion-icon name="checkmark-circle" color="success" slot="end"></ion-icon>
           </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Partner ID</ion-label>
-            <ion-input [(ngModel)]="tuneinConfig.partnerId" placeholder="Enter TuneIn Partner ID" (ionFocus)="setActiveInput('tuneinPartnerId')"></ion-input>
-          </ion-item>
-          <ion-button class="modern-button primary" expand="block" (click)="saveTuneinConfig()" [disabled]="!tuneinConfig.apiKey || !tuneinConfig.partnerId">
-            Save TuneIn Configuration
-          </ion-button>
         </ion-card-content>
       </ion-card>
 

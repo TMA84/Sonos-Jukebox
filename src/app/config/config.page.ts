@@ -26,9 +26,6 @@ export class ConfigPage implements OnInit {
   newClientName = '';
   availableClients: any[] = [];
   spotifyConfig = { clientId: '', clientSecret: '' };
-  amazonConfig = { accessKey: '', secretKey: '' };
-  appleConfig = { developerToken: '', teamId: '' };
-  tuneinConfig = { apiKey: '', partnerId: '' };
   sonosConfig = { server: '', port: '' };
   selectedTab = 'library';
   showKeyboard = false;
@@ -47,7 +44,7 @@ export class ConfigPage implements OnInit {
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
-    tunein: false
+    tunein: true  // TuneIn doesn't need configuration
   };
 
   constructor(
@@ -194,18 +191,6 @@ export class ConfigPage implements OnInit {
         clientId: config.spotify?.clientId || '',
         clientSecret: config.spotify?.clientSecret || ''
       };
-      this.amazonConfig = {
-        accessKey: config.amazonmusic?.accessKey || '',
-        secretKey: config.amazonmusic?.secretKey || ''
-      };
-      this.appleConfig = {
-        developerToken: config.applemusic?.developerToken || '',
-        teamId: config.applemusic?.teamId || ''
-      };
-      this.tuneinConfig = {
-        apiKey: config.tunein?.apiKey || '',
-        partnerId: config.tunein?.partnerId || ''
-      };
       this.sonosConfig = {
         server: config['node-sonos-http-api']?.server || '',
         port: config['node-sonos-http-api']?.port || ''
@@ -222,30 +207,6 @@ export class ConfigPage implements OnInit {
     this.http.post(saveUrl, this.spotifyConfig).subscribe({
       next: () => console.log('Spotify configuration saved'),
       error: (err) => console.error('Failed to save Spotify config:', err)
-    });
-  }
-
-  saveAmazonConfig() {
-    const saveUrl = environment.production ? '../api/config/amazon' : 'http://localhost:8200/api/config/amazon';
-    this.http.post(saveUrl, this.amazonConfig).subscribe({
-      next: () => console.log('Amazon Music configuration saved'),
-      error: (err) => console.error('Failed to save Amazon config:', err)
-    });
-  }
-
-  saveAppleConfig() {
-    const saveUrl = environment.production ? '../api/config/apple' : 'http://localhost:8200/api/config/apple';
-    this.http.post(saveUrl, this.appleConfig).subscribe({
-      next: () => console.log('Apple Music configuration saved'),
-      error: (err) => console.error('Failed to save Apple config:', err)
-    });
-  }
-
-  saveTuneinConfig() {
-    const saveUrl = environment.production ? '../api/config/tunein' : 'http://localhost:8200/api/config/tunein';
-    this.http.post(saveUrl, this.tuneinConfig).subscribe({
-      next: () => console.log('TuneIn configuration saved'),
-      error: (err) => console.error('Failed to save TuneIn config:', err)
     });
   }
 
@@ -400,24 +361,6 @@ export class ConfigPage implements OnInit {
       case 'sonosPort':
         this.sonosConfig.port += key;
         break;
-      case 'amazonAccessKey':
-        this.amazonConfig.accessKey += key;
-        break;
-      case 'amazonSecretKey':
-        this.amazonConfig.secretKey += key;
-        break;
-      case 'appleDeveloperToken':
-        this.appleConfig.developerToken += key;
-        break;
-      case 'appleTeamId':
-        this.appleConfig.teamId += key;
-        break;
-      case 'tuneinApiKey':
-        this.tuneinConfig.apiKey += key;
-        break;
-      case 'tuneinPartnerId':
-        this.tuneinConfig.partnerId += key;
-        break;
       case 'newClientName':
         this.newClientName += key;
         break;
@@ -455,24 +398,6 @@ export class ConfigPage implements OnInit {
         break;
       case 'sonosPort':
         this.sonosConfig.port = this.sonosConfig.port.slice(0, -1);
-        break;
-      case 'amazonAccessKey':
-        this.amazonConfig.accessKey = this.amazonConfig.accessKey.slice(0, -1);
-        break;
-      case 'amazonSecretKey':
-        this.amazonConfig.secretKey = this.amazonConfig.secretKey.slice(0, -1);
-        break;
-      case 'appleDeveloperToken':
-        this.appleConfig.developerToken = this.appleConfig.developerToken.slice(0, -1);
-        break;
-      case 'appleTeamId':
-        this.appleConfig.teamId = this.appleConfig.teamId.slice(0, -1);
-        break;
-      case 'tuneinApiKey':
-        this.tuneinConfig.apiKey = this.tuneinConfig.apiKey.slice(0, -1);
-        break;
-      case 'tuneinPartnerId':
-        this.tuneinConfig.partnerId = this.tuneinConfig.partnerId.slice(0, -1);
         break;
       case 'newClientName':
         this.newClientName = this.newClientName.slice(0, -1);
