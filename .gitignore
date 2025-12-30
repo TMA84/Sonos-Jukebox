@@ -18,6 +18,16 @@ log.txt
 npm-debug.log*
 
 /.idea
+
+# Database files - should never be committed
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.db-shm
+*.db-wal
+server/data/
+server/config/database.*
 /.ionic
 /.angular
 /.sass-cache
