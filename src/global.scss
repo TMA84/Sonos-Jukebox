@@ -229,10 +229,15 @@
 }
 /* PIN Dialog Styles */
 .pin-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  min-height: 70vh;
+  align-items: center;
   padding: 8px;
 }
 
@@ -244,8 +249,8 @@
 }
 
 .pin-display {
-  margin-bottom: 24px;
-  height: 60px;
+  margin-bottom: 16px;
+  height: 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -273,25 +278,25 @@
 .pin-keypad {
   display: grid;
   grid-template-rows: repeat(4, 1fr);
-  gap: 12px;
-  max-width: 240px;
+  gap: 10px;
+  max-width: 200px;
   margin: 0 auto;
 }
 
 .keypad-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .keypad-btn {
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   border: 2px solid var(--ion-color-light);
   background: var(--ion-color-light);
   color: var(--ion-color-dark);
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -380,4 +385,161 @@
       height: 16px;
     }
   }
+}
+/* New PIN Modal Styles */
+app-pin-dialog {
+  background: none !important;
+  background-color: transparent !important;
+  --background: transparent !important;
+  --box-shadow: none !important;
+  --ion-background-color: transparent !important;
+  --ion-background-color-rgb: 0, 0, 0, 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: transparent !important;
+}
+
+app-pin-dialog * {
+  --ion-background-color: transparent !important;
+  --ion-background-color-rgb: 0, 0, 0, 0 !important;
+}
+
+app-pin-dialog.ion-page {
+  background: none !important;
+  background-color: transparent !important;
+  --background: transparent !important;
+  --ion-background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.ion-page app-pin-dialog {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Force override any Ionic background */
+app-pin-dialog::before,
+app-pin-dialog::after {
+  display: none !important;
+}
+
+.pin-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1a1a;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 320px;
+  width: 90%;
+  z-index: 10000;
+}
+
+.pin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.pin-header h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.pin-close {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.pin-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pin-display {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.pin-dots {
+  font-size: 32px;
+  color: #ffffff;
+  letter-spacing: 12px;
+  margin-bottom: 8px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pin-counter {
+  color: #888888;
+  font-size: 14px;
+}
+
+.pin-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 240px;
+  margin: 0 auto;
+}
+
+.pin-key {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  background: #333333;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pin-key:hover {
+  background: #444444;
+  transform: scale(1.05);
+}
+
+.pin-key:active {
+  transform: scale(0.95);
+}
+
+.pin-key.pin-action {
+  background: #007AFF;
+}
+
+.pin-key.pin-action:hover {
+  background: #0056CC;
+}
+
+.pin-key:disabled {
+  background: #222222;
+  color: #666666;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pin-key:disabled:hover {
+  background: #222222;
+  transform: none;
 }

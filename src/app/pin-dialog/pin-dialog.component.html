@@ -1,48 +1,26 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Enter PIN</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="closeModal()">
-        <ion-icon name="close-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
-  <div class="pin-content">
-    <div class="pin-container">
-      <div class="pin-display">
-        <div class="pin-text" style="font-size: 32px; color: #ffffff; letter-spacing: 12px; font-weight: bold;">{{getPinDisplay()}}</div>
-        <div class="pin-length">{{pin.length}}/12 digits</div>
-      </div>
-      
-      <div class="pin-keypad">
-        <div class="keypad-row">
-          <button class="keypad-btn" (click)="addDigit('1')">1</button>
-          <button class="keypad-btn" (click)="addDigit('2')">2</button>
-          <button class="keypad-btn" (click)="addDigit('3')">3</button>
-        </div>
-        <div class="keypad-row">
-          <button class="keypad-btn" (click)="addDigit('4')">4</button>
-          <button class="keypad-btn" (click)="addDigit('5')">5</button>
-          <button class="keypad-btn" (click)="addDigit('6')">6</button>
-        </div>
-        <div class="keypad-row">
-          <button class="keypad-btn" (click)="addDigit('7')">7</button>
-          <button class="keypad-btn" (click)="addDigit('8')">8</button>
-          <button class="keypad-btn" (click)="addDigit('9')">9</button>
-        </div>
-        <div class="keypad-row">
-          <button class="keypad-btn action-btn" (click)="clearPin()">
-            <ion-icon name="backspace-outline"></ion-icon>
-          </button>
-          <button class="keypad-btn" (click)="addDigit('0')">0</button>
-          <button class="keypad-btn action-btn" (click)="checkPinManually()" [disabled]="pin.length < 1">
-            <ion-icon name="checkmark-outline"></ion-icon>
-          </button>
-        </div>
-      </div>
-    </div>
+<div class="pin-modal">
+  <div class="pin-header">
+    <h2>Enter PIN</h2>
+    <button class="pin-close" (click)="closeModal()">×</button>
   </div>
-</ion-content>
+  
+  <div class="pin-display">
+    <div class="pin-dots">{{getPinDisplay()}}</div>
+    <div class="pin-counter">{{pin.length}}/12 digits</div>
+  </div>
+  
+  <div class="pin-keypad">
+    <button class="pin-key" (click)="addDigit('1')">1</button>
+    <button class="pin-key" (click)="addDigit('2')">2</button>
+    <button class="pin-key" (click)="addDigit('3')">3</button>
+    <button class="pin-key" (click)="addDigit('4')">4</button>
+    <button class="pin-key" (click)="addDigit('5')">5</button>
+    <button class="pin-key" (click)="addDigit('6')">6</button>
+    <button class="pin-key" (click)="addDigit('7')">7</button>
+    <button class="pin-key" (click)="addDigit('8')">8</button>
+    <button class="pin-key" (click)="addDigit('9')">9</button>
+    <button class="pin-key pin-action" (click)="clearPin()">⌫</button>
+    <button class="pin-key" (click)="addDigit('0')">0</button>
+    <button class="pin-key pin-action" (click)="checkPinManually()" [disabled]="pin.length < 1">✓</button>
+  </div>
+</div>
