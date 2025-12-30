@@ -795,6 +795,23 @@ app.post('/api/fix-radio-images', async (req, res) => {
     }
 });
 
+// Clean up all radio stations (temporary fix)
+app.post('/api/cleanup-radio', async (req, res) => {
+    try {
+        await new Promise((resolve, reject) => {
+            db.run('DELETE FROM media WHERE category = ? AND type = ?', ['radio', 'tunein'], function(err) {
+                if (err) reject(err);
+                else resolve({ changes: this.changes });
+            });
+        });
+        
+        res.json({ message: 'Cleaned up all radio stations', success: true });
+    } catch (error) {
+        console.error('Error cleaning up radio stations:', error);
+        res.status(500).json({ error: 'Failed to cleanup radio stations' });
+    }
+});
+
 // Sonos player control endpoints
 app.get('/api/sonos', async (req, res) => {
     try {

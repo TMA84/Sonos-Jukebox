@@ -349,7 +349,8 @@ export class AddPage implements OnInit, AfterViewInit {
       artist: station.genre || 'Radio',
       title: station.name,
       cover: station.image,
-      id: station.id
+      id: station.id,
+      streamUrl: station.streamUrl // Include the Sonos-compatible stream URL
     };
 
     this.mediaService.addRawMedia(media);

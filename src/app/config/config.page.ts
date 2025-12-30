@@ -742,7 +742,8 @@ export class ConfigPage implements OnInit {
       cover: content.cover,
       id: content.id,
       contentType: 'album',
-      clientId: this.clientId
+      clientId: this.clientId,
+      ...(content.streamUrl && { streamUrl: content.streamUrl })
     };
     
     // Save to server via API
