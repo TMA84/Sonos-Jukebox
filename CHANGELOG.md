@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-12-30
+
+### 🎉 Major Features & Improvements
+
+#### Audiobook Support
+- **Complete Spotify audiobook integration** with unified search interface
+- **Chapter-based playbook** treating audiobooks like podcast episodes
+- **Automatic episode/chapter fetching** for proper Sonos compatibility
+- **Unified search interface** combining Albums/Artists/Podcasts/Audiobooks
+
+#### Library Management
+- **Edit functionality** for existing library items in config page
+- **Update API endpoint** for modifying stored media items
+- **Dynamic form handling** for both adding and editing content
+- **Cancel edit functionality** with proper form state management
+
+#### Database Migration & Cleanup
+- **Complete SQLite migration** from JSON-based storage
+- **Single server architecture** with server.js as main entry point
+- **Repository cleanup** removing 4,900+ lines of obsolete code
+- **Streamlined file structure** with essential files only
+
+#### Technical Improvements
+- **Podcast episode listing** showing individual episodes instead of show overview
+- **Proper URI handling** for different content types (albums, episodes, audiobooks)
+- **Enhanced error handling** for unsupported content types
+- **Improved API compatibility** preserving Spotify IDs instead of generating UUIDs
+
+### 🔧 Bug Fixes
+- **Fixed podcast playback** using episode URIs instead of unsupported show URIs
+- **Resolved audiobook playback** by treating them as podcast-like shows
+- **Improved content type detection** for proper playback routing
+- **Enhanced search type selection** with automatic content type mapping
+
+### 🗑️ Removed
+- **Migration scripts** and temporary SQLite transition files
+- **Obsolete documentation** (keeping README.md and CHANGELOG.md)
+- **Old server architecture** with JSON-based data storage
+- **Unused testing files** and configuration
+
 ## [3.0.0] - 2025-01-XX
 
 ### 🎉 Major Release - Complete Rewrite
