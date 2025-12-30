@@ -74,6 +74,9 @@ export class MedialistPage implements OnInit {
         if (artistEntry && artistEntry.artistid) {
           // Load albums from Spotify API
           this.fetchArtistAlbums(artistEntry.artistid);
+        } else if (artistEntry && artistEntry.contentType === 'show') {
+          // For podcasts, fetch and show all episodes
+          this.fetchShowEpisodes(artistEntry.id);
         } else {
           console.error('No artist ID found for:', this.artist.name);
           this.allMedia = [];
@@ -86,6 +89,41 @@ export class MedialistPage implements OnInit {
         this.media = [];
       }
     });
+  }
+
+  async fetchShowEpisodes(showId: string) {
+    try {
+      const tokenUrl = environment.production ? '../api/token' : 'http://localhost:8200/api/token';
+      const tokenResponse = await fetch(tokenUrl);
+      const tokenData = await tokenResponse.json();
+      
+      const episodesUrl = `https://api.spotify.com/v1/shows/${showId}/episodes?limit=50`;
+      const response = await fetch(episodesUrl, {
+        headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+      });
+      
+      const data = await response.json();
+      
+      if (data.items) {
+        this.allMedia = data.items.map((episode: any) => ({
+          id: episode.id,
+          title: episode.name,
+          artist: episode.description?.substring(0, 100) + '...' || 'No description',
+          cover: episode.images?.[0]?.url || this.artist.coverMedia?.cover || '../assets/images/nocover.png',
+          category: this.artist.coverMedia?.category || 'audiobook',
+          type: 'spotify',
+          contentType: 'episode'
+        }));
+        this.media = [...this.allMedia];
+      } else {
+        this.allMedia = [];
+        this.media = [];
+      }
+    } catch (error) {
+      console.error('Failed to fetch show episodes:', error);
+      this.allMedia = [];
+      this.media = [];
+    }
   }
 
   fetchArtistAlbums(artistId: string, loadMore = false, retryCount = 0): Promise<void> {

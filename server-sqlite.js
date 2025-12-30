@@ -272,7 +272,7 @@ app.post('/api/add', async (req, res) => {
             return res.status(400).json({ error: 'Client ID and title are required' });
         }
         
-        const id = uuidv4();
+        const id = req.body.id || uuidv4(); // Use provided ID (for Spotify content) or generate UUID
         const metadata = JSON.stringify(req.body);
         
         await dbRun(`INSERT INTO media_items 
@@ -353,6 +353,52 @@ app.get('/api/token', async (req, res) => {
     } catch (error) {
         console.error('Error getting Spotify token:', error);
         res.status(500).json({ error: 'Failed to get Spotify token' });
+    }
+});
+
+// Spotify search endpoint
+app.get('/api/search/spotify', async (req, res) => {
+    const { query, type = 'album' } = req.query;
+    
+    if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+    }
+
+    try {
+        if (!spotifyApi) {
+            await initializeSpotify();
+        }
+        
+        const token = await refreshSpotifyToken();
+        const searchType = type === 'show' ? 'show' : 'album';
+        
+        const searchResults = await spotifyApi.search(query, [searchType], { limit: 20 });
+        
+        const results = {
+            albums: [],
+            shows: []
+        };
+
+        if (searchType === 'album' && searchResults.body.albums) {
+            results.albums = searchResults.body.albums.items.map(album => ({
+                id: album.id,
+                title: album.name,
+                artist: album.artists[0]?.name || 'Unknown Artist',
+                cover: album.images[0]?.url || '../assets/images/nocover.png'
+            }));
+        } else if (searchType === 'show' && searchResults.body.shows) {
+            results.shows = searchResults.body.shows.items.map(show => ({
+                id: show.id,
+                title: show.name,
+                artist: show.publisher || 'Unknown Publisher',
+                cover: show.images[0]?.url || '../assets/images/nocover.png'
+            }));
+        }
+
+        res.json(results);
+    } catch (error) {
+        console.error('Spotify search error:', error);
+        res.status(500).json({ error: 'Failed to search Spotify' });
     }
 });
 

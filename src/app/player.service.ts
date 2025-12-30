@@ -131,6 +131,12 @@ export class PlayerService {
     }
   }
 
+  private async getSpotifyToken(): Promise<string> {
+    const response = await fetch(environment.production ? '../api/token' : 'http://localhost:8200/api/token');
+    const data = await response.json();
+    return data.access_token;
+  }
+
   async playMedia(media: Media) {
     // Validate media before processing
     if (!media || !media.title || !media.artist) {
@@ -146,10 +152,30 @@ export class PlayerService {
           uri = 'spotify:user:spotify:playlist:' + media.id;
         } else {
           if (media.id) {
-            // If media has contentType 'track' or was created from current track, use track URI
-            // Otherwise use album URI for library albums
+            // Handle different content types
             if (media.contentType === 'track' || !media.contentType) {
               uri = 'spotify:track:' + media.id;
+            } else if (media.contentType === 'episode') {
+              uri = 'spotify:episode:' + media.id;
+            } else if (media.contentType === 'show') {
+              // For Spotify shows/podcasts, we need to get the latest episode
+              // since Sonos doesn't support playing shows directly
+              try {
+                const token = await this.getSpotifyToken();
+                const response = await fetch(`https://api.spotify.com/v1/shows/${media.id}/episodes?limit=1`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                  uri = 'spotify:episode:' + data.items[0].id;
+                } else {
+                  console.error('No episodes found for show:', media.id);
+                  return;
+                }
+              } catch (error) {
+                console.error('Failed to get show episodes:', error);
+                return;
+              }
             } else {
               uri = 'spotify:album:' + media.id;
             }

@@ -35,6 +35,26 @@
   }
 }
 
+.search-type-toggle {
+  margin-top: 12px;
+  
+  ion-segment {
+    --background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    backdrop-filter: var(--blur-light);
+    -webkit-backdrop-filter: var(--blur-light);
+  }
+  
+  ion-segment-button {
+    --color: var(--text-secondary);
+    --color-checked: var(--primary);
+    --background-checked: rgba(255, 255, 255, 0.2);
+    --border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
 .results-container {
   padding: 0 var(--spacing-md);
 }

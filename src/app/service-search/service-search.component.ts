@@ -10,8 +10,9 @@ import { Media } from '../media';
   styleUrls: ['./service-search.component.scss']
 })
 export class ServiceSearchComponent {
-  @Input() service: 'applemusic' | 'amazonmusic' | 'tunein' = 'applemusic';
+  @Input() service: 'applemusic' | 'amazonmusic' | 'tunein' | 'spotify' = 'applemusic';
   @Input() category = 'audiobook';
+  @Input() searchType = 'album'; // Can be set from parent component
   @Output() albumSelected = new EventEmitter<Media>();
   
   searchTerm = '';
@@ -23,7 +24,8 @@ export class ServiceSearchComponent {
   serviceConfig = {
     applemusic: { name: 'Apple Music', placeholder: 'Search Apple Music...' },
     amazonmusic: { name: 'Amazon Music', placeholder: 'Search Amazon Music...' },
-    tunein: { name: 'TuneIn Radio', placeholder: 'Search radio stations...' }
+    tunein: { name: 'TuneIn Radio', placeholder: 'Search radio stations...' },
+    spotify: { name: 'Spotify', placeholder: 'Search Spotify...' }
   };
 
   constructor(
@@ -48,7 +50,7 @@ export class ServiceSearchComponent {
       searchUrl = environment.production ? `../api/search/${this.service}` : `http://localhost:8200/api/search/${this.service}`;
       params = { 
         query: this.searchTerm,
-        type: 'album'
+        type: this.searchType
       };
     }
     
@@ -67,7 +69,7 @@ export class ServiceSearchComponent {
             };
           });
         } else {
-          this.searchResults = response.albums;
+          this.searchResults = this.searchType === 'show' ? response.shows : response.albums;
         }
         console.log('Final search results:', this.searchResults);
         this.isSearching = false;
@@ -143,6 +145,13 @@ export class ServiceSearchComponent {
   nextInput() {
     // Only one input in this component
     this.activeInput = 'search';
+  }
+
+  toggleSearchType() {
+    // This method is called when the segment changes
+    if (this.searchTerm.trim()) {
+      this.onSearch();
+    }
   }
 
   private getTuneInStationImage(stationId: string): string {

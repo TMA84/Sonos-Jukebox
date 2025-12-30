@@ -38,6 +38,7 @@ export class ConfigPage implements OnInit {
 
   libraryCategory = 'audiobook';
   librarySource = 'spotify';
+  searchType = 'album';
   libraryArtist = '';
   libraryTitle = '';
   libraryItems: any[] = [];
@@ -714,12 +715,46 @@ export class ConfigPage implements OnInit {
     });
   }
 
+  setLibraryCategory(category: string) {
+    this.libraryCategory = category;
+    // Auto-set search type for podcast category
+    if (category === 'podcast') {
+      this.searchType = 'podcast';
+    } else if (this.searchType === 'podcast' && category !== 'podcast') {
+      this.searchType = 'album'; // Reset to album if switching away from podcast
+    }
+  }
+
+  setSearchType(type: string) {
+    this.searchType = type;
+  }
+
+  getSearchTypeLabel(): string {
+    switch (this.searchType) {
+      case 'album': return 'Albums';
+      case 'artist': return 'Artists';
+      case 'podcast': return 'Podcasts';
+      default: return 'Content';
+    }
+  }
+
+  async openUnifiedSearch() {
+    if (this.searchType === 'album') {
+      await this.openAlbumSearch();
+    } else if (this.searchType === 'artist') {
+      await this.openArtistSearch();
+    } else if (this.searchType === 'podcast') {
+      await this.openServiceSearch();
+    }
+  }
+
   async openServiceSearch() {
     const modal = await this.modalController.create({
       component: ServiceSearchComponent,
       componentProps: {
         service: this.librarySource,
-        category: this.libraryCategory
+        category: this.libraryCategory,
+        searchType: this.searchType === 'podcast' ? 'show' : 'album'
       },
       cssClass: 'service-search-modal'
     });
@@ -743,7 +778,7 @@ export class ConfigPage implements OnInit {
         content.cover || `https://cdn-profiles.tunein.com/${content.id}/images/logod.jpg` :
         content.cover,
       id: content.id,
-      contentType: 'album',
+      contentType: this.searchType === 'podcast' ? 'show' : 'album',
       clientId: this.clientId,
       ...(content.streamUrl && { streamUrl: content.streamUrl })
     };

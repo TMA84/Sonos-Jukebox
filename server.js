@@ -338,6 +338,68 @@ app.post('/api/config/tunein', (req, res) => {
     });
 });
 
+app.get('/api/search/spotify', (req, res) => {
+    const { query, type = 'album' } = req.query;
+    
+    if (!query) {
+        return res.status(400).json({ error: 'Query is required' });
+    }
+
+    // Get Spotify access token
+    getSpotifyAccessToken((error, token) => {
+        if (error) {
+            console.error('Failed to get Spotify token:', error);
+            return res.status(500).json({ error: 'Failed to authenticate with Spotify' });
+        }
+
+        const searchType = type === 'show' ? 'show' : 'album';
+        const spotifyUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=${searchType}&limit=20`;
+
+        const options = {
+            url: spotifyUrl,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            json: true
+        };
+
+        request(options, (error, response, body) => {
+            if (error) {
+                console.error('Spotify search error:', error);
+                return res.status(500).json({ error: 'Failed to search Spotify' });
+            }
+
+            if (response.statusCode !== 200) {
+                console.error('Spotify API error:', response.statusCode, body);
+                return res.status(response.statusCode).json({ error: 'Spotify API error' });
+            }
+
+            const results = {
+                albums: [],
+                shows: []
+            };
+
+            if (searchType === 'album' && body.albums) {
+                results.albums = body.albums.items.map(album => ({
+                    id: album.id,
+                    title: album.name,
+                    artist: album.artists[0]?.name || 'Unknown Artist',
+                    cover: album.images[0]?.url || '../assets/images/nocover.png'
+                }));
+            } else if (searchType === 'show' && body.shows) {
+                results.shows = body.shows.items.map(show => ({
+                    id: show.id,
+                    title: show.name,
+                    artist: show.publisher || 'Unknown Publisher',
+                    cover: show.images[0]?.url || '../assets/images/nocover.png'
+                }));
+            }
+
+            res.json(results);
+        });
+    });
+});
+
 app.get('/api/search/amazon', (req, res) => {
     const { query, type = 'album' } = req.query;
     

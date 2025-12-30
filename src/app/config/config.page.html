@@ -313,21 +313,25 @@
           <div class="touch-selector">
             <label>Content Type</label>
             <div class="selector-grid">
-              <div class="selector-button" [class.active]="libraryCategory === 'audiobook'" (click)="libraryCategory = 'audiobook'">
+              <div class="selector-button" [class.active]="libraryCategory === 'audiobook'" (click)="setLibraryCategory('audiobook')">
                 <ion-icon name="book"></ion-icon>
                 <span>Audiobook</span>
               </div>
-              <div class="selector-button" [class.active]="libraryCategory === 'music'" (click)="libraryCategory = 'music'">
+              <div class="selector-button" [class.active]="libraryCategory === 'music'" (click)="setLibraryCategory('music')">
                 <ion-icon name="musical-notes"></ion-icon>
                 <span>Music</span>
               </div>
-              <div class="selector-button" [class.active]="libraryCategory === 'playlist'" (click)="libraryCategory = 'playlist'">
+              <div class="selector-button" [class.active]="libraryCategory === 'playlist'" (click)="setLibraryCategory('playlist')">
                 <ion-icon name="list"></ion-icon>
                 <span>Playlist</span>
               </div>
-              <div class="selector-button" [class.active]="libraryCategory === 'radio'" (click)="libraryCategory = 'radio'">
+              <div class="selector-button" [class.active]="libraryCategory === 'radio'" (click)="setLibraryCategory('radio')">
                 <ion-icon name="radio"></ion-icon>
                 <span>Radio</span>
+              </div>
+              <div class="selector-button" [class.active]="libraryCategory === 'podcast'" (click)="setLibraryCategory('podcast')">
+                <ion-icon name="mic"></ion-icon>
+                <span>Podcast</span>
               </div>
             </div>
           </div>
@@ -356,28 +360,27 @@
             <ion-label position="stacked">Title</ion-label>
             <ion-input [(ngModel)]="libraryTitle" (ionFocus)="setActiveInput('libraryTitle')"></ion-input>
           </ion-item>
-          <ion-row *ngIf="librarySource === 'spotify'">
-            <ion-col size="6">
-              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openAlbumSearch()">
-                <ion-icon name="search-outline" slot="start"></ion-icon>
-                Search Albums
-              </ion-button>
-            </ion-col>
-            <ion-col size="6">
-              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openArtistSearch()">
-                <ion-icon name="person-outline" slot="start"></ion-icon>
-                Search Artists
-              </ion-button>
-            </ion-col>
-          </ion-row>
-          <ion-row *ngIf="librarySource === 'amazonmusic' || librarySource === 'applemusic' || librarySource === 'tunein'">
-            <ion-col size="12">
-              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openServiceSearch()" [disabled]="!serviceConfigured[librarySource]">
-                <ion-icon name="search-outline" slot="start"></ion-icon>
-                Search {{getServiceName()}}
-              </ion-button>
-            </ion-col>
-          </ion-row>
+          <div class="touch-selector">
+            <label>Search Type</label>
+            <div class="selector-grid">
+              <div class="selector-button" [class.active]="searchType === 'album'" (click)="setSearchType('album')">
+                <ion-icon name="disc"></ion-icon>
+                <span>Albums</span>
+              </div>
+              <div class="selector-button" [class.active]="searchType === 'artist'" (click)="setSearchType('artist')">
+                <ion-icon name="person"></ion-icon>
+                <span>Artists</span>
+              </div>
+              <div class="selector-button" [class.active]="searchType === 'podcast'" (click)="setSearchType('podcast')" [class.disabled]="librarySource !== 'spotify'">
+                <ion-icon name="radio"></ion-icon>
+                <span>Podcasts</span>
+              </div>
+            </div>
+          </div>
+          <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openUnifiedSearch()" [disabled]="!serviceConfigured[librarySource]">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Search {{getSearchTypeLabel()}}
+          </ion-button>
           <ion-button class="modern-button primary" expand="block" (click)="addToLibrary()" [disabled]="!libraryArtist || !libraryTitle || (librarySource !== 'library' && !serviceConfigured[librarySource])">
             <ion-icon name="add-outline" slot="start"></ion-icon>
             Add to Library

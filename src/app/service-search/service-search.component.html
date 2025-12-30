@@ -21,6 +21,18 @@
       [placeholder]="serviceConfig[service].placeholder"
       debounce="500">
     </ion-searchbar>
+    
+    <!-- Show toggle only for Spotify and when not specifically searching for podcasts -->
+    <div *ngIf="service === 'spotify' && searchType !== 'show'" class="search-type-toggle">
+      <ion-segment [(ngModel)]="searchType" (ionChange)="toggleSearchType()">
+        <ion-segment-button value="album">
+          <ion-label>Albums</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="show">
+          <ion-label>Podcasts</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
   </div>
 
   <div *ngIf="isSearching" class="loading-container">
