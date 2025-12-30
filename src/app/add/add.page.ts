@@ -32,8 +32,6 @@ export class AddPage implements OnInit, AfterViewInit {
   valid = false;
   spotifyConfigured = false;
   tuneinConfigured = true; // TuneIn uses public API, always available
-  amazonConfigured = false;
-  appleConfigured = false;
   showKeyboard = false;
   artistName = '';
   titleName = '';
@@ -63,8 +61,14 @@ export class AddPage implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    console.log('AddPage ngOnInit - Initial tuneinConfigured:', this.tuneinConfigured);
     this.configService.getConfig().subscribe(config => {
       this.spotifyConfigured = config.spotify?.configured || false;
+      this.tuneinConfigured = true; // TuneIn uses public API, always available
+      
+      console.log('AddPage config loaded - tuneinConfigured:', this.tuneinConfigured);
+      console.log('AddPage config loaded - spotifyConfigured:', this.spotifyConfigured);
+      
       if (this.spotifyConfigured && this.source === 'library') {
         this.source = 'spotify';
       }

@@ -52,14 +52,6 @@
                         <ion-icon name="folder"></ion-icon>
                         <span>Local</span>
                     </div>
-                    <div class="selector-button" [class.active]="source === 'amazonmusic'" [class.disabled]="!amazonConfigured" (click)="amazonConfigured && selectSource('amazonmusic')">
-                        <ion-icon name="storefront"></ion-icon>
-                        <span>Amazon</span>
-                    </div>
-                    <div class="selector-button" [class.active]="source === 'applemusic'" [class.disabled]="!appleConfigured" (click)="appleConfigured && selectSource('applemusic')">
-                        <ion-icon name="logo-apple"></ion-icon>
-                        <span>Apple</span>
-                    </div>
                     <div class="selector-button" [class.active]="source === 'tunein'" [class.disabled]="!tuneinConfigured" (click)="tuneinConfigured && selectSource('tunein')">
                         <ion-icon name="radio"></ion-icon>
                         <span>TuneIn</span>

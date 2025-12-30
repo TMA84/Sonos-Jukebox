@@ -45,8 +45,6 @@ export class ConfigPage implements OnInit {
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
-    amazonmusic: false,
-    applemusic: false,
     tunein: false
   };
 
@@ -213,9 +211,7 @@ export class ConfigPage implements OnInit {
       
       // Update service configuration status
       this.serviceConfigured.spotify = !!(this.spotifyConfig.clientId && this.spotifyConfig.clientSecret);
-      this.serviceConfigured.amazonmusic = !!(this.amazonConfig.accessKey && this.amazonConfig.secretKey);
-      this.serviceConfigured.applemusic = !!(this.appleConfig.developerToken && this.appleConfig.teamId);
-      this.serviceConfigured.tunein = !!(this.tuneinConfig.apiKey && this.tuneinConfig.partnerId);
+      this.serviceConfigured.tunein = true; // TuneIn uses public API, always available
     });
   }
 

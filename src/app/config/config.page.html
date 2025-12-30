@@ -342,14 +342,6 @@
                 <ion-icon name="folder"></ion-icon>
                 <span>Local</span>
               </div>
-              <div class="selector-button" [class.active]="librarySource === 'amazonmusic'" [class.disabled]="!serviceConfigured.amazonmusic" (click)="serviceConfigured.amazonmusic && (librarySource = 'amazonmusic')">
-                <ion-icon name="storefront"></ion-icon>
-                <span>Amazon</span>
-              </div>
-              <div class="selector-button" [class.active]="librarySource === 'applemusic'" [class.disabled]="!serviceConfigured.applemusic" (click)="serviceConfigured.applemusic && (librarySource = 'applemusic')">
-                <ion-icon name="logo-apple"></ion-icon>
-                <span>Apple</span>
-              </div>
               <div class="selector-button" [class.active]="librarySource === 'tunein'" [class.disabled]="!serviceConfigured.tunein" (click)="serviceConfigured.tunein && (librarySource = 'tunein')">
                 <ion-icon name="radio"></ion-icon>
                 <span>TuneIn</span>
