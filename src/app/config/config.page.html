@@ -333,6 +333,10 @@
                 <ion-icon name="mic"></ion-icon>
                 <span>Podcast</span>
               </div>
+              <div class="selector-button" [class.active]="libraryCategory === 'radioplay'" (click)="setLibraryCategory('radioplay')">
+                <ion-icon name="play-circle"></ion-icon>
+                <span>Radio Play</span>
+              </div>
             </div>
           </div>
           <div class="touch-selector">
@@ -374,6 +378,10 @@
               <div class="selector-button" [class.active]="searchType === 'podcast'" (click)="setSearchType('podcast')" [class.disabled]="librarySource !== 'spotify'">
                 <ion-icon name="radio"></ion-icon>
                 <span>Podcasts</span>
+              </div>
+              <div class="selector-button" [class.active]="searchType === 'audiobook'" (click)="setSearchType('audiobook')" [class.disabled]="librarySource !== 'spotify'">
+                <ion-icon name="book"></ion-icon>
+                <span>Audiobooks</span>
               </div>
             </div>
           </div>

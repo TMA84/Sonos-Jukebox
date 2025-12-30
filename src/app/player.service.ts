@@ -157,6 +157,24 @@ export class PlayerService {
               uri = 'spotify:track:' + media.id;
             } else if (media.contentType === 'episode') {
               uri = 'spotify:episode:' + media.id;
+            } else if (media.contentType === 'audiobook') {
+              // Audiobooks use the same format as podcasts - get the first episode/chapter
+              try {
+                const token = await this.getSpotifyToken();
+                const response = await fetch(`https://api.spotify.com/v1/shows/${media.id}/episodes?limit=1`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                  uri = 'spotify:episode:' + data.items[0].id;
+                } else {
+                  console.error('No episodes found for audiobook:', media.id);
+                  return;
+                }
+              } catch (error) {
+                console.error('Failed to get audiobook episodes:', error);
+                return;
+              }
             } else if (media.contentType === 'show') {
               // For Spotify shows/podcasts, we need to get the latest episode
               // since Sonos doesn't support playing shows directly

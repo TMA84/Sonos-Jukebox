@@ -69,7 +69,9 @@ export class ServiceSearchComponent {
             };
           });
         } else {
-          this.searchResults = this.searchType === 'show' ? response.shows : response.albums;
+          this.searchResults = this.searchType === 'show' ? response.shows : 
+                              this.searchType === 'audiobook' ? response.audiobooks : 
+                              response.albums;
         }
         console.log('Final search results:', this.searchResults);
         this.isSearching = false;

@@ -22,6 +22,9 @@
             <ion-segment-button *ngIf="availableCategories.includes('podcast')" value="podcast">
                 <ion-icon name="mic-outline"></ion-icon>
             </ion-segment-button>
+            <ion-segment-button *ngIf="availableCategories.includes('radioplay')" value="radioplay">
+                <ion-icon name="play-circle-outline"></ion-icon>
+            </ion-segment-button>
         </ion-segment>
         <ion-searchbar 
             *ngIf="showSearch"

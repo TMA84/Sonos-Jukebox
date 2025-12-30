@@ -77,6 +77,18 @@ export class MedialistPage implements OnInit {
         } else if (artistEntry && artistEntry.contentType === 'show') {
           // For podcasts, fetch and show all episodes
           this.fetchShowEpisodes(artistEntry.id);
+        } else if (artistEntry && artistEntry.contentType === 'audiobook') {
+          // For audiobooks, show the audiobook itself as playable content
+          this.allMedia = [{
+            id: artistEntry.id,
+            title: artistEntry.title,
+            artist: artistEntry.artist,
+            cover: artistEntry.cover,
+            category: artistEntry.category,
+            type: artistEntry.type,
+            contentType: 'audiobook'
+          }];
+          this.media = [...this.allMedia];
         } else {
           console.error('No artist ID found for:', this.artist.name);
           this.allMedia = [];

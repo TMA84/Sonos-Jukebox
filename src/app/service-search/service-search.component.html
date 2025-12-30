@@ -22,8 +22,8 @@
       debounce="500">
     </ion-searchbar>
     
-    <!-- Show toggle only for Spotify and when not specifically searching for podcasts -->
-    <div *ngIf="service === 'spotify' && searchType !== 'show'" class="search-type-toggle">
+    <!-- Show toggle only for Spotify and when not specifically searching for podcasts or audiobooks -->
+    <div *ngIf="service === 'spotify' && searchType !== 'show' && searchType !== 'audiobook'" class="search-type-toggle">
       <ion-segment [(ngModel)]="searchType" (ionChange)="toggleSearchType()">
         <ion-segment-button value="album">
           <ion-label>Albums</ion-label>

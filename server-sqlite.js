@@ -370,13 +370,14 @@ app.get('/api/search/spotify', async (req, res) => {
         }
         
         const token = await refreshSpotifyToken();
-        const searchType = type === 'show' ? 'show' : 'album';
+        const searchType = type === 'show' ? 'show' : type === 'audiobook' ? 'audiobook' : 'album';
         
         const searchResults = await spotifyApi.search(query, [searchType], { limit: 20 });
         
         const results = {
             albums: [],
-            shows: []
+            shows: [],
+            audiobooks: []
         };
 
         if (searchType === 'album' && searchResults.body.albums) {
@@ -392,6 +393,13 @@ app.get('/api/search/spotify', async (req, res) => {
                 title: show.name,
                 artist: show.publisher || 'Unknown Publisher',
                 cover: show.images[0]?.url || '../assets/images/nocover.png'
+            }));
+        } else if (searchType === 'audiobook' && searchResults.body.audiobooks) {
+            results.audiobooks = searchResults.body.audiobooks.items.map(audiobook => ({
+                id: audiobook.id,
+                title: audiobook.name,
+                artist: audiobook.authors?.map(author => author.name).join(', ') || 'Unknown Author',
+                cover: audiobook.images[0]?.url || '../assets/images/nocover.png'
             }));
         }
 

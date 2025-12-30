@@ -734,6 +734,7 @@ export class ConfigPage implements OnInit {
       case 'album': return 'Albums';
       case 'artist': return 'Artists';
       case 'podcast': return 'Podcasts';
+      case 'audiobook': return 'Audiobooks';
       default: return 'Content';
     }
   }
@@ -743,7 +744,7 @@ export class ConfigPage implements OnInit {
       await this.openAlbumSearch();
     } else if (this.searchType === 'artist') {
       await this.openArtistSearch();
-    } else if (this.searchType === 'podcast') {
+    } else if (this.searchType === 'podcast' || this.searchType === 'audiobook') {
       await this.openServiceSearch();
     }
   }
@@ -754,7 +755,8 @@ export class ConfigPage implements OnInit {
       componentProps: {
         service: this.librarySource,
         category: this.libraryCategory,
-        searchType: this.searchType === 'podcast' ? 'show' : 'album'
+        searchType: this.searchType === 'podcast' ? 'show' : 
+                   this.searchType === 'audiobook' ? 'audiobook' : 'album'
       },
       cssClass: 'service-search-modal'
     });
@@ -778,7 +780,8 @@ export class ConfigPage implements OnInit {
         content.cover || `https://cdn-profiles.tunein.com/${content.id}/images/logod.jpg` :
         content.cover,
       id: content.id,
-      contentType: this.searchType === 'podcast' ? 'show' : 'album',
+      contentType: this.searchType === 'podcast' ? 'show' : 
+                  this.searchType === 'audiobook' ? 'audiobook' : 'album',
       clientId: this.clientId,
       ...(content.streamUrl && { streamUrl: content.streamUrl })
     };
