@@ -54,17 +54,22 @@ export class ServiceSearchComponent {
     
     this.http.get<any>(searchUrl, { params }).subscribe({
       next: (response) => {
+        console.log('TuneIn search response:', response);
         if (this.service === 'tunein') {
-          this.searchResults = response.stations.items.map((station: any) => ({
-            id: station.id,
-            title: station.name,
-            artist: station.genre,
-            cover: station.image,
-            streamUrl: station.streamUrl
-          }));
+          this.searchResults = response.stations.items.map((station: any) => {
+            console.log('Station data:', station);
+            return {
+              id: station.id,
+              title: station.name,
+              artist: station.genre,
+              cover: `https://cdn-profiles.tunein.com/${station.id}/images/logod.jpg`,
+              streamUrl: station.streamUrl
+            };
+          });
         } else {
           this.searchResults = response.albums;
         }
+        console.log('Final search results:', this.searchResults);
         this.isSearching = false;
       },
       error: (error) => {
@@ -138,5 +143,10 @@ export class ServiceSearchComponent {
   nextInput() {
     // Only one input in this component
     this.activeInput = 'search';
+  }
+
+  private getTuneInStationImage(stationId: string): string {
+    const id = stationId?.replace('s', '');
+    return id ? `https://cdn-radiotime-logos.tunein.com/${id}q.png` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
   }
 }

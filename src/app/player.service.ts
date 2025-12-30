@@ -162,7 +162,7 @@ export class PlayerService {
         break;
       }
       case 'tunein': {
-        // For TuneIn radio, get streamUrl from metadata
+        // For TuneIn radio, get station ID from metadata
         let metadata;
         try {
           metadata = typeof (media as any).metadata === 'string' ? JSON.parse((media as any).metadata) : (media as any).metadata;
@@ -171,10 +171,12 @@ export class PlayerService {
           return;
         }
         
-        if (metadata?.streamUrl) {
-          uri = metadata.streamUrl;
+        if (metadata?.id) {
+          // Use TuneIn station ID directly, remove 's' prefix if present
+          const stationId = metadata.id.startsWith('s') ? metadata.id.substring(1) : metadata.id;
+          uri = `tunein:${stationId}`;
         } else {
-          console.error('No streamUrl found for radio station:', media);
+          console.error('No TuneIn station ID found for radio station:', media);
           return;
         }
         break;

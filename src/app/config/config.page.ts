@@ -739,7 +739,9 @@ export class ConfigPage implements OnInit {
       title: content.title,
       type: this.librarySource,
       category: this.libraryCategory,
-      cover: content.cover,
+      cover: this.librarySource === 'tunein' && content.id ? 
+        content.cover || `https://cdn-profiles.tunein.com/${content.id}/images/logod.jpg` :
+        content.cover,
       id: content.id,
       contentType: 'album',
       clientId: this.clientId,
@@ -824,5 +826,10 @@ export class ConfigPage implements OnInit {
     } else {
       this.activeInput = inputOrder[0];
     }
+  }
+
+  private getTuneInStationImage(stationId: string): string {
+    const id = stationId?.replace('s', '');
+    return id ? `https://cdn-radiotime-logos.tunein.com/${id}q.png` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
   }
 }

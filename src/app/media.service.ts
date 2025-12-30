@@ -263,14 +263,18 @@ export class MediaService {
         items.forEach(item => {
           if (item.artist && !artistMap.has(item.artist)) {
             artistMap.set(item.artist, {
-              name: item.artist,
+              name: item.category === 'radio' ? item.title : item.artist,
               albumCount: '0', // Will be loaded on-demand
-              cover: item.cover || '../assets/images/nocover.png',
+              cover: item.category === 'radio' && item.metadata ? 
+                this.getRadioStationImage(item.metadata) || item.cover || '../assets/images/nocover.png' :
+                item.cover || '../assets/images/nocover.png',
               coverMedia: {
                 id: item.id || '',
                 artist: item.artist,
                 title: item.title || item.artist,
-                cover: item.cover || '../assets/images/nocover.png',
+                cover: item.category === 'radio' && item.metadata ? 
+                  this.getRadioStationImage(item.metadata) || item.cover || '../assets/images/nocover.png' :
+                  item.cover || '../assets/images/nocover.png',
                 type: item.type || 'spotify',
                 category: item.category,
                 ...(item.category === 'radio' && item.metadata ? { metadata: item.metadata } : {})
@@ -314,5 +318,28 @@ export class MediaService {
     // Choose which media category should be displayed in the app
     setCategory(category: string) {
       this.category = category;
+    }
+
+    private getRadioStationImage(metadata: string): string | null {
+      try {
+        const meta = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
+        const stationId = meta.id?.replace('s', '');
+        
+        // Try various image fields from metadata
+        if (meta.image) return meta.image;
+        if (meta.logo) return meta.logo;
+        if (meta.artwork) return meta.artwork;
+        if (meta.albumArtUri) return meta.albumArtUri;
+        
+        // Generate TuneIn station image URL if we have a station ID
+        if (stationId) {
+          return `https://cdn-profiles.tunein.com/s${stationId}/images/logod.jpg`;
+        }
+        
+        return null;
+      } catch (e) {
+        console.warn('Failed to parse radio station metadata for image:', e);
+        return null;
+      }
     }
 }

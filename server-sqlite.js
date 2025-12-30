@@ -858,11 +858,29 @@ app.post('/api/sonos/play', async (req, res) => {
         if (!uri) {
             // No URI - just play/resume
             url = `http://${host}:${port}/${encodeURIComponent(room)}/play`;
-        } else if (uri.startsWith('x-sonosapi-radio:') || uri.startsWith('http://') || uri.startsWith('https://')) {
-            // Radio station - stop current playback first
-            const stopUrl = `http://${host}:${port}/${encodeURIComponent(room)}/stop`;
-            await fetch(stopUrl);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+        } else if (uri.startsWith('x-sonosapi-radio:')) {
+            // TuneIn radio station - extract station ID and use tunein/set endpoint then play
+            const match = uri.match(/s(\d+)/);
+            if (match) {
+                const stationId = match[1];
+                const setUrl = `http://${host}:${port}/${encodeURIComponent(room)}/tunein/set/${stationId}`;
+                console.log('Setting TuneIn station:', { room, stationId, setUrl });
+                await fetch(setUrl);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause
+                url = `http://${host}:${port}/${encodeURIComponent(room)}/play`;
+            } else {
+                throw new Error('Invalid TuneIn station ID format');
+            }
+        } else if (uri.startsWith('tunein:')) {
+            // Direct TuneIn station ID - use tunein/set endpoint then play
+            const stationId = uri.replace('tunein:', '');
+            const setUrl = `http://${host}:${port}/${encodeURIComponent(room)}/tunein/set/${stationId}`;
+            console.log('Setting TuneIn station:', { room, stationId, setUrl });
+            await fetch(setUrl);
+            await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause
+            url = `http://${host}:${port}/${encodeURIComponent(room)}/play`;
+        } else if (uri.startsWith('http://') || uri.startsWith('https://')) {
+            // HTTP radio stream - use direct play endpoint
             url = `http://${host}:${port}/${encodeURIComponent(room)}/play/${uri}`;
         } else {
             // Spotify or other - use spotify endpoint
