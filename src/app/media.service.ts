@@ -272,7 +272,8 @@ export class MediaService {
                 title: item.title || item.artist,
                 cover: item.cover || '../assets/images/nocover.png',
                 type: item.type || 'spotify',
-                category: item.category
+                category: item.category,
+                ...(item.category === 'radio' && item.metadata ? { metadata: item.metadata } : {})
               }
             });
           }

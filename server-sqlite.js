@@ -853,10 +853,21 @@ app.post('/api/sonos/play', async (req, res) => {
         const host = hostConfig?.value || 'localhost';
         const port = portConfig?.value || '5005';
         
-        // Play on Sonos
-        const url = uri ? 
-            `http://${host}:${port}/${encodeURIComponent(room)}/spotify/now/${uri}` :
-            `http://${host}:${port}/${encodeURIComponent(room)}/play`;
+        // Play on Sonos - use different endpoints based on URI type
+        let url;
+        if (!uri) {
+            // No URI - just play/resume
+            url = `http://${host}:${port}/${encodeURIComponent(room)}/play`;
+        } else if (uri.startsWith('x-sonosapi-radio:') || uri.startsWith('http://') || uri.startsWith('https://')) {
+            // Radio station - stop current playback first
+            const stopUrl = `http://${host}:${port}/${encodeURIComponent(room)}/stop`;
+            await fetch(stopUrl);
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+            url = `http://${host}:${port}/${encodeURIComponent(room)}/play/${uri}`;
+        } else {
+            // Spotify or other - use spotify endpoint
+            url = `http://${host}:${port}/${encodeURIComponent(room)}/spotify/now/${uri}`;
+        }
             
         console.log('Playing on Sonos:', { room, uri, url });
         const response = await fetch(url);
