@@ -5,7 +5,7 @@ import { SonosApiConfig } from './sonos-api';
 import { ClientService } from './client.service';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
-import { publishReplay, refCount } from 'rxjs/operators';
+import { publishReplay, refCount, map } from 'rxjs/operators';
 
 export enum PlayerCmds {
   PLAY = 'play',
@@ -24,6 +24,7 @@ export enum PlayerCmds {
 export class PlayerService {
 
   private config: Observable<SonosApiConfig> = null;
+  private sleepTimer: any = null;
 
   constructor(
     private http: HttpClient,
@@ -35,11 +36,12 @@ export class PlayerService {
     // publishReplay(1) tells rxjs to cache the last response of the request
     // refCount() keeps the observable alive until all subscribers unsubscribed
     if (!this.config) {
-      const url = (environment.production) ? '../api/sonos' : 'http://localhost:8200/api/sonos';
+      const url = (environment.production) ? '../api/config/full' : 'http://localhost:8200/api/config/full';
 
-      this.config = this.http.get<SonosApiConfig>(url, {
+      this.config = this.http.get<any>(url, {
         params: { clientId: this.clientService.getClientId() }
       }).pipe(
+        map((config: any) => config['node-sonos-http-api']),
         publishReplay(1), // cache result
         refCount()
       );
@@ -52,107 +54,277 @@ export class PlayerService {
     this.sendRequest('state');
   }
 
-  sendCmd(cmd: PlayerCmds) {
-    this.sendRequest(cmd).catch(error => {
-      console.error('Failed to send command:', error);
-    });
+  private async getClientRoom(): Promise<string> {
+    const clientId = this.clientService.getClientId();
+    if (!clientId) {
+      return 'Living Room';
+    }
+
+    try {
+      const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+      const config = await this.http.get<any>(configUrl, { 
+        params: { clientId } 
+      }).toPromise();
+      
+      // If speaker selection is disabled, use client's configured room
+      if (!config.enableSpeakerSelection && config.room) {
+        return config.room;
+      }
+      
+      // If speaker selection is enabled, use temporary or stored selection
+      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+      return tempSpeaker || defaultSpeaker || config.room || 'Living Room';
+    } catch (error) {
+      console.error('Failed to get client config:', error);
+      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+      return tempSpeaker || defaultSpeaker || 'Living Room';
+    }
   }
 
-  playMedia(media: Media) {
+  async sendCmd(cmd: PlayerCmds) {
+    const room = await this.getClientRoom();
+    
+    switch (cmd) {
+      case PlayerCmds.PLAY:
+        this.http.post(environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play', { room }).subscribe({
+          next: () => {
+            console.log('Play command sent');
+            this.startSleepTimer();
+          },
+          error: (error) => console.error('Failed to send play command:', error)
+        });
+        break;
+      case PlayerCmds.PAUSE:
+        this.http.post(environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause', { room }).subscribe({
+          next: () => console.log('Pause command sent'),
+          error: (error) => console.error('Failed to send pause command:', error)
+        });
+        break;
+      case PlayerCmds.NEXT:
+        this.http.post(environment.production ? '../api/sonos/next' : 'http://localhost:8200/api/sonos/next', { room }).subscribe({
+          next: () => console.log('Next command sent'),
+          error: (error) => console.error('Failed to send next command:', error)
+        });
+        break;
+      case PlayerCmds.PREVIOUS:
+        this.http.post(environment.production ? '../api/sonos/previous' : 'http://localhost:8200/api/sonos/previous', { room }).subscribe({
+          next: () => console.log('Previous command sent'),
+          error: (error) => console.error('Failed to send previous command:', error)
+        });
+        break;
+      case PlayerCmds.VOLUMEUP:
+        this.http.post(environment.production ? '../api/sonos/volume' : 'http://localhost:8200/api/sonos/volume', { room, change: '+5' }).subscribe({
+          next: () => console.log('Volume up command sent'),
+          error: (error) => console.error('Failed to send volume up command:', error)
+        });
+        break;
+      case PlayerCmds.VOLUMEDOWN:
+        this.http.post(environment.production ? '../api/sonos/volume' : 'http://localhost:8200/api/sonos/volume', { room, change: '-5' }).subscribe({
+          next: () => console.log('Volume down command sent'),
+          error: (error) => console.error('Failed to send volume down command:', error)
+        });
+        break;
+      default:
+        console.warn('Command not yet supported:', cmd);
+    }
+  }
+
+  private async getSpotifyToken(): Promise<string> {
+    const response = await fetch(environment.production ? '../api/token' : 'http://localhost:8200/api/token');
+    const data = await response.json();
+    return data.access_token;
+  }
+
+  async playMedia(media: Media) {
     // Validate media before processing
     if (!media || !media.title || !media.artist) {
       console.error('Invalid media provided to playMedia:', media);
       return;
     }
     
-    let url: string;
+    let uri: string;
 
     switch (media.type) {
-      case 'applemusic': {
-        if (media.category === 'playlist') {
-          url = 'applemusic/now/playlist:' + encodeURIComponent(media.id);
-        } else {
-          url = 'applemusic/now/album:' + encodeURIComponent(media.id);
-        }
-        break;
-      }
-      case 'amazonmusic': {
-        if (media.category === 'playlist') {
-          url = 'amazonmusic/now/playlist:' + encodeURIComponent(media.id);
-        } else {
-          url = 'amazonmusic/now/album:' + encodeURIComponent(media.id);
-        }
-        break;
-      }
-      case 'library': {
-        if (!media.id) {
-          media.id = media.title;
-        }
-        if (media.category === 'playlist') {
-          url = 'playlist/' + encodeURIComponent(media.id);
-        } else {
-          url = 'musicsearch/library/album/' + encodeURIComponent(media.id);
-        }
-        break;
-      }
       case 'spotify': {
         if (media.category === 'playlist') {
-          url = 'spotify/now/spotify:user:spotify:playlist:' + encodeURIComponent(media.id);
+          uri = 'spotify:user:spotify:playlist:' + media.id;
         } else {
           if (media.id) {
-            url = 'spotify/now/spotify:album:' + encodeURIComponent(media.id);
+            // Handle different content types
+            if (media.contentType === 'track' || !media.contentType) {
+              uri = 'spotify:track:' + media.id;
+            } else if (media.contentType === 'episode') {
+              uri = 'spotify:episode:' + media.id;
+            } else if (media.contentType === 'audiobook') {
+              // Audiobooks use the same format as podcasts - get the first episode/chapter
+              try {
+                const token = await this.getSpotifyToken();
+                const response = await fetch(`https://api.spotify.com/v1/shows/${media.id}/episodes?limit=1`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                  uri = 'spotify:episode:' + data.items[0].id;
+                } else {
+                  console.error('No episodes found for audiobook:', media.id);
+                  return;
+                }
+              } catch (error) {
+                console.error('Failed to get audiobook episodes:', error);
+                return;
+              }
+            } else if (media.contentType === 'show') {
+              // For Spotify shows/podcasts, we need to get the latest episode
+              // since Sonos doesn't support playing shows directly
+              try {
+                const token = await this.getSpotifyToken();
+                const response = await fetch(`https://api.spotify.com/v1/shows/${media.id}/episodes?limit=1`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                  uri = 'spotify:episode:' + data.items[0].id;
+                } else {
+                  console.error('No episodes found for show:', media.id);
+                  return;
+                }
+              } catch (error) {
+                console.error('Failed to get show episodes:', error);
+                return;
+              }
+            } else {
+              uri = 'spotify:album:' + media.id;
+            }
           } else {
-            url = 'musicsearch/spotify/album/artist:"' + encodeURIComponent(media.artist) + '" album:"' + encodeURIComponent(media.title) + '"';
+            // For search-based media without ID, we'll need to search first
+            console.warn('Playing media without Spotify ID not yet supported');
+            return;
           }
         }
         break;
       }
       case 'tunein': {
-        url = 'tunein/play/' + encodeURIComponent(media.id);
+        // For TuneIn radio, get station ID from metadata
+        let metadata;
+        try {
+          metadata = typeof (media as any).metadata === 'string' ? JSON.parse((media as any).metadata) : (media as any).metadata;
+        } catch (e) {
+          console.error('Failed to parse radio metadata:', e);
+          return;
+        }
+        
+        if (metadata?.id) {
+          // Use TuneIn station ID directly, remove 's' prefix if present
+          const stationId = metadata.id.startsWith('s') ? metadata.id.substring(1) : metadata.id;
+          uri = `tunein:${stationId}`;
+        } else {
+          console.error('No TuneIn station ID found for radio station:', media);
+          return;
+        }
         break;
       }
+      default:
+        console.warn('Media type not yet supported:', media.type);
+        return;
     }
 
-    this.sendRequest(url).catch(error => {
-      console.error('Failed to play media:', error.error?.error || error.message);
-    });
+    // Get client's room and play
+    const playUrl = environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play';
+    const room = await this.getClientRoom();
+    
+    this.http.post(playUrl, { room, uri }).subscribe({
+      next: (response) => {
+        console.log('Successfully started playback:', response);
+        this.startSleepTimer();
+      },
+      error: (error) => {
+          console.error('Failed to play media:', error);
+        }
+      });
   }
 
   say(text: string) {
+    // Skip TTS for empty or invalid text
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      return;
+    }
+
     this.getConfig().subscribe(config => {
-      let url = 'say/' + encodeURIComponent(text) + '/' + ((config.tts?.language?.length > 0) ? config.tts.language : 'de-de');
+      try {
+        let url = 'say/' + encodeURIComponent(text.trim()) + '/' + ((config.tts?.language?.length > 0) ? config.tts.language : 'de-de');
 
-      if (config.tts?.volume?.length > 0) {
-        url += '/' + config.tts.volume;
+        if (config.tts?.volume?.length > 0) {
+          url += '/' + config.tts.volume;
+        }
+
+        this.sendRequest(url).catch(error => {
+          console.error('Failed to say text:', error);
+        });
+      } catch (error) {
+        console.error('Failed to construct TTS URL for text:', text, error);
       }
-
-      this.sendRequest(url).catch(error => {
-        console.error('Failed to say text:', error);
-      });
     });
   }
 
   getCurrentTrack(): Observable<any> {
+    const url = environment.production ? '../api/sonos' : 'http://localhost:8200/api/sonos';
+    
     return new Observable(observer => {
-      this.getConfig().subscribe(config => {
-        // Use temporary speaker selection if available, otherwise use client default
-        const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-        const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-        const selectedSpeaker = tempSpeaker || defaultSpeaker || config.rooms[0];
+      this.getClientRoom().then(room => {
+        const params: any = { clientId: this.clientService.getClientId() };
+        if (room) {
+          params.room = room;
+        }
         
-        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
-        this.http.get(baseUrl + 'state').subscribe(
-          (state: any) => {
-            observer.next({
-              title: state.currentTrack?.title || 'Unknown',
-              artist: state.currentTrack?.artist || 'Unknown Artist',
-              album: state.currentTrack?.album || '',
-              playbackState: state.playbackState
-            });
-          },
-          error => observer.next(null)
-        );
+        this.http.get<any>(url, { params }).pipe(
+          map((state: any) => ({
+            title: state.currentTrack?.title || 'Unknown',
+            artist: state.currentTrack?.artist || 'Unknown Artist',
+            album: state.currentTrack?.album || '',
+            playbackState: state.playbackState,
+            uri: state.currentTrack?.uri,
+            trackUri: state.currentTrack?.trackUri
+          }))
+        ).subscribe(observer);
+      }).catch(error => {
+        console.error('Failed to get client room:', error);
+        observer.error(error);
       });
+    });
+  }
+
+  private startSleepTimer() {
+    // Clear any existing timer
+    if (this.sleepTimer) {
+      clearTimeout(this.sleepTimer);
+    }
+
+    // Get client's sleep timer setting
+    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    this.http.get<any>(configUrl, {
+      params: { clientId: this.clientService.getClientId() }
+    }).subscribe(config => {
+      const sleepMinutes = config.sleepTimer || 0;
+      
+      if (sleepMinutes > 0) {
+        console.log(`Sleep timer set for ${sleepMinutes} minutes`);
+        this.sleepTimer = setTimeout(() => {
+          this.pausePlayback();
+          console.log('Sleep timer expired - pausing playback');
+        }, sleepMinutes * 60 * 1000);
+      }
+    });
+  }
+
+  private async pausePlayback() {
+    const pauseUrl = environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause';
+    const room = await this.getClientRoom();
+    
+    this.http.post(pauseUrl, { room }).subscribe({
+      next: () => console.log('Playback paused by sleep timer'),
+      error: (error) => console.error('Failed to pause playback:', error)
     });
   }
 
@@ -168,22 +340,17 @@ export class PlayerService {
 
   stopSpeaker(speakerName: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.getConfig().subscribe(config => {
-        const encodedSpeaker = encodeURIComponent(speakerName);
-        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + encodedSpeaker + '/';
-        console.log('Stopping speaker with URL:', baseUrl + 'pause');
-        
-        // Send pause command to stop the speaker
-        this.http.get(baseUrl + 'pause').subscribe({
-          next: (response) => {
-            console.log('Successfully stopped speaker:', speakerName, response);
-            resolve();
-          },
-          error: (err) => {
-            console.error('Failed to stop speaker:', speakerName, 'URL:', baseUrl + 'pause', 'Error:', err);
-            resolve();
-          }
-        });
+      const pauseUrl = environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause';
+      
+      this.http.post(pauseUrl, { room: speakerName }).subscribe({
+        next: (response) => {
+          console.log('Successfully stopped speaker:', speakerName, response);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Failed to stop speaker:', speakerName, 'Error:', err);
+          resolve(); // Resolve anyway to not block speaker switching
+        }
       });
     });
   }
@@ -194,9 +361,9 @@ export class PlayerService {
         // Use temporary speaker selection if available, otherwise use client default
         const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
         const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-        const selectedSpeaker = tempSpeaker || defaultSpeaker || config.rooms[0];
+        const selectedSpeaker = tempSpeaker || defaultSpeaker || 'Living Room';
         
-        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
+        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + encodeURIComponent(selectedSpeaker) + '/';
         this.http.get(baseUrl + url).subscribe({
           next: (response) => {
             resolve(response);

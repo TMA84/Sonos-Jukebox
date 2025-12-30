@@ -120,6 +120,19 @@ export class HomePage implements OnInit {
   }
 
   artistCoverClicked(clickedArtist: Artist) {
+    // Check if this is a radio station
+    if (clickedArtist.coverMedia?.category === 'radio') {
+      // For radio stations, navigate directly to player without calling playMedia here
+      const navigationExtras: NavigationExtras = {
+        state: {
+          media: clickedArtist.coverMedia
+        }
+      };
+      this.router.navigate(['/player'], navigationExtras);
+      return;
+    }
+
+    // For regular artists, go to medialist
     this.activityIndicatorService.create().then(indicator => {
       this.activityIndicatorVisible = true;
       indicator.present().then(() => {

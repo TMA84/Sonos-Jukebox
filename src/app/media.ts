@@ -8,4 +8,5 @@ export interface Media {
     type: string;
     category: string;
     contentType?: string;
+    metadata?: string;
 }

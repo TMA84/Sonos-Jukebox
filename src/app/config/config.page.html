@@ -61,6 +61,33 @@
 
       <ion-card class="modern-card">
         <ion-card-header>
+          <ion-card-title class="modern-card-title">All Clients</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list *ngIf="availableClients.length > 0">
+            <ion-item *ngFor="let client of availableClients">
+              <ion-label>
+                <h2>{{client.name}}</h2>
+                <p>{{client.id}}</p>
+              </ion-label>
+              <ion-button 
+                fill="clear" 
+                color="danger" 
+                slot="end" 
+                (click)="deleteClient(client.id)"
+                [disabled]="client.id === clientId">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ion-list>
+          <ion-item *ngIf="availableClients.length === 0">
+            <ion-label color="medium">No clients configured</ion-label>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="modern-card">
+        <ion-card-header>
           <ion-card-title class="modern-card-title">Create New Client</ion-card-title>
         </ion-card-header>
         <ion-card-content>
@@ -124,6 +151,37 @@
           No speakers found. Make sure node-sonos-http-api is running.
         </ion-label>
       </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Sleep Timer Card -->
+      <ion-card class="modern-card">
+        <ion-card-header>
+          <ion-card-title class="modern-card-title">Sleep Timer</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label>Default Sleep Timer (minutes)</ion-label>
+            <div slot="end" class="timer-controls">
+              <ion-button fill="clear" size="small" (click)="decrementTimer()" [disabled]="sleepTimer <= 0">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <span class="timer-value">{{sleepTimer}}</span>
+              <ion-button fill="clear" size="small" (click)="incrementTimer()" [disabled]="sleepTimer >= 180">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-item>
+          <ion-item *ngIf="sleepTimer > 0">
+            <ion-label color="medium">
+              <p>Playback will automatically pause after {{sleepTimer}} minutes</p>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngIf="sleepTimer === 0">
+            <ion-label color="medium">
+              <p>Sleep timer is disabled</p>
+            </ion-label>
+          </ion-item>
         </ion-card-content>
       </ion-card>
     </div>
@@ -255,21 +313,29 @@
           <div class="touch-selector">
             <label>Content Type</label>
             <div class="selector-grid">
-              <div class="selector-button" [class.active]="libraryCategory === 'audiobook'" (click)="libraryCategory = 'audiobook'">
+              <div class="selector-button" [class.active]="libraryCategory === 'audiobook'" (click)="setLibraryCategory('audiobook')">
                 <ion-icon name="book"></ion-icon>
                 <span>Audiobook</span>
               </div>
-              <div class="selector-button" [class.active]="libraryCategory === 'music'" (click)="libraryCategory = 'music'">
+              <div class="selector-button" [class.active]="libraryCategory === 'music'" (click)="setLibraryCategory('music')">
                 <ion-icon name="musical-notes"></ion-icon>
                 <span>Music</span>
               </div>
-              <div class="selector-button" [class.active]="libraryCategory === 'playlist'" (click)="libraryCategory = 'playlist'">
+              <div class="selector-button" [class.active]="libraryCategory === 'playlist'" (click)="setLibraryCategory('playlist')">
                 <ion-icon name="list"></ion-icon>
                 <span>Playlist</span>
               </div>
-              <div class="selector-button" [class.active]="libraryCategory === 'radio'" (click)="libraryCategory = 'radio'">
+              <div class="selector-button" [class.active]="libraryCategory === 'radio'" (click)="setLibraryCategory('radio')">
                 <ion-icon name="radio"></ion-icon>
                 <span>Radio</span>
+              </div>
+              <div class="selector-button" [class.active]="libraryCategory === 'podcast'" (click)="setLibraryCategory('podcast')">
+                <ion-icon name="mic"></ion-icon>
+                <span>Podcast</span>
+              </div>
+              <div class="selector-button" [class.active]="libraryCategory === 'radioplay'" (click)="setLibraryCategory('radioplay')">
+                <ion-icon name="play-circle"></ion-icon>
+                <span>Radio Play</span>
               </div>
             </div>
           </div>
@@ -283,14 +349,6 @@
               <div class="selector-button" [class.active]="librarySource === 'library'" (click)="librarySource = 'library'">
                 <ion-icon name="folder"></ion-icon>
                 <span>Local</span>
-              </div>
-              <div class="selector-button" [class.active]="librarySource === 'amazonmusic'" [class.disabled]="!serviceConfigured.amazonmusic" (click)="serviceConfigured.amazonmusic && (librarySource = 'amazonmusic')">
-                <ion-icon name="storefront"></ion-icon>
-                <span>Amazon</span>
-              </div>
-              <div class="selector-button" [class.active]="librarySource === 'applemusic'" [class.disabled]="!serviceConfigured.applemusic" (click)="serviceConfigured.applemusic && (librarySource = 'applemusic')">
-                <ion-icon name="logo-apple"></ion-icon>
-                <span>Apple</span>
               </div>
               <div class="selector-button" [class.active]="librarySource === 'tunein'" [class.disabled]="!serviceConfigured.tunein" (click)="serviceConfigured.tunein && (librarySource = 'tunein')">
                 <ion-icon name="radio"></ion-icon>
@@ -306,31 +364,38 @@
             <ion-label position="stacked">Title</ion-label>
             <ion-input [(ngModel)]="libraryTitle" (ionFocus)="setActiveInput('libraryTitle')"></ion-input>
           </ion-item>
-          <ion-row *ngIf="librarySource === 'spotify'">
-            <ion-col size="6">
-              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openAlbumSearch()">
-                <ion-icon name="search-outline" slot="start"></ion-icon>
-                Search Albums
-              </ion-button>
-            </ion-col>
-            <ion-col size="6">
-              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openArtistSearch()">
-                <ion-icon name="person-outline" slot="start"></ion-icon>
-                Search Artists
-              </ion-button>
-            </ion-col>
-          </ion-row>
-          <ion-row *ngIf="librarySource === 'amazonmusic' || librarySource === 'applemusic' || librarySource === 'tunein'">
-            <ion-col size="12">
-              <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openServiceSearch()" [disabled]="!serviceConfigured[librarySource]">
-                <ion-icon name="search-outline" slot="start"></ion-icon>
-                Search {{getServiceName()}}
-              </ion-button>
-            </ion-col>
-          </ion-row>
+          <div class="touch-selector">
+            <label>Search Type</label>
+            <div class="selector-grid">
+              <div class="selector-button" [class.active]="searchType === 'album'" (click)="setSearchType('album')">
+                <ion-icon name="disc"></ion-icon>
+                <span>Albums</span>
+              </div>
+              <div class="selector-button" [class.active]="searchType === 'artist'" (click)="setSearchType('artist')">
+                <ion-icon name="person"></ion-icon>
+                <span>Artists</span>
+              </div>
+              <div class="selector-button" [class.active]="searchType === 'podcast'" (click)="setSearchType('podcast')" [class.disabled]="librarySource !== 'spotify'">
+                <ion-icon name="radio"></ion-icon>
+                <span>Podcasts</span>
+              </div>
+              <div class="selector-button" [class.active]="searchType === 'audiobook'" (click)="setSearchType('audiobook')" [class.disabled]="librarySource !== 'spotify'">
+                <ion-icon name="book"></ion-icon>
+                <span>Audiobooks</span>
+              </div>
+            </div>
+          </div>
+          <ion-button class="modern-button secondary" expand="block" fill="outline" (click)="openUnifiedSearch()" [disabled]="!serviceConfigured[librarySource]">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Search {{getSearchTypeLabel()}}
+          </ion-button>
           <ion-button class="modern-button primary" expand="block" (click)="addToLibrary()" [disabled]="!libraryArtist || !libraryTitle || (librarySource !== 'library' && !serviceConfigured[librarySource])">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Add to Library
+            <ion-icon name="{{editingIndex >= 0 ? 'checkmark-outline' : 'add-outline'}}" slot="start"></ion-icon>
+            {{editingIndex >= 0 ? 'Update Item' : 'Add to Library'}}
+          </ion-button>
+          <ion-button *ngIf="editingIndex >= 0" class="modern-button secondary" expand="block" fill="outline" (click)="clearForm()">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Cancel Edit
           </ion-button>
         </ion-card-content>
       </ion-card>
@@ -351,6 +416,9 @@
                 <p>{{item.artist}} - {{item.type}}</p>
                 <p><small>{{item.category}} | {{item.contentType || 'album'}}</small></p>
               </ion-label>
+              <ion-button fill="clear" color="primary" (click)="editLibraryItem(i)" slot="end">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
               <ion-button fill="clear" color="danger" (click)="removeFromLibrary(i)" slot="end">
                 <ion-icon name="trash-outline"></ion-icon>
               </ion-button>
@@ -377,7 +445,7 @@
         <ion-card-content>
           <ion-item>
             <ion-label position="stacked">Current PIN</ion-label>
-            <ion-input type="password" [(ngModel)]="currentPin" maxlength="4" (ionFocus)="setActiveInput('currentPin')"></ion-input>
+            <ion-input type="password" [(ngModel)]="currentPin" maxlength="12" (ionFocus)="setActiveInput('currentPin')"></ion-input>
           </ion-item>
           <ion-item>
             <ion-label position="stacked">New PIN (4-12 digits)</ion-label>

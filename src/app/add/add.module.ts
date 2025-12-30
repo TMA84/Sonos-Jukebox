@@ -5,9 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { AddPageRoutingModule } from './add-routing.module';
-import { SharedModule } from '../shared/shared.module';
 
 import { AddPage } from './add.page';
+import { SharedModule } from '../shared/shared.module';
+import { RadioSearchComponent } from '../radio-search/radio-search.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { AddPage } from './add.page';
     AddPageRoutingModule,
     SharedModule
   ],
-  declarations: [AddPage]
+  declarations: [AddPage, RadioSearchComponent]
 })
 export class AddPageModule {}

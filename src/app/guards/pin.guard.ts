@@ -23,7 +23,7 @@ export class PinGuard implements CanActivate {
 
     const result = await modal.onDidDismiss();
     
-    if (result.data !== true) {
+    if (result.data?.authenticated !== true) {
       this.router.navigate(['/home']);
       return false;
     }

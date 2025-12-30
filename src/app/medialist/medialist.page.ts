@@ -74,6 +74,21 @@ export class MedialistPage implements OnInit {
         if (artistEntry && artistEntry.artistid) {
           // Load albums from Spotify API
           this.fetchArtistAlbums(artistEntry.artistid);
+        } else if (artistEntry && artistEntry.contentType === 'show') {
+          // For podcasts, fetch and show all episodes
+          this.fetchShowEpisodes(artistEntry.id);
+        } else if (artistEntry && artistEntry.contentType === 'audiobook') {
+          // For audiobooks, show the audiobook itself as playable content
+          this.allMedia = [{
+            id: artistEntry.id,
+            title: artistEntry.title,
+            artist: artistEntry.artist,
+            cover: artistEntry.cover,
+            category: artistEntry.category,
+            type: artistEntry.type,
+            contentType: 'audiobook'
+          }];
+          this.media = [...this.allMedia];
         } else {
           console.error('No artist ID found for:', this.artist.name);
           this.allMedia = [];
@@ -88,6 +103,41 @@ export class MedialistPage implements OnInit {
     });
   }
 
+  async fetchShowEpisodes(showId: string) {
+    try {
+      const tokenUrl = environment.production ? '../api/token' : 'http://localhost:8200/api/token';
+      const tokenResponse = await fetch(tokenUrl);
+      const tokenData = await tokenResponse.json();
+      
+      const episodesUrl = `https://api.spotify.com/v1/shows/${showId}/episodes?limit=50`;
+      const response = await fetch(episodesUrl, {
+        headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+      });
+      
+      const data = await response.json();
+      
+      if (data.items) {
+        this.allMedia = data.items.map((episode: any) => ({
+          id: episode.id,
+          title: episode.name,
+          artist: episode.description?.substring(0, 100) + '...' || 'No description',
+          cover: episode.images?.[0]?.url || this.artist.coverMedia?.cover || '../assets/images/nocover.png',
+          category: this.artist.coverMedia?.category || 'audiobook',
+          type: 'spotify',
+          contentType: 'episode'
+        }));
+        this.media = [...this.allMedia];
+      } else {
+        this.allMedia = [];
+        this.media = [];
+      }
+    } catch (error) {
+      console.error('Failed to fetch show episodes:', error);
+      this.allMedia = [];
+      this.media = [];
+    }
+  }
+
   fetchArtistAlbums(artistId: string, loadMore = false, retryCount = 0): Promise<void> {
     return new Promise((resolve) => {
       if (this.isLoading || (!loadMore && !this.hasMoreAlbums)) {
@@ -96,12 +146,12 @@ export class MedialistPage implements OnInit {
       }
       
       this.isLoading = true;
-      const searchUrl = environment.production ? '../api/spotify/artist-albums' : 'http://localhost:8200/api/spotify/artist-albums';
+      const searchUrl = environment.production ? `../api/spotify/artists/${artistId}/albums` : `http://localhost:8200/api/spotify/artists/${artistId}/albums`;
       
-      this.http.get<any>(`${searchUrl}?artistId=${artistId}&offset=${this.offset}&limit=${this.limit}`).subscribe({
+      this.http.get<any>(`${searchUrl}?offset=${this.offset}&limit=${this.limit}`).subscribe({
         next: (response) => {
-          if (response.albums && response.albums.items) {
-            const newAlbums = response.albums.items.map(album => ({
+          if (response && response.items) {
+            const newAlbums = response.items.map(album => ({
               artist: this.artist.name,
               title: album.name,
               type: 'spotify',
@@ -118,7 +168,7 @@ export class MedialistPage implements OnInit {
             }
             this.media = this.allMedia;
             
-            this.hasMoreAlbums = response.albums.next !== null;
+            this.hasMoreAlbums = response.next !== null;
             this.offset += this.limit;
             
             this.loadArtworkBatch(newAlbums.slice(0, 12));

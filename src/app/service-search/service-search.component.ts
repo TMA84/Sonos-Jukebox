@@ -10,8 +10,9 @@ import { Media } from '../media';
   styleUrls: ['./service-search.component.scss']
 })
 export class ServiceSearchComponent {
-  @Input() service: 'applemusic' | 'amazonmusic' | 'tunein' = 'applemusic';
+  @Input() service: 'applemusic' | 'amazonmusic' | 'tunein' | 'spotify' = 'applemusic';
   @Input() category = 'audiobook';
+  @Input() searchType = 'album'; // Can be set from parent component
   @Output() albumSelected = new EventEmitter<Media>();
   
   searchTerm = '';
@@ -23,7 +24,8 @@ export class ServiceSearchComponent {
   serviceConfig = {
     applemusic: { name: 'Apple Music', placeholder: 'Search Apple Music...' },
     amazonmusic: { name: 'Amazon Music', placeholder: 'Search Amazon Music...' },
-    tunein: { name: 'TuneIn Radio', placeholder: 'Search radio stations...' }
+    tunein: { name: 'TuneIn Radio', placeholder: 'Search radio stations...' },
+    spotify: { name: 'Spotify', placeholder: 'Search Spotify...' }
   };
 
   constructor(
@@ -38,16 +40,40 @@ export class ServiceSearchComponent {
     }
     
     this.isSearching = true;
-    const searchUrl = environment.production ? `../api/search/${this.service}` : `http://localhost:8200/api/search/${this.service}`;
+    let searchUrl: string;
+    let params: any;
     
-    this.http.get<any>(searchUrl, {
-      params: { 
+    if (this.service === 'tunein') {
+      searchUrl = environment.production ? `../api/tunein/search/stations` : `http://localhost:8200/api/tunein/search/stations`;
+      params = { q: this.searchTerm, limit: '20' };
+    } else {
+      searchUrl = environment.production ? `../api/search/${this.service}` : `http://localhost:8200/api/search/${this.service}`;
+      params = { 
         query: this.searchTerm,
-        type: this.service === 'tunein' ? 'station' : 'album'
-      }
-    }).subscribe({
+        type: this.searchType
+      };
+    }
+    
+    this.http.get<any>(searchUrl, { params }).subscribe({
       next: (response) => {
-        this.searchResults = this.service === 'tunein' ? response.stations : response.albums;
+        console.log('TuneIn search response:', response);
+        if (this.service === 'tunein') {
+          this.searchResults = response.stations.items.map((station: any) => {
+            console.log('Station data:', station);
+            return {
+              id: station.id,
+              title: station.name,
+              artist: station.genre,
+              cover: `https://cdn-profiles.tunein.com/${station.id}/images/logod.jpg`,
+              streamUrl: station.streamUrl
+            };
+          });
+        } else {
+          this.searchResults = this.searchType === 'show' ? response.shows : 
+                              this.searchType === 'audiobook' ? response.audiobooks : 
+                              response.albums;
+        }
+        console.log('Final search results:', this.searchResults);
         this.isSearching = false;
       },
       error: (error) => {
@@ -121,5 +147,17 @@ export class ServiceSearchComponent {
   nextInput() {
     // Only one input in this component
     this.activeInput = 'search';
+  }
+
+  toggleSearchType() {
+    // This method is called when the segment changes
+    if (this.searchTerm.trim()) {
+      this.onSearch();
+    }
+  }
+
+  private getTuneInStationImage(stationId: string): string {
+    const id = stationId?.replace('s', '');
+    return id ? `https://cdn-radiotime-logos.tunein.com/${id}q.png` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
   }
 }

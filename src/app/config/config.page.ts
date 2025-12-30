@@ -16,6 +16,7 @@ import { ServiceSearchComponent } from '../service-search/service-search.compone
 export class ConfigPage implements OnInit {
   speakers: any[] = [];
   selectedSpeaker = '';
+  sleepTimer = 0;
   isLoading = false;
   currentPin = '';
   newPin = '';
@@ -37,15 +38,15 @@ export class ConfigPage implements OnInit {
 
   libraryCategory = 'audiobook';
   librarySource = 'spotify';
+  searchType = 'album';
   libraryArtist = '';
   libraryTitle = '';
   libraryItems: any[] = [];
+  editingIndex: number = -1;
   enableSpeakerSelection = true;
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
-    amazonmusic: false,
-    applemusic: false,
     tunein: false
   };
 
@@ -66,14 +67,16 @@ export class ConfigPage implements OnInit {
     this.loadClientName();
     this.loadLibraryItems();
     this.loadSpeakerSelectionSetting();
+    this.findSpeakers(); // Automatically load speakers on page load
   }
 
   loadCurrentConfig() {
-    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
     this.http.get<any>(configUrl, { 
       params: { clientId: this.clientId }
     }).subscribe(config => {
-      this.selectedSpeaker = config.currentRoom || '';
+      this.selectedSpeaker = config.room || '';
+      this.sleepTimer = config.sleepTimer || 0;
     });
   }
 
@@ -122,6 +125,36 @@ export class ConfigPage implements OnInit {
         console.error('Failed to save speaker:', err);
       }
     });
+  }
+
+  saveSleepTimer() {
+    const saveUrl = environment.production ? '../api/config/sleepTimer' : 'http://localhost:8200/api/config/sleepTimer';
+    
+    this.http.post(saveUrl, { 
+      sleepTimer: this.sleepTimer, 
+      clientId: this.clientId 
+    }).subscribe({
+      next: () => {
+        console.log('Sleep timer saved for client:', this.clientId, this.sleepTimer);
+      },
+      error: (err) => {
+        console.error('Failed to save sleep timer:', err);
+      }
+    });
+  }
+
+  incrementTimer() {
+    if (this.sleepTimer < 180) {
+      this.sleepTimer += 5;
+      this.saveSleepTimer();
+    }
+  }
+
+  decrementTimer() {
+    if (this.sleepTimer > 0) {
+      this.sleepTimer = Math.max(0, this.sleepTimer - 5);
+      this.saveSleepTimer();
+    }
   }
 
   changePin() {
@@ -180,9 +213,7 @@ export class ConfigPage implements OnInit {
       
       // Update service configuration status
       this.serviceConfigured.spotify = !!(this.spotifyConfig.clientId && this.spotifyConfig.clientSecret);
-      this.serviceConfigured.amazonmusic = !!(this.amazonConfig.accessKey && this.amazonConfig.secretKey);
-      this.serviceConfigured.applemusic = !!(this.appleConfig.developerToken && this.appleConfig.teamId);
-      this.serviceConfigured.tunein = !!(this.tuneinConfig.apiKey && this.tuneinConfig.partnerId);
+      this.serviceConfigured.tunein = true; // TuneIn uses public API, always available
     });
   }
 
@@ -554,6 +585,16 @@ export class ConfigPage implements OnInit {
 
 
 
+  editLibraryItem(index: number) {
+    const item = this.libraryItems[index];
+    this.editingIndex = index;
+    this.libraryArtist = item.artist;
+    this.libraryTitle = item.title;
+    this.libraryCategory = item.category;
+    this.librarySource = item.type;
+    this.searchType = item.contentType || 'album';
+  }
+
   addToLibrary() {
     if (!this.libraryArtist || !this.libraryTitle) return;
     
@@ -562,23 +603,46 @@ export class ConfigPage implements OnInit {
       title: this.libraryTitle,
       type: this.librarySource,
       category: this.libraryCategory,
-      contentType: 'album',
+      contentType: this.searchType,
       clientId: this.clientId
     };
     
-    // Save to server via API
-    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
-    this.http.post(addUrl, item).subscribe({
-      next: () => {
-        console.log('Manual item added to server:', item);
-        this.loadLibraryItems(); // Reload from server
-        this.libraryArtist = '';
-        this.libraryTitle = '';
-      },
-      error: (err) => {
-        console.error('Failed to add manual item to server:', err);
-      }
-    });
+    if (this.editingIndex >= 0) {
+      // Update existing item
+      const updateUrl = environment.production ? '../api/update' : 'http://localhost:8200/api/update';
+      this.http.post(updateUrl, {
+        index: this.editingIndex,
+        item: item
+      }).subscribe({
+        next: () => {
+          console.log('Item updated on server:', item);
+          this.loadLibraryItems();
+          this.clearForm();
+        },
+        error: (err) => {
+          console.error('Failed to update item on server:', err);
+        }
+      });
+    } else {
+      // Add new item
+      const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+      this.http.post(addUrl, item).subscribe({
+        next: () => {
+          console.log('Manual item added to server:', item);
+          this.loadLibraryItems();
+          this.clearForm();
+        },
+        error: (err) => {
+          console.error('Failed to add manual item to server:', err);
+        }
+      });
+    }
+  }
+
+  clearForm() {
+    this.libraryArtist = '';
+    this.libraryTitle = '';
+    this.editingIndex = -1;
   }
 
   removeFromLibrary(index: number) {
@@ -685,12 +749,48 @@ export class ConfigPage implements OnInit {
     });
   }
 
+  setLibraryCategory(category: string) {
+    this.libraryCategory = category;
+    // Auto-set search type for podcast category
+    if (category === 'podcast') {
+      this.searchType = 'podcast';
+    } else if (this.searchType === 'podcast' && category !== 'podcast') {
+      this.searchType = 'album'; // Reset to album if switching away from podcast
+    }
+  }
+
+  setSearchType(type: string) {
+    this.searchType = type;
+  }
+
+  getSearchTypeLabel(): string {
+    switch (this.searchType) {
+      case 'album': return 'Albums';
+      case 'artist': return 'Artists';
+      case 'podcast': return 'Podcasts';
+      case 'audiobook': return 'Audiobooks';
+      default: return 'Content';
+    }
+  }
+
+  async openUnifiedSearch() {
+    if (this.searchType === 'album') {
+      await this.openAlbumSearch();
+    } else if (this.searchType === 'artist') {
+      await this.openArtistSearch();
+    } else if (this.searchType === 'podcast' || this.searchType === 'audiobook') {
+      await this.openServiceSearch();
+    }
+  }
+
   async openServiceSearch() {
     const modal = await this.modalController.create({
       component: ServiceSearchComponent,
       componentProps: {
         service: this.librarySource,
-        category: this.libraryCategory
+        category: this.libraryCategory,
+        searchType: this.searchType === 'podcast' ? 'show' : 
+                   this.searchType === 'audiobook' ? 'audiobook' : 'album'
       },
       cssClass: 'service-search-modal'
     });
@@ -710,10 +810,14 @@ export class ConfigPage implements OnInit {
       title: content.title,
       type: this.librarySource,
       category: this.libraryCategory,
-      cover: content.cover,
+      cover: this.librarySource === 'tunein' && content.id ? 
+        content.cover || `https://cdn-profiles.tunein.com/${content.id}/images/logod.jpg` :
+        content.cover,
       id: content.id,
-      contentType: 'album',
-      clientId: this.clientId
+      contentType: this.searchType === 'podcast' ? 'show' : 
+                  this.searchType === 'audiobook' ? 'audiobook' : 'album',
+      clientId: this.clientId,
+      ...(content.streamUrl && { streamUrl: content.streamUrl })
     };
     
     // Save to server via API
@@ -794,5 +898,10 @@ export class ConfigPage implements OnInit {
     } else {
       this.activeInput = inputOrder[0];
     }
+  }
+
+  private getTuneInStationImage(stationId: string): string {
+    const id = stationId?.replace('s', '');
+    return id ? `https://cdn-radiotime-logos.tunein.com/${id}q.png` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
   }
 }

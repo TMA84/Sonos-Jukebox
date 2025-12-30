@@ -8,6 +8,7 @@ import { NgForm } from '@angular/forms';
 import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
 import { ArtistSearchComponent } from '../artist-search/artist-search.component';
+import { RadioSearchComponent } from '../radio-search/radio-search.component';
 import { ConfigService } from '../config.service';
 
 
@@ -30,7 +31,12 @@ export class AddPage implements OnInit, AfterViewInit {
   selectedInputElem: any;
   valid = false;
   spotifyConfigured = false;
+  tuneinConfigured = true; // TuneIn uses public API, always available
   showKeyboard = false;
+  artistName = '';
+  titleName = '';
+  clients: any[] = [];
+  selectedClient = '';
   isUpperCase = false;
   activeInput: any = null;
   keyboardRows = [
@@ -55,8 +61,14 @@ export class AddPage implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    console.log('AddPage ngOnInit - Initial tuneinConfigured:', this.tuneinConfigured);
     this.configService.getConfig().subscribe(config => {
       this.spotifyConfigured = config.spotify?.configured || false;
+      this.tuneinConfigured = true; // TuneIn uses public API, always available
+      
+      console.log('AddPage config loaded - tuneinConfigured:', this.tuneinConfigured);
+      console.log('AddPage config loaded - spotifyConfigured:', this.spotifyConfigured);
+      
       if (this.spotifyConfigured && this.source === 'library') {
         this.source = 'spotify';
       }
@@ -127,6 +139,16 @@ export class AddPage implements OnInit, AfterViewInit {
       this.source = 'spotify';
     }
 
+    this.validate();
+  }
+
+  selectCategory(category: string) {
+    this.category = category;
+    this.categoryChanged();
+  }
+
+  selectSource(source: string) {
+    this.source = source;
     this.validate();
   }
 
@@ -283,6 +305,10 @@ export class AddPage implements OnInit, AfterViewInit {
   }
 
   async openServiceSearch(service: 'applemusic' | 'amazonmusic' | 'tunein') {
+    if (service === 'tunein') {
+      return this.openRadioSearch();
+    }
+    
     const modal = await this.modalController.create({
       component: ServiceSearchComponent,
       componentProps: {
@@ -299,6 +325,37 @@ export class AddPage implements OnInit, AfterViewInit {
     });
 
     return await modal.present();
+  }
+
+  async openRadioSearch() {
+    const modal = await this.modalController.create({
+      component: RadioSearchComponent,
+      cssClass: 'radio-search-modal'
+    });
+
+    modal.onDidDismiss().then((result) => {
+      if (result.data) {
+        this.addStationFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  addStationFromSearch(station: any) {
+    const media = {
+      category: 'radio',
+      type: 'tunein',
+      artist: station.genre || 'Radio',
+      title: station.name,
+      cover: station.image,
+      id: station.id,
+      streamUrl: station.streamUrl // Include the Sonos-compatible stream URL
+    };
+
+    this.mediaService.addRawMedia(media);
+    this.reloadHome();
+    this.router.navigate(['/config']);
   }
 
   async openArtistSearch() {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -6,7 +6,8 @@ import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-pin-dialog',
   templateUrl: './pin-dialog.component.html',
-  styleUrls: ['./pin-dialog.component.scss']
+  styleUrls: ['./pin-dialog.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class PinDialogComponent implements OnInit {
   pin = '';
@@ -27,17 +28,21 @@ export class PinDialogComponent implements OnInit {
   addDigit(digit: string) {
     if (this.pin.length < 12) {
       this.pin += digit;
+      // Auto-check when PIN reaches 6 digits (most common length)
+      if (this.pin.length === 6) {
+        setTimeout(() => this.checkPin(), 500);
+      }
     }
   }
 
   checkPinManually() {
-    if (this.pin.length >= 4) {
+    if (this.pin.length >= 1) {
       this.checkPin();
     }
   }
 
   getPinDisplay(): string {
-    return this.pin.replace(/./g, '•');
+    return '●'.repeat(this.pin.length);
   }
 
   clearPin() {
@@ -46,13 +51,13 @@ export class PinDialogComponent implements OnInit {
 
   checkPin() {
     if (this.pin === this.correctPin) {
-      this.modalController.dismiss(true);
+      this.modalController.dismiss({ authenticated: true });
     } else {
       this.pin = '';
     }
   }
 
   closeModal() {
-    this.modalController.dismiss(false);
+    this.modalController.dismiss({ authenticated: false });
   }
 }
