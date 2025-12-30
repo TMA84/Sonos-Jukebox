@@ -316,7 +316,7 @@ export class PlayerService {
         const defaultSpeaker = localStorage.getItem('selectedSpeaker');
         const selectedSpeaker = tempSpeaker || defaultSpeaker || config.rooms[0];
         
-        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + selectedSpeaker + '/';
+        const baseUrl = 'http://' + config.server + ':' + config.port + '/' + encodeURIComponent(selectedSpeaker) + '/';
         this.http.get(baseUrl + url).subscribe({
           next: (response) => {
             resolve(response);
