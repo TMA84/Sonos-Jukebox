@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Automatic episode/chapter fetching** for proper Sonos compatibility
 - **Unified search interface** combining Albums/Artists/Podcasts/Audiobooks
 
+#### TuneIn Radio Support
+- **Complete TuneIn Radio integration** with station search functionality
+- **Radio search component** for finding stations by name or genre
+- **Sonos-compatible URI handling** for TuneIn radio playback
+- **Default radio icons** for consistent UI experience
+- **TuneIn API configuration** in settings page
+
 #### Library Management
 - **Edit functionality** for existing library items in config page
 - **Update API endpoint** for modifying stored media items
@@ -29,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Technical Improvements
 - **Podcast episode listing** showing individual episodes instead of show overview
-- **Proper URI handling** for different content types (albums, episodes, audiobooks)
+- **Proper URI handling** for different content types (albums, episodes, audiobooks, radio)
 - **Enhanced error handling** for unsupported content types
 - **Improved API compatibility** preserving Spotify IDs instead of generating UUIDs
 
@@ -38,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Resolved audiobook playback** by treating them as podcast-like shows
 - **Improved content type detection** for proper playback routing
 - **Enhanced search type selection** with automatic content type mapping
+- **Fixed TuneIn radio playback** with proper Sonos URI formatting
 
 ### 🗑️ Removed
 - **Migration scripts** and temporary SQLite transition files
