@@ -5,10 +5,7 @@
     "homepage": "https://github.com/TMA84/sonos-jukebox",
     "scripts": {
         "ng": "ng",
-        "start": "node server-sqlite.js",
-      "start-sqlite": "node server-sqlite.js",
-        "start-old": "node server.js",
-        "migrate": "node migrate-to-sqlite.js",
+        "start": "node server.js",
         "build": "ng build --configuration production",
         "deploy": "ng build --configuration production"
     },
