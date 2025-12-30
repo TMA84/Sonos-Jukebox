@@ -2,24 +2,44 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
-## What's New in Version 2.1.8
+## What's New in Version 2.2.0
 
-### 🔧 User Interface Improvements
-- **Removed switch client card** - Streamlined client management by removing redundant client switching interface from config page
-- **Scrollable tab navigation** - Added horizontal scrolling for tab selectors on small displays (smartphones)
-- **Optimized header spacing** - Reduced select spacer to minimal 10px for cleaner layout
+### 🎧 Complete Audiobook Support
+- **Spotify audiobook integration** - Search, add, and play audiobooks directly from Spotify
+- **Chapter-based playback** - Audiobooks are treated like podcasts with individual chapters
+- **Unified search interface** - Combined search for Albums, Artists, Podcasts, and Audiobooks
+- **Automatic chapter fetching** - First chapter plays automatically with proper Sonos compatibility
 
-### ⌨️ Virtual Keyboard Enhancements
-- **Responsive design** - Keyboard now adapts to all screen sizes and orientations
-- **Compact layout** - Reduced keyboard height to 180px for better screen real estate
-- **Full-width keys** - Keys now stretch to use entire screen width for better usability
-- **Smaller space key** - Optimized space bar size for better key distribution
-- **Landscape optimization** - Improved keyboard sizing for horizontal orientation
+### 📻 TuneIn Radio Integration
+- **Live radio station search** - Find stations by name, genre, or location
+- **Real-time search results** - Instant station discovery as you type
+- **Sonos-compatible playback** - Direct radio streaming through your Sonos speakers
+- **Default radio icons** - Consistent visual experience for all radio stations
+- **TuneIn API configuration** - Easy setup in the settings page
 
-### 🔐 Security & Navigation
-- **Unified PIN protection** - Fixed double PIN entry issue by consolidating authentication
-- **Route guard implementation** - Added proper security for direct URL access to configuration
-- **Streamlined access** - Single PIN entry for both button and URL-based config access
+### ✏️ Library Management
+- **Edit existing items** - Modify artist, title, category, and source of saved content
+- **In-place editing** - Edit directly from the library list in config page
+- **Dynamic form handling** - Same interface for adding new items and editing existing ones
+- **Cancel functionality** - Easy way to abort edits and return to normal mode
+
+### 🗄️ Modern Database Architecture
+- **SQLite database** - Migrated from JSON files to robust SQLite storage
+- **Single server file** - Simplified architecture with server.js handling everything
+- **Improved performance** - Faster data access and better concurrent user support
+- **Data integrity** - ACID compliance and better error handling
+
+### 🎵 Enhanced Content Support
+- **Podcast episodes** - View and play individual podcast episodes instead of just show info
+- **Multiple content types** - Support for albums, tracks, episodes, audiobooks, and radio
+- **Smart URI handling** - Automatic detection and proper formatting for different media types
+- **Improved search** - Content-type specific search with better results
+
+### 🔧 Technical Improvements
+- **Repository cleanup** - Removed 4,900+ lines of obsolete code and files
+- **Streamlined deployment** - Single `npm start` command runs the complete application
+- **Better error handling** - More informative error messages and graceful failures
+- **API consistency** - Unified endpoints for all media operations
 
 ## What's New in Version 2.1.7
 
@@ -138,14 +158,11 @@
 
 ### Installation
 ```bash
-# Install Ionic CLI
-sudo npm install -g @ionic/cli
-
 # Clone and setup
 git clone https://github.com/your-repo/Sonos-Kids-Controller.git
 cd Sonos-Kids-Controller
 npm install
-ionic build --prod
+npm run build
 
 # Start the server
 npm start
@@ -170,13 +187,24 @@ npm start
 
 #### Adding Music Content
 
-##### Quick Search Method (Recommended)
-1. **Open Library Editor**: Tap the hidden area in the top-right corner 10 times quickly
-2. **Add Content**: Click the "+" button
-3. **Search Options**:
+##### Unified Search Interface (New in 2.2.0)
+1. **Access Config**: Click the settings button (⚙️) and enter PIN
+2. **Library Tab**: Navigate to the Library tab
+3. **Content Types**: Choose from Audiobook, Music, Playlist, Radio, Podcast, or Radio Play
+4. **Search Sources**: Select Spotify, Local, or TuneIn Radio
+5. **Search Options**:
    - **Spotify Albums**: Search by album name and add directly
    - **Spotify Artists**: Add entire artist catalogs with one click
-   - **Manual Entry**: Add specific albums with artwork URLs
+   - **Spotify Podcasts**: Search and add podcast shows with episode support
+   - **Spotify Audiobooks**: Search and add audiobooks with chapter-based playback
+   - **TuneIn Radio**: Search for live radio stations by name or genre
+   - **Manual Entry**: Add specific content with custom artwork URLs
+
+##### Edit Existing Content (New in 2.2.0)
+1. **Library Items List**: View all your saved content in the Library tab
+2. **Edit Button**: Click the pencil icon next to any item
+3. **Modify Details**: Change artist, title, category, source, or content type
+4. **Save Changes**: Click "Update Item" to save or "Cancel Edit" to abort
 
 ##### Search Examples
 - `artist:Benjamin Blümchen` - All Benjamin Blümchen content
@@ -191,10 +219,13 @@ npm start
 ### Daily Usage
 
 #### Playing Music
-1. **Browse Categories**: Switch between Audiobook, Music, Playlist, and Radio
+1. **Browse Categories**: Switch between Audiobook, Music, Playlist, Radio, Podcast, and Radio Play
 2. **Artist View**: Tap artist covers to see their albums
-3. **Direct Play**: Tap any album cover to start playing immediately
-4. **Voice Feedback**: Tap artist/album names to hear them spoken aloud
+3. **Podcast Episodes**: View individual episodes for podcasts instead of show overview
+4. **Audiobook Chapters**: Audiobooks automatically play first chapter with proper Sonos compatibility
+5. **Radio Stations**: TuneIn radio stations play directly through Sonos speakers
+6. **Direct Play**: Tap any album cover to start playing immediately
+7. **Voice Feedback**: Tap artist/album names to hear them spoken aloud
 
 #### Search and Filter
 1. **Enable Search**: Tap the search icon to show the search bar
@@ -255,6 +286,10 @@ npm start
         "clientId": "your_spotify_client_id",
         "clientSecret": "your_spotify_client_secret"
     },
+    "tunein": {
+        "apiKey": "your_tunein_api_key",
+        "partnerId": "your_tunein_partner_id"
+    },
     "clients": {
         "client-abc123": {
             "name": "Kids Room",
@@ -264,9 +299,9 @@ npm start
 }
 ```
 
-#### Client Data (`server/config/data-client-abc123.json`)
-- Contains the music library for each client
-- Automatically created when adding content
+#### SQLite Database (`database.sqlite`)
+- Contains all music library data for all clients
+- Automatically created and managed by the application
 - Can be manually edited (backup first!)
 
 ### Support and Maintenance
