@@ -71,14 +71,9 @@ export class PlayerPage implements OnInit {
       // Store last played media
       localStorage.setItem('lastPlayedMedia', JSON.stringify(this.media));
       
-      // Clear queue and start playing immediately
-      this.playerService.sendCmd(PlayerCmds.CLEARQUEUE);
-      
-      // Start playing with shorter delay
-      window.setTimeout(() => {
-        this.playerService.playMedia(this.media);
-        this.playing = true;
-      }, 500);
+      // Start playing immediately
+      this.playerService.playMedia(this.media);
+      this.playing = true;
     } else {
       // Load actual current status from player
       this.playerService.getCurrentTrack().subscribe(track => {

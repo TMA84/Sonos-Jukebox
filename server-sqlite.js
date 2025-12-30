@@ -490,9 +490,40 @@ app.post('/api/config/client', async (req, res) => {
             return res.status(400).json({ error: 'Client ID required' });
         }
         
-        // Update client configuration
-        await dbRun('UPDATE clients SET name = ?, room = ?, enableSpeakerSelection = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?', 
-                   [name, room, enableSpeakerSelection ? 1 : 0, clientId]);
+        // Get current client data
+        const currentClient = await dbGet('SELECT * FROM clients WHERE id = ?', [clientId]);
+        if (!currentClient) {
+            return res.status(404).json({ error: 'Client not found' });
+        }
+        
+        // Build update query dynamically based on provided fields
+        const updates = [];
+        const values = [];
+        
+        if (name !== undefined) {
+            updates.push('name = ?');
+            values.push(name);
+        }
+        
+        if (room !== undefined) {
+            updates.push('room = ?');
+            values.push(room);
+        }
+        
+        if (enableSpeakerSelection !== undefined) {
+            updates.push('enableSpeakerSelection = ?');
+            values.push(enableSpeakerSelection ? 1 : 0);
+        }
+        
+        if (updates.length === 0) {
+            return res.json({ success: true }); // No updates needed
+        }
+        
+        updates.push('updatedAt = CURRENT_TIMESTAMP');
+        values.push(clientId);
+        
+        const query = `UPDATE clients SET ${updates.join(', ')} WHERE id = ?`;
+        await dbRun(query, values);
         
         res.json({ success: true });
     } catch (error) {

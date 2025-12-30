@@ -53,11 +53,37 @@ export class PlayerService {
     this.sendRequest('state');
   }
 
-  sendCmd(cmd: PlayerCmds) {
-    // Use temporary speaker selection if available, otherwise use client default
-    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-    const room = tempSpeaker || defaultSpeaker || 'Living Room';
+  private async getClientRoom(): Promise<string> {
+    const clientId = this.clientService.getClientId();
+    if (!clientId) {
+      return 'Living Room';
+    }
+
+    try {
+      const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+      const config = await this.http.get<any>(configUrl, { 
+        params: { clientId } 
+      }).toPromise();
+      
+      // If speaker selection is disabled, use client's configured room
+      if (!config.enableSpeakerSelection && config.room) {
+        return config.room;
+      }
+      
+      // If speaker selection is enabled, use temporary or stored selection
+      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+      return tempSpeaker || defaultSpeaker || config.room || 'Living Room';
+    } catch (error) {
+      console.error('Failed to get client config:', error);
+      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
+      return tempSpeaker || defaultSpeaker || 'Living Room';
+    }
+  }
+
+  async sendCmd(cmd: PlayerCmds) {
+    const room = await this.getClientRoom();
     
     switch (cmd) {
       case PlayerCmds.PLAY:
@@ -104,7 +130,7 @@ export class PlayerService {
     }
   }
 
-  playMedia(media: Media) {
+  async playMedia(media: Media) {
     // Validate media before processing
     if (!media || !media.title || !media.artist) {
       console.error('Invalid media provided to playMedia:', media);
@@ -141,11 +167,7 @@ export class PlayerService {
 
     // Get client's room and play
     const playUrl = environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play';
-    
-    // Use temporary speaker selection if available, otherwise use client default
-    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-    const room = tempSpeaker || defaultSpeaker || 'Living Room';
+    const room = await this.getClientRoom();
     
     this.http.post(playUrl, { room, uri }).subscribe({
       next: (response) => {
@@ -175,26 +197,28 @@ export class PlayerService {
   getCurrentTrack(): Observable<any> {
     const url = environment.production ? '../api/sonos' : 'http://localhost:8200/api/sonos';
     
-    // Use temporary speaker selection if available
-    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-    const selectedRoom = tempSpeaker || defaultSpeaker;
-    
-    let params: any = { clientId: this.clientService.getClientId() };
-    if (selectedRoom) {
-      params.room = selectedRoom;
-    }
-    
-    return this.http.get<any>(url, { params }).pipe(
-      map((state: any) => ({
-        title: state.currentTrack?.title || 'Unknown',
-        artist: state.currentTrack?.artist || 'Unknown Artist',
-        album: state.currentTrack?.album || '',
-        playbackState: state.playbackState,
-        uri: state.currentTrack?.uri,
-        trackUri: state.currentTrack?.trackUri
-      }))
-    );
+    return new Observable(observer => {
+      this.getClientRoom().then(room => {
+        const params: any = { clientId: this.clientService.getClientId() };
+        if (room) {
+          params.room = room;
+        }
+        
+        this.http.get<any>(url, { params }).pipe(
+          map((state: any) => ({
+            title: state.currentTrack?.title || 'Unknown',
+            artist: state.currentTrack?.artist || 'Unknown Artist',
+            album: state.currentTrack?.album || '',
+            playbackState: state.playbackState,
+            uri: state.currentTrack?.uri,
+            trackUri: state.currentTrack?.trackUri
+          }))
+        ).subscribe(observer);
+      }).catch(error => {
+        console.error('Failed to get client room:', error);
+        observer.error(error);
+      });
+    });
   }
 
   private startSleepTimer() {
@@ -220,12 +244,9 @@ export class PlayerService {
     });
   }
 
-  private pausePlayback() {
+  private async pausePlayback() {
     const pauseUrl = environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause';
-    
-    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-    const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-    const room = tempSpeaker || defaultSpeaker || 'Living Room';
+    const room = await this.getClientRoom();
     
     this.http.post(pauseUrl, { room }).subscribe({
       next: () => console.log('Playback paused by sleep timer'),
