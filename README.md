@@ -15,7 +15,7 @@
 - **Real-time search results** - Instant station discovery as you type
 - **Sonos-compatible playback** - Direct radio streaming through your Sonos speakers
 - **Default radio icons** - Consistent visual experience for all radio stations
-- **TuneIn API configuration** - Easy setup in the settings page
+- **No configuration required** - Works out of the box without API keys
 
 ### ✏️ Library Management
 - **Edit existing items** - Modify artist, title, category, and source of saved content
@@ -154,7 +154,8 @@
 ### Prerequisites
 - Node.js and npm installed
 - [node-sonos-http-api](https://github.com/Thyraz/node-sonos-http-api) running
-- Spotify Premium account (optional but recommended)
+- Spotify Premium account (optional, for music and audiobooks)
+- TuneIn Radio (works automatically, no setup required)
 
 ### Installation
 ```bash
@@ -171,7 +172,7 @@ npm start
 ### First Time Setup
 1. Open `http://localhost:8200` in your browser
 2. Click the settings button (⚙️) and enter PIN (default: 1234)
-3. Configure your Sonos speakers and Spotify credentials
+3. Configure your Sonos speakers and Spotify credentials (TuneIn Radio works automatically)
 4. Create your first client profile
 5. Add music content using the search functionality
 
@@ -286,10 +287,6 @@ npm start
         "clientId": "your_spotify_client_id",
         "clientSecret": "your_spotify_client_secret"
     },
-    "tunein": {
-        "apiKey": "your_tunein_api_key",
-        "partnerId": "your_tunein_partner_id"
-    },
     "clients": {
         "client-abc123": {
             "name": "Kids Room",
@@ -298,6 +295,8 @@ npm start
     }
 }
 ```
+
+**Note**: TuneIn Radio works out of the box without any API configuration required.
 
 #### SQLite Database (`database.sqlite`)
 - Contains all music library data for all clients
