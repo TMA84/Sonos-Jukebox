@@ -28,6 +28,14 @@ async function initializeDatabase() {
             value TEXT
         )`);
 
+        // Create users table for PIN authentication
+        await dbRun(`CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            pin TEXT NOT NULL,
+            isActive INTEGER DEFAULT 1,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
         // Create clients table
         await dbRun(`CREATE TABLE IF NOT EXISTS clients (
             id TEXT PRIMARY KEY,
@@ -106,10 +114,18 @@ async function migrateLegacyData() {
             console.log('Found legacy pin.json, migrating to database...');
             const pinData = JSON.parse(fs.readFileSync(pinPath, 'utf8'));
             if (pinData.pin) {
-                await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
-                           ['admin_pin', pinData.pin]);
+                await dbRun('INSERT OR REPLACE INTO users (username, pin) VALUES (?, ?)', 
+                           ['admin', pinData.pin]);
             }
             console.log('PIN migration completed');
+        } else {
+            // Create default admin user with PIN 1234 if no admin exists
+            const existingAdmin = await dbGet('SELECT username FROM users WHERE username = ?', ['admin']);
+            if (!existingAdmin) {
+                await dbRun('INSERT INTO users (username, pin) VALUES (?, ?)', ['admin', '1234']);
+                console.log('Created default admin user with PIN 1234');
+            }
+        }
         }
         
         // Check for legacy client data files
