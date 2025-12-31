@@ -2,6 +2,21 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.1
+
+### 🔄 Migration & Upgrade Features
+- **Automatic migration from JSON to SQLite** - Seamless upgrade path for existing users
+- **Legacy data preservation** - All library items, clients, and settings automatically migrated
+- **Zero-downtime upgrades** - Migration happens during normal server startup
+- **Safe migration process** - Uses INSERT OR REPLACE to prevent data duplication
+- **Comprehensive migration support** - Handles config.json, pin.json, and all client data files
+
+### 🛡️ Backward Compatibility
+- **Automatic detection** of legacy JSON configuration files
+- **Graceful error handling** for malformed or missing legacy files
+- **Migration logging** for debugging and verification
+- **Home Assistant addon support** - Seamless upgrade for HA users
+
 ## What's New in Version 2.2.0
 
 ### 🎧 Complete Audiobook Support
