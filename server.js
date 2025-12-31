@@ -33,7 +33,8 @@ async function initializeDatabase() {
             username TEXT PRIMARY KEY,
             pin TEXT NOT NULL,
             isActive INTEGER DEFAULT 1,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
         // Create clients table
@@ -41,8 +42,11 @@ async function initializeDatabase() {
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             room TEXT,
+            enableSpeakerSelection INTEGER DEFAULT 1,
+            sleepTimer INTEGER DEFAULT 0,
             isActive INTEGER DEFAULT 1,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
         // Create media_items table
@@ -55,8 +59,12 @@ async function initializeDatabase() {
             type TEXT,
             category TEXT,
             contentType TEXT,
+            spotifyUri TEXT,
+            spotifyId TEXT,
+            artistid TEXT,
             metadata TEXT,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (clientId) REFERENCES clients(id)
         )`);
 
