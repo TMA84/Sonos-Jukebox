@@ -369,9 +369,9 @@ app.get('/api/config/full', async (req, res) => {
 // Update configuration
 app.post('/api/config', async (req, res) => {
     try {
-        const { key, value, description } = req.body;
-        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
-                   [key, value, description]);
+        const { key, value } = req.body;
+        await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                   [key, value]);
         res.json({ success: true });
     } catch (error) {
         console.error('Error updating config:', error);
@@ -896,10 +896,10 @@ app.post('/api/config/spotify', async (req, res) => {
         const { clientId, clientSecret } = req.body;
         
         // Update both Spotify credentials
-        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
-                   ['spotify_client_id', clientId, 'Spotify Client ID']);
-        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
-                   ['spotify_client_secret', clientSecret, 'Spotify Client Secret']);
+        await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                   ['spotify_client_id', clientId]);
+        await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                   ['spotify_client_secret', clientSecret]);
         
         // Reinitialize Spotify API with new credentials
         await initializeSpotify();
