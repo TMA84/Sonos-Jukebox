@@ -2,6 +2,12 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.6
+
+### 🐛 Bug Fixes
+- **Database schema** - Fixed remaining config table column errors for Spotify configuration
+- **Configuration API** - Removed description column references from all config operations
+
 ## What's New in Version 2.2.5
 
 ### 🐛 Bug Fixes
