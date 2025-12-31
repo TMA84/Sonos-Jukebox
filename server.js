@@ -51,7 +51,7 @@ async function initializeDatabase() {
 
         // Create media_items table
         await dbRun(`CREATE TABLE IF NOT EXISTS media_items (
-            id TEXT PRIMARY KEY,
+            id TEXT NOT NULL,
             clientId TEXT NOT NULL,
             title TEXT NOT NULL,
             artist TEXT NOT NULL,
@@ -65,6 +65,7 @@ async function initializeDatabase() {
             metadata TEXT,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id, clientId),
             FOREIGN KEY (clientId) REFERENCES clients(id)
         )`);
 

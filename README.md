@@ -2,6 +2,12 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.8
+
+### 🐛 Bug Fixes
+- **Multi-client content sharing** - Fixed UNIQUE constraint error preventing same content from being added to different clients
+- **Database schema** - Changed primary key from single `id` to composite `(id, clientId)` to allow content sharing across clients
+
 ## What's New in Version 2.2.7
 
 ### 🐛 Bug Fixes
