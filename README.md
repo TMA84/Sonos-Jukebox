@@ -2,6 +2,12 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.4
+
+### 🐛 Bug Fixes
+- **Syntax error** - Fixed missing catch block causing server startup failure
+- **Code quality** - Removed extra closing brace in migration function
+
 ## What's New in Version 2.2.3
 
 ### 🐛 Bug Fixes
