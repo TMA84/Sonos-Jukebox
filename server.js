@@ -53,8 +53,127 @@ async function initializeDatabase() {
         )`);
 
         console.log('Database tables initialized successfully');
+        
+        // Check for and migrate legacy JSON files
+        await migrateLegacyData();
     } catch (error) {
         console.error('Error initializing database:', error);
+    }
+}
+
+// Migrate legacy JSON files to SQLite database
+async function migrateLegacyData() {
+    const fs = require('fs');
+    const path = require('path');
+    
+    try {
+        // Check for legacy config.json
+        const configPath = path.join(__dirname, 'server', 'config', 'config.json');
+        if (fs.existsSync(configPath)) {
+            console.log('Found legacy config.json, migrating to database...');
+            const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            
+            // Migrate Spotify config
+            if (configData.spotify) {
+                await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                           ['spotify_client_id', configData.spotify.clientId || '']);
+                await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                           ['spotify_client_secret', configData.spotify.clientSecret || '']);
+            }
+            
+            // Migrate Sonos config
+            if (configData['node-sonos-http-api']) {
+                await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                           ['sonos_server', configData['node-sonos-http-api'].server || '']);
+                await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                           ['sonos_port', configData['node-sonos-http-api'].port || '5005']);
+            }
+            
+            // Migrate clients
+            if (configData.clients) {
+                for (const [clientId, clientData] of Object.entries(configData.clients)) {
+                    await dbRun('INSERT OR REPLACE INTO clients (id, name, room) VALUES (?, ?, ?)', 
+                               [clientId, clientData.name || clientId, clientData.room || '']);
+                }
+            }
+            
+            console.log('Config migration completed');
+        }
+        
+        // Check for legacy PIN file
+        const pinPath = path.join(__dirname, 'server', 'config', 'pin.json');
+        if (fs.existsSync(pinPath)) {
+            console.log('Found legacy pin.json, migrating to database...');
+            const pinData = JSON.parse(fs.readFileSync(pinPath, 'utf8'));
+            if (pinData.pin) {
+                await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                           ['admin_pin', pinData.pin]);
+            }
+            console.log('PIN migration completed');
+        }
+        
+        // Check for legacy client data files
+        const configDir = path.join(__dirname, 'server', 'config');
+        if (fs.existsSync(configDir)) {
+            const files = fs.readdirSync(configDir);
+            for (const file of files) {
+                if (file.startsWith('data-client-') && file.endsWith('.json')) {
+                    const clientId = file.replace('data-client-', '').replace('.json', '');
+                    const dataPath = path.join(configDir, file);
+                    
+                    console.log(`Found legacy client data file: ${file}, migrating...`);
+                    const mediaData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+                    
+                    if (Array.isArray(mediaData)) {
+                        for (const item of mediaData) {
+                            await dbRun(`INSERT OR REPLACE INTO media_items 
+                                       (id, clientId, title, artist, cover, type, category, contentType, metadata) 
+                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+                                item.id || require('crypto').randomUUID(),
+                                clientId,
+                                item.title || '',
+                                item.artist || '',
+                                item.cover || '',
+                                item.type || 'spotify',
+                                item.category || 'music',
+                                item.contentType || 'album',
+                                JSON.stringify(item)
+                            ]);
+                        }
+                    }
+                    console.log(`Client data migration completed for ${clientId}`);
+                }
+            }
+        }
+        
+        // Check for legacy data.json
+        const dataPath = path.join(__dirname, 'server', 'config', 'data.json');
+        if (fs.existsSync(dataPath)) {
+            console.log('Found legacy data.json, migrating to database...');
+            const mediaData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+            
+            if (Array.isArray(mediaData)) {
+                for (const item of mediaData) {
+                    await dbRun(`INSERT OR REPLACE INTO media_items 
+                               (id, clientId, title, artist, cover, type, category, contentType, metadata) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+                        item.id || require('crypto').randomUUID(),
+                        item.clientId || 'default',
+                        item.title || '',
+                        item.artist || '',
+                        item.cover || '',
+                        item.type || 'spotify',
+                        item.category || 'music',
+                        item.contentType || 'album',
+                        JSON.stringify(item)
+                    ]);
+                }
+            }
+            console.log('Legacy data migration completed');
+        }
+        
+    } catch (error) {
+        console.error('Error during legacy data migration:', error);
     }
 }
 
