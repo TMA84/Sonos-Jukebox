@@ -2,6 +2,12 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.2
+
+### 🐛 Bug Fixes
+- **Home Assistant addon** - Fixed directory creation order preventing symlink errors
+- **Docker deployment** - Resolved "No such file or directory" error during container startup
+
 ## What's New in Version 2.2.1
 
 ### 🔄 Migration & Upgrade Features
