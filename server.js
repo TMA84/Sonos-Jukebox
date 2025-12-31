@@ -548,7 +548,7 @@ app.post('/api/add', async (req, res) => {
         const id = req.body.id || uuidv4(); // Use provided ID (for Spotify content) or generate UUID
         const metadata = JSON.stringify(req.body);
         
-        await dbRun(`INSERT INTO media_items 
+        await dbRun(`INSERT OR REPLACE INTO media_items 
                     (id, clientId, type, category, title, artist, cover, spotifyUri, spotifyId, artistid, contentType, metadata) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
                    [id, clientId, type || 'spotify', category || 'music', title, artist, cover, 
