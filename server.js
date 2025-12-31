@@ -71,6 +71,9 @@ async function initializeDatabase() {
 
         console.log('Database tables initialized successfully');
         
+        // Migrate media_items table to use composite primary key
+        await migrateMediaItemsSchema();
+        
         // Check for and migrate legacy JSON files
         await migrateLegacyData();
         
@@ -82,6 +85,51 @@ async function initializeDatabase() {
 }
 
 // Migrate legacy JSON files to SQLite database
+// Migrate media_items table to use composite primary key
+async function migrateMediaItemsSchema() {
+    try {
+        // Check if migration is needed by looking at table schema
+        const tableInfo = await dbAll("PRAGMA table_info(media_items)");
+        const hasPrimaryKey = tableInfo.some(col => col.pk === 1 && col.name === 'id');
+        
+        if (hasPrimaryKey) {
+            console.log('Migrating media_items table to composite primary key...');
+            
+            // Create new table with composite primary key
+            await dbRun(`CREATE TABLE media_items_new (
+                id TEXT NOT NULL,
+                clientId TEXT NOT NULL,
+                title TEXT NOT NULL,
+                artist TEXT NOT NULL,
+                cover TEXT,
+                type TEXT,
+                category TEXT,
+                contentType TEXT,
+                spotifyUri TEXT,
+                spotifyId TEXT,
+                artistid TEXT,
+                metadata TEXT,
+                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id, clientId),
+                FOREIGN KEY (clientId) REFERENCES clients(id)
+            )`);
+            
+            // Copy data from old table
+            await dbRun(`INSERT OR IGNORE INTO media_items_new 
+                        SELECT * FROM media_items`);
+            
+            // Drop old table and rename new one
+            await dbRun(`DROP TABLE media_items`);
+            await dbRun(`ALTER TABLE media_items_new RENAME TO media_items`);
+            
+            console.log('Media items table migration completed successfully');
+        }
+    } catch (error) {
+        console.log('Media items table migration not needed or already completed');
+    }
+}
+
 async function migrateLegacyData() {
     const fs = require('fs');
     const path = require('path');
