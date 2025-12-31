@@ -64,6 +64,9 @@ async function initializeDatabase() {
         
         // Check for and migrate legacy JSON files
         await migrateLegacyData();
+        
+        // Initialize configuration from environment variables (for Home Assistant addon)
+        await initializeFromEnvironment();
     } catch (error) {
         console.error('Error initializing database:', error);
     }
@@ -190,6 +193,46 @@ async function migrateLegacyData() {
         
     } catch (error) {
         console.error('Error during legacy data migration:', error);
+    }
+}
+
+// Initialize configuration from environment variables (for Home Assistant addon)
+async function initializeFromEnvironment() {
+    try {
+        // Set configuration from environment variables if they exist
+        if (process.env.SPOTIFY_CLIENT_ID) {
+            await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                       ['spotify_client_id', process.env.SPOTIFY_CLIENT_ID]);
+        }
+        
+        if (process.env.SPOTIFY_CLIENT_SECRET) {
+            await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                       ['spotify_client_secret', process.env.SPOTIFY_CLIENT_SECRET]);
+        }
+        
+        if (process.env.SONOS_SERVER) {
+            await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                       ['sonos_server', process.env.SONOS_SERVER]);
+        }
+        
+        if (process.env.SONOS_PORT) {
+            await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                       ['sonos_port', process.env.SONOS_PORT]);
+        }
+        
+        if (process.env.DEFAULT_ROOM) {
+            await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                       ['default_room', process.env.DEFAULT_ROOM]);
+        }
+        
+        if (process.env.ADMIN_PIN) {
+            await dbRun('INSERT OR REPLACE INTO users (username, pin) VALUES (?, ?)', 
+                       ['admin', process.env.ADMIN_PIN]);
+        }
+        
+        console.log('Environment configuration initialized');
+    } catch (error) {
+        console.error('Error initializing from environment:', error);
     }
 }
 
