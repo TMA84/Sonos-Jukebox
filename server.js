@@ -129,7 +129,6 @@ async function migrateLegacyData() {
                 console.log('Created default admin user with PIN 1234');
             }
         }
-        }
         
         // Check for legacy client data files
         const configDir = path.join(__dirname, 'server', 'config');
