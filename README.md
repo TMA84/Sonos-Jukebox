@@ -2,6 +2,12 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.7
+
+### 🐛 Bug Fixes
+- **Database schema** - Added all missing columns (enableSpeakerSelection, sleepTimer, spotifyUri, spotifyId, artistid, updatedAt)
+- **Complete table structure** - Fixed clients, media_items, and users tables to match application requirements
+
 ## What's New in Version 2.2.6
 
 ### 🐛 Bug Fixes
