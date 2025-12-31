@@ -2,6 +2,12 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.5
+
+### 🐛 Bug Fixes
+- **Database schema** - Fixed config table column mismatch causing Sonos configuration errors
+- **Configuration saving** - Resolved INSERT errors when updating Sonos API settings
+
 ## What's New in Version 2.2.4
 
 ### 🐛 Bug Fixes
