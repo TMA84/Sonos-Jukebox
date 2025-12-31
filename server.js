@@ -878,10 +878,10 @@ app.post('/api/config/sonos', async (req, res) => {
         const { server, port } = req.body;
         
         // Update Sonos API configuration
-        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
-                   ['sonos_api_host', server, 'Sonos API Host']);
-        await dbRun('INSERT OR REPLACE INTO config (key, value, description) VALUES (?, ?, ?)', 
-                   ['sonos_api_port', port, 'Sonos API Port']);
+        await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                   ['sonos_api_host', server]);
+        await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', 
+                   ['sonos_api_port', port]);
         
         res.json({ success: true });
     } catch (error) {
