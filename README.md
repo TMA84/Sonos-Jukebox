@@ -2,6 +2,14 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.3
+
+### 🐛 Bug Fixes
+- **Database initialization** - Added missing users table for PIN authentication
+- **Home Assistant addon** - Fixed configuration not being saved from addon settings
+- **Environment variables** - Added proper initialization from HA addon environment
+- **Default PIN** - Ensures admin user with PIN 1234 is created on first startup
+
 ## What's New in Version 2.2.2
 
 ### 🐛 Bug Fixes

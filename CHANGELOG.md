@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.3] - 2025-12-31
+
+### 🐛 Bug Fixes
+- **Database initialization** - Added missing users table for PIN authentication
+- **Home Assistant addon** - Fixed configuration not being saved from addon settings
+- **Environment variables** - Added proper initialization from HA addon environment
+- **Default PIN** - Ensures admin user with PIN 1234 is created on first startup
+
 ## [2.2.2] - 2025-12-31
 
 ### 🐛 Bug Fixes
