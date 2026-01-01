@@ -2,12 +2,22 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const sqlite3 = require('sqlite3').verbose();
 const SpotifyWebApi = require('spotify-web-api-node');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 app.use(cors());
+
+// PIN encryption functions
+function hashPin(pin) {
+    return crypto.createHash('sha256').update(pin).digest('hex');
+}
+
+function verifyPin(inputPin, hashedPin) {
+    return hashPin(inputPin) === hashedPin;
+}
 app.use(express.json());
 
 // Create database directory
@@ -174,15 +184,17 @@ async function migrateLegacyData() {
             console.log('Found legacy pin.json, migrating to database...');
             const pinData = JSON.parse(fs.readFileSync(pinPath, 'utf8'));
             if (pinData.pin) {
+                // Check if PIN is already encrypted (64 chars = SHA256 hex)
+                const pinToStore = pinData.pin.length === 64 ? pinData.pin : hashPin(pinData.pin);
                 await dbRun('INSERT OR REPLACE INTO users (username, pin) VALUES (?, ?)', 
-                           ['admin', pinData.pin]);
+                           ['admin', pinToStore]);
             }
             console.log('PIN migration completed');
         } else {
             // Create default admin user with PIN 1234 if no admin exists
             const existingAdmin = await dbGet('SELECT username FROM users WHERE username = ?', ['admin']);
             if (!existingAdmin) {
-                await dbRun('INSERT INTO users (username, pin) VALUES (?, ?)', ['admin', '1234']);
+                await dbRun('INSERT INTO users (username, pin) VALUES (?, ?)', ['admin', hashPin('1234')]);
                 console.log('Created default admin user with PIN 1234');
             }
         }
@@ -281,9 +293,20 @@ async function initializeFromEnvironment() {
                        ['default_room', process.env.DEFAULT_ROOM]);
         }
         
-        if (process.env.ADMIN_PIN) {
-            await dbRun('INSERT OR REPLACE INTO users (username, pin) VALUES (?, ?)', 
-                       ['admin', process.env.ADMIN_PIN]);
+        // Initialize admin PIN from environment only if no admin exists
+        const existingAdmin = await dbGet('SELECT username FROM users WHERE username = ?', ['admin']);
+        if (!existingAdmin) {
+            const defaultPin = process.env.ADMIN_PIN || '1234';
+            await dbRun('INSERT INTO users (username, pin) VALUES (?, ?)', ['admin', hashPin(defaultPin)]);
+            console.log('Created default admin user with encrypted PIN from environment');
+        } else if (process.env.ADMIN_PIN && process.env.ADMIN_PIN !== '1234') {
+            // Only update if environment PIN is different from default (user customized it)
+            const currentPin = await dbGet('SELECT pin FROM users WHERE username = ?', ['admin']);
+            if (currentPin && verifyPin('1234', currentPin.pin)) {
+                await dbRun('UPDATE users SET pin = ?, updatedAt = CURRENT_TIMESTAMP WHERE username = ?',
+                           [hashPin(process.env.ADMIN_PIN), 'admin']);
+                console.log('Updated admin PIN from environment (was default)');
+            }
         }
         
         console.log('Environment configuration initialized');
@@ -727,7 +750,7 @@ app.post('/api/auth/pin/verify', async (req, res) => {
         const { pin, clientId } = req.body;
         const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
         
-        if (user && user.pin === pin) {
+        if (user && verifyPin(pin, user.pin)) {
             // Generate a simple token (in production, use proper JWT)
             const token = Buffer.from(`${Date.now()}-${clientId}`).toString('base64');
             res.json({ token });
@@ -746,11 +769,11 @@ app.post('/api/auth/pin/change', async (req, res) => {
         const { currentPin, newPin } = req.body;
         const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
         
-        if (!user || user.pin !== currentPin) {
+        if (!user || !verifyPin(currentPin, user.pin)) {
             return res.status(401).json({ error: 'Invalid current PIN' });
         }
         
-        await dbRun('UPDATE users SET pin = ?, updatedAt = CURRENT_TIMESTAMP WHERE username = ?', [newPin, 'admin']);
+        await dbRun('UPDATE users SET pin = ?, updatedAt = CURRENT_TIMESTAMP WHERE username = ?', [hashPin(newPin), 'admin']);
         res.json({ message: 'PIN changed successfully' });
     } catch (error) {
         console.error('Error changing PIN:', error);
