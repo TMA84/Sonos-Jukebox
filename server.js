@@ -839,6 +839,7 @@ app.get('/api/config/client', async (req, res) => {
             id: client.id,
             name: client.name,
             room: client.room,
+            sleepTimer: client.sleepTimer || 0,
             enableSpeakerSelection: !!client.enableSpeakerSelection
         });
     } catch (error) {
