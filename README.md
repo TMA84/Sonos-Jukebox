@@ -2,6 +2,13 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
+## What's New in Version 2.2.9
+
+### 🐛 Bug Fixes
+- **Sleep timer display** - Fixed sleep timer not showing saved value in config page
+- **PIN security** - Added PIN encryption (SHA256) and fixed environment override issue
+- **PIN persistence** - Custom PINs now persist after addon rebuilds instead of reverting to default
+
 ## What's New in Version 2.2.8
 
 ### 🐛 Bug Fixes
