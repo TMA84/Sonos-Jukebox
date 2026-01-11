@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.11] - 2026-01-11
+
+### 🐛 Bug Fixes
+
+- **PIN authentication** - Fixed all PIN endpoints to correctly use SHA256 hashing
+- **Default client creation** - Server now automatically creates default client on fresh database initialization
+- **Client error handling** - Frontend automatically switches to default client if stored client doesn't exist
+- **Fresh database setup** - Improved initialization flow for new installations
+
+### ✨ Improvements
+
+- **Better error recovery** - App gracefully handles missing client scenarios
+- **Automatic fallback** - Client service now auto-recovers from 404 errors by using default client
+
 ## [2.2.10] - 2026-01-11
 
 ### 🐛 Bug Fixes

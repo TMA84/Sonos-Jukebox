@@ -16,8 +16,9 @@ export class AutoplayService {
   private currentCategory: string = '';
 
   constructor(private http: HttpClient, private clientService: ClientService) {
-    // Load autoplay preference from localStorage
-    const saved = localStorage.getItem('autoplayEnabled');
+    // Load autoplay preference from localStorage for this client
+    const clientId = this.clientService.getClientId();
+    const saved = localStorage.getItem(`autoplayEnabled_${clientId}`);
     if (saved !== null) {
       this.autoplayEnabled.next(saved === 'true');
     }
@@ -28,14 +29,16 @@ export class AutoplayService {
   }
 
   toggleAutoplay(): void {
+    const clientId = this.clientService.getClientId();
     const newValue = !this.autoplayEnabled.value;
     this.autoplayEnabled.next(newValue);
-    localStorage.setItem('autoplayEnabled', String(newValue));
+    localStorage.setItem(`autoplayEnabled_${clientId}`, String(newValue));
   }
 
   setEnabled(enabled: boolean): void {
+    const clientId = this.clientService.getClientId();
     this.autoplayEnabled.next(enabled);
-    localStorage.setItem('autoplayEnabled', String(enabled));
+    localStorage.setItem(`autoplayEnabled_${clientId}`, String(enabled));
   }
 
   async buildQueue(currentMedia: Media): Promise<void> {

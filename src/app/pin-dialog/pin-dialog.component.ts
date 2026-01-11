@@ -7,29 +7,22 @@ import { environment } from '../../environments/environment';
   selector: 'app-pin-dialog',
   templateUrl: './pin-dialog.component.html',
   styleUrls: ['./pin-dialog.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class PinDialogComponent implements OnInit {
   pin = '';
-  correctPin = '1234';
 
-  constructor(
-    private modalController: ModalController,
-    private http: HttpClient
-  ) {}
+  constructor(private modalController: ModalController, private http: HttpClient) {}
 
   ngOnInit() {
-    const pinUrl = environment.production ? '../api/pin' : 'http://localhost:8200/api/pin';
-    this.http.get(pinUrl, { responseType: 'text' }).subscribe(pin => {
-      this.correctPin = pin;
-    });
+    // No need to fetch PIN - we'll verify on server
   }
 
   addDigit(digit: string) {
     if (this.pin.length < 12) {
       this.pin += digit;
-      // Auto-check when PIN reaches 6 digits (most common length)
-      if (this.pin.length === 6) {
+      // Auto-check when PIN reaches 4 digits (default PIN length)
+      if (this.pin.length === 4) {
         setTimeout(() => this.checkPin(), 500);
       }
     }
@@ -50,11 +43,22 @@ export class PinDialogComponent implements OnInit {
   }
 
   checkPin() {
-    if (this.pin === this.correctPin) {
-      this.modalController.dismiss({ authenticated: true });
-    } else {
-      this.pin = '';
-    }
+    const pinUrl = environment.production
+      ? '../api/pin/verify'
+      : 'http://localhost:8200/api/pin/verify';
+
+    this.http.post<{ valid: boolean }>(pinUrl, { pin: this.pin }).subscribe({
+      next: response => {
+        if (response.valid) {
+          this.modalController.dismiss({ authenticated: true });
+        } else {
+          this.pin = '';
+        }
+      },
+      error: () => {
+        this.pin = '';
+      },
+    });
   }
 
   closeModal() {

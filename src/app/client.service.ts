@@ -5,7 +5,7 @@ import { map, catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ClientService {
   private clientId: string;
@@ -42,7 +42,7 @@ export class ClientService {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash).toString(36);
@@ -64,17 +64,40 @@ export class ClientService {
     if (this.clientNameCache) {
       return of(this.clientNameCache);
     }
-    
-    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
-    return this.http.get<any>(configUrl, {
-      params: { clientId: this.clientId }
-    }).pipe(
-      map(config => {
-        this.clientNameCache = config.name || '';
-        return this.clientNameCache;
-      }),
-      catchError(() => of(''))
-    );
+
+    const configUrl = environment.production
+      ? '../api/config/client'
+      : 'http://localhost:8200/api/config/client';
+    return this.http
+      .get<any>(configUrl, {
+        params: { clientId: this.clientId },
+      })
+      .pipe(
+        map(config => {
+          this.clientNameCache = config.name || '';
+          return this.clientNameCache;
+        }),
+        catchError(error => {
+          // If client not found (404), try to use default client
+          if (error.status === 404) {
+            console.log('Client not found, attempting to use default client');
+            this.setClientId('client-default');
+            // Try again with default client
+            return this.http
+              .get<any>(configUrl, {
+                params: { clientId: 'client-default' },
+              })
+              .pipe(
+                map(config => {
+                  this.clientNameCache = config.name || '';
+                  return this.clientNameCache;
+                }),
+                catchError(() => of(''))
+              );
+          }
+          return of('');
+        })
+      );
   }
 
   getClientDisplayName(): Observable<string> {
@@ -92,7 +115,7 @@ export class ClientService {
   private generateClientId(): string {
     const stored = this.getCookie('sonos-client-id');
     if (stored) return stored;
-    
+
     const id = 'client-' + Math.random().toString(36).substr(2, 9);
     this.setCookie('sonos-client-id', id, 365);
     return id;
@@ -109,7 +132,7 @@ export class ClientService {
 
   private setCookie(name: string, value: string, days: number): void {
     const expires = new Date();
-    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
     document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
   }
 }

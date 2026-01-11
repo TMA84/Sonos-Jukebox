@@ -92,6 +92,9 @@ async function initializeDatabase() {
 
     // Initialize configuration from environment variables (for Home Assistant addon)
     await initializeFromEnvironment();
+
+    // Create default client if none exist
+    await createDefaultClientIfNeeded();
   } catch (error) {
     console.error('Error initializing database:', error);
   }
@@ -320,6 +323,27 @@ async function migrateLegacyData() {
     }
   } catch (error) {
     console.error('Error during legacy data migration:', error);
+  }
+}
+
+// Create default client if none exist
+async function createDefaultClientIfNeeded() {
+  try {
+    const existingClients = await dbAll('SELECT id FROM clients WHERE isActive = 1');
+
+    if (existingClients.length === 0) {
+      const defaultClientId = 'client-default';
+      const defaultClientName = 'Default Client';
+
+      await dbRun(
+        'INSERT INTO clients (id, name, room, enableSpeakerSelection) VALUES (?, ?, ?, ?)',
+        [defaultClientId, defaultClientName, '', 1]
+      );
+
+      console.log(`Created default client: ${defaultClientId}`);
+    }
+  } catch (error) {
+    console.error('Error creating default client:', error);
   }
 }
 
@@ -913,12 +937,12 @@ app.post('/api/config/pin', async (req, res) => {
     const { currentPin, newPin } = req.body;
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
-    if (!user || user.pin !== currentPin) {
+    if (!user || !verifyPin(currentPin, user.pin)) {
       return res.status(401).send('Current PIN incorrect');
     }
 
     await dbRun('UPDATE users SET pin = ?, updatedAt = CURRENT_TIMESTAMP WHERE username = ?', [
-      newPin,
+      hashPin(newPin),
       'admin',
     ]);
     res.send('PIN changed successfully');
@@ -934,7 +958,7 @@ app.post('/api/pin/verify', async (req, res) => {
     const { pin } = req.body;
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
-    if (user && user.pin === pin) {
+    if (user && verifyPin(pin, user.pin)) {
       res.json({ valid: true });
     } else {
       res.json({ valid: false });
@@ -951,12 +975,12 @@ app.post('/api/pin/update', async (req, res) => {
     const { oldPin, newPin } = req.body;
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
-    if (!user || user.pin !== oldPin) {
+    if (!user || !verifyPin(oldPin, user.pin)) {
       return res.status(400).json({ error: 'Invalid current PIN' });
     }
 
     await dbRun('UPDATE users SET pin = ?, updatedAt = CURRENT_TIMESTAMP WHERE username = ?', [
-      newPin,
+      hashPin(newPin),
       'admin',
     ]);
     res.json({ success: true });
