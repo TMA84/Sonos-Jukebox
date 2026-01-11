@@ -94,8 +94,12 @@ export class MedialistPage implements OnInit {
               },
             ];
             this.media = [...this.allMedia];
+          } else if (artistEntry) {
+            // No artistid found, try to search for the artist on Spotify
+            console.warn('No artist ID found for:', this.artist.name, '- searching Spotify');
+            this.searchAndFetchArtist(this.artist.name);
           } else {
-            console.error('No artist ID found for:', this.artist.name);
+            console.error('No artist entry found for:', this.artist.name);
             this.allMedia = [];
             this.media = [];
           }
@@ -418,5 +422,66 @@ export class MedialistPage implements OnInit {
     this.offset = 0;
     this.hasMoreAlbums = true;
     this.loadMediaFromArtist();
+  }
+
+  async searchAndFetchArtist(artistName: string) {
+    try {
+      // Get Spotify token
+      const tokenUrl = environment.production ? '../api/token' : 'http://localhost:8200/api/token';
+      const tokenResponse = await fetch(tokenUrl);
+      const tokenData = await tokenResponse.json();
+
+      // Search for artist on Spotify
+      const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+        artistName
+      )}&type=artist&limit=1`;
+      const response = await fetch(searchUrl, {
+        headers: { Authorization: `Bearer ${tokenData.access_token}` },
+      });
+      const data = await response.json();
+
+      if (data.artists && data.artists.items && data.artists.items.length > 0) {
+        const artist = data.artists.items[0];
+        console.log('Found artist on Spotify:', artist.name, 'ID:', artist.id);
+
+        // Update the database with the artist ID
+        const clientId = this.getArtistClientId();
+        const updateUrl = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
+
+        // Get current media items to find and update the one without artistid
+        const rawMedia = await this.http
+          .get<Media[]>(updateUrl, {
+            params: { clientId },
+          })
+          .toPromise();
+
+        const itemToUpdate = rawMedia.find(item => item.artist === artistName && !item.artistid);
+
+        if (itemToUpdate) {
+          // Update the item with artistid
+          const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+          await this.http
+            .post(addUrl, {
+              ...itemToUpdate,
+              artistid: artist.id,
+              clientId,
+            })
+            .toPromise();
+
+          console.log('Updated artist with ID:', artist.id);
+        }
+
+        // Now fetch albums with the found artist ID
+        this.fetchArtistAlbums(artist.id);
+      } else {
+        console.error('Artist not found on Spotify:', artistName);
+        this.allMedia = [];
+        this.media = [];
+      }
+    } catch (error) {
+      console.error('Failed to search for artist:', error);
+      this.allMedia = [];
+      this.media = [];
+    }
   }
 }

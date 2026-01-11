@@ -24,6 +24,7 @@ export enum PlayerCmds {
 export class PlayerService {
   private config: Observable<SonosApiConfig> = null;
   private sleepTimers: Map<string, any> = new Map(); // Track timers per client
+  private sleepTimerInfo: Map<string, { startTime: number; durationMs: number }> = new Map(); // Track timer info per client
 
   constructor(private http: HttpClient, private clientService: ClientService) {}
 
@@ -202,7 +203,7 @@ export class PlayerService {
     return data.access_token;
   }
 
-  async playMedia(media: Media) {
+  async playMedia(media: Media, isAutoplay: boolean = false) {
     // Validate media before processing
     if (!media || !media.title || !media.artist) {
       console.error('Invalid media provided to playMedia:', media);
@@ -323,7 +324,10 @@ export class PlayerService {
     this.http.post(playUrl, { room, uri }).subscribe({
       next: response => {
         console.log('Successfully started playback:', response);
-        this.startSleepTimer();
+        // Only start sleep timer for manual playback, not autoplay
+        if (!isAutoplay) {
+          this.startSleepTimer();
+        }
       },
       error: error => {
         console.error('Failed to play media:', error);
@@ -397,6 +401,7 @@ export class PlayerService {
     if (this.sleepTimers.has(clientId)) {
       clearTimeout(this.sleepTimers.get(clientId));
       this.sleepTimers.delete(clientId);
+      this.sleepTimerInfo.delete(clientId);
     }
 
     // Get client's sleep timer setting
@@ -409,12 +414,41 @@ export class PlayerService {
         const sleepMinutes = config.sleepTimer || 0;
 
         if (sleepMinutes > 0) {
+          const durationMs = sleepMinutes * 60 * 1000;
+          const startTime = Date.now();
+
           console.log(`Sleep timer set for ${sleepMinutes} minutes (client: ${clientId})`);
+
+          // Store timer info
+          this.sleepTimerInfo.set(clientId, { startTime, durationMs });
+
+          // Log remaining time every minute
+          const logInterval = setInterval(() => {
+            const info = this.sleepTimerInfo.get(clientId);
+            if (info) {
+              const elapsed = Date.now() - info.startTime;
+              const remaining = info.durationMs - elapsed;
+              const remainingMinutes = Math.ceil(remaining / 60000);
+
+              if (remaining > 0) {
+                console.log(
+                  `Sleep timer: ${remainingMinutes} minute(s) remaining (client: ${clientId})`
+                );
+              } else {
+                clearInterval(logInterval);
+              }
+            } else {
+              clearInterval(logInterval);
+            }
+          }, 60000); // Log every minute
+
           const timer = setTimeout(() => {
+            clearInterval(logInterval);
             this.pausePlayback();
             console.log(`Sleep timer expired - pausing playback (client: ${clientId})`);
             this.sleepTimers.delete(clientId);
-          }, sleepMinutes * 60 * 1000);
+            this.sleepTimerInfo.delete(clientId);
+          }, durationMs);
 
           this.sleepTimers.set(clientId, timer);
         }

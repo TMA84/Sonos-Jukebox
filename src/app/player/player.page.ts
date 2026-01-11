@@ -255,8 +255,8 @@ export class PlayerPage implements OnInit {
             this.cover = url;
           });
 
-          // Play next media
-          await this.playerService.playMedia(nextMedia);
+          // Play next media (with autoplay flag to prevent sleep timer reset)
+          await this.playerService.playMedia(nextMedia, true);
           this.playing = true;
 
           // Store as last played
