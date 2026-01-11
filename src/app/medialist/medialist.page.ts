@@ -32,7 +32,7 @@ export class MedialistPage implements OnInit {
   keyboardRows = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
   ];
   showError = false;
   errorMessage = '';
@@ -58,49 +58,54 @@ export class MedialistPage implements OnInit {
 
   loadMediaFromArtist() {
     // Load albums from raw data first to get artist ID
-    const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
+    const url = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
     const clientId = this.getArtistClientId();
-    
-    this.http.get<Media[]>(url, {
-      params: { clientId }
-    }).subscribe({
-      next: (rawMedia) => {
-        // Find the artist entry in raw data
-        const artistEntry = rawMedia.find(item => 
-          item.artist === this.artist.name && 
-          (item.category || 'audiobook') === (this.artist.coverMedia?.category || 'audiobook')
-        );
-        
-        if (artistEntry && artistEntry.artistid) {
-          // Load albums from Spotify API
-          this.fetchArtistAlbums(artistEntry.artistid);
-        } else if (artistEntry && artistEntry.contentType === 'show') {
-          // For podcasts, fetch and show all episodes
-          this.fetchShowEpisodes(artistEntry.id);
-        } else if (artistEntry && artistEntry.contentType === 'audiobook') {
-          // For audiobooks, show the audiobook itself as playable content
-          this.allMedia = [{
-            id: artistEntry.id,
-            title: artistEntry.title,
-            artist: artistEntry.artist,
-            cover: artistEntry.cover,
-            category: artistEntry.category,
-            type: artistEntry.type,
-            contentType: 'audiobook'
-          }];
-          this.media = [...this.allMedia];
-        } else {
-          console.error('No artist ID found for:', this.artist.name);
+
+    this.http
+      .get<Media[]>(url, {
+        params: { clientId },
+      })
+      .subscribe({
+        next: rawMedia => {
+          // Find the artist entry in raw data
+          const artistEntry = rawMedia.find(
+            item =>
+              item.artist === this.artist.name &&
+              (item.category || 'audiobook') === (this.artist.coverMedia?.category || 'audiobook')
+          );
+
+          if (artistEntry && artistEntry.artistid) {
+            // Load albums from Spotify API
+            this.fetchArtistAlbums(artistEntry.artistid);
+          } else if (artistEntry && artistEntry.contentType === 'show') {
+            // For podcasts, fetch and show all episodes
+            this.fetchShowEpisodes(artistEntry.id);
+          } else if (artistEntry && artistEntry.contentType === 'audiobook') {
+            // For audiobooks, show the audiobook itself as playable content
+            this.allMedia = [
+              {
+                id: artistEntry.id,
+                title: artistEntry.title,
+                artist: artistEntry.artist,
+                cover: artistEntry.cover,
+                category: artistEntry.category,
+                type: artistEntry.type,
+                contentType: 'audiobook',
+              },
+            ];
+            this.media = [...this.allMedia];
+          } else {
+            console.error('No artist ID found for:', this.artist.name);
+            this.allMedia = [];
+            this.media = [];
+          }
+        },
+        error: err => {
+          console.error('Failed to load raw media data:', err);
           this.allMedia = [];
           this.media = [];
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load raw media data:', err);
-        this.allMedia = [];
-        this.media = [];
-      }
-    });
+        },
+      });
   }
 
   async fetchShowEpisodes(showId: string) {
@@ -108,23 +113,27 @@ export class MedialistPage implements OnInit {
       const tokenUrl = environment.production ? '../api/token' : 'http://localhost:8200/api/token';
       const tokenResponse = await fetch(tokenUrl);
       const tokenData = await tokenResponse.json();
-      
+
       const episodesUrl = `https://api.spotify.com/v1/shows/${showId}/episodes?limit=50`;
       const response = await fetch(episodesUrl, {
-        headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+        headers: { Authorization: `Bearer ${tokenData.access_token}` },
       });
-      
+
       const data = await response.json();
-      
+
       if (data.items) {
         this.allMedia = data.items.map((episode: any) => ({
           id: episode.id,
           title: episode.name,
           artist: episode.description?.substring(0, 100) + '...' || 'No description',
-          cover: episode.images?.[0]?.url || this.artist.coverMedia?.cover || '../assets/images/nocover.png',
+          cover:
+            episode.images?.[0]?.url ||
+            this.artist.coverMedia?.cover ||
+            '../assets/images/nocover.png',
           category: this.artist.coverMedia?.category || 'audiobook',
           type: 'spotify',
-          contentType: 'episode'
+          contentType: 'episode',
+          artistid: showId, // Add showId for autoplay
         }));
         this.media = [...this.allMedia];
       } else {
@@ -139,51 +148,57 @@ export class MedialistPage implements OnInit {
   }
 
   fetchArtistAlbums(artistId: string, loadMore = false, retryCount = 0): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (this.isLoading || (!loadMore && !this.hasMoreAlbums)) {
         resolve();
         return;
       }
-      
+
       this.isLoading = true;
-      const searchUrl = environment.production ? `../api/spotify/artists/${artistId}/albums` : `http://localhost:8200/api/spotify/artists/${artistId}/albums`;
-      
+      const searchUrl = environment.production
+        ? `../api/spotify/artists/${artistId}/albums`
+        : `http://localhost:8200/api/spotify/artists/${artistId}/albums`;
+
       this.http.get<any>(`${searchUrl}?offset=${this.offset}&limit=${this.limit}`).subscribe({
-        next: (response) => {
+        next: response => {
           if (response && response.items) {
             const newAlbums = response.items.map(album => ({
               artist: this.artist.name,
               title: album.name,
               type: 'spotify',
               category: this.artist.coverMedia.category || 'music',
-              cover: album.images && album.images[0] ? album.images[0].url : this.artist.coverMedia.cover,
+              cover:
+                album.images && album.images[0]
+                  ? album.images[0].url
+                  : this.artist.coverMedia.cover,
               id: album.id,
-              contentType: 'album'
+              contentType: 'album',
+              artistid: artistId, // Add artistId for autoplay
             }));
-            
+
             if (loadMore) {
               this.allMedia = [...this.allMedia, ...newAlbums];
             } else {
               this.allMedia = newAlbums;
             }
             this.media = this.allMedia;
-            
+
             this.hasMoreAlbums = response.next !== null;
             this.offset += this.limit;
-            
+
             this.loadArtworkBatch(newAlbums.slice(0, 12));
           } else {
             this.hasMoreAlbums = false;
           }
-          
+
           this.isLoading = false;
           console.log('Fetched albums for artist:', this.artist.name, 'Total:', this.media.length);
           resolve();
         },
-        error: (err) => {
+        error: err => {
           console.error('Failed to fetch artist albums:', err);
           this.isLoading = false;
-          
+
           // Retry up to 3 times with exponential backoff
           if (retryCount < 3) {
             const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
@@ -198,13 +213,17 @@ export class MedialistPage implements OnInit {
             if (err.status === 429) {
               this.errorMessage = 'Spotify rate limit reached. Please wait a moment and try again.';
             } else if (err.status === 401) {
-              this.errorMessage = 'Spotify authentication failed. Please check your Spotify credentials in settings.';
+              this.errorMessage =
+                'Spotify authentication failed. Please check your Spotify credentials in settings.';
             } else if (err.status === 404) {
               this.errorMessage = 'Artist not found on Spotify. This artist may not be available.';
             } else if (err.status === 500 && err.error?.error === 'Spotify not configured') {
-              this.errorMessage = 'Spotify is not configured. Please add your Spotify credentials in settings.';
+              this.errorMessage =
+                'Spotify is not configured. Please add your Spotify credentials in settings.';
             } else {
-              this.errorMessage = `Unable to load albums: ${err.error?.error || err.message || 'Network or server error'}`;
+              this.errorMessage = `Unable to load albums: ${
+                err.error?.error || err.message || 'Network or server error'
+              }`;
             }
             if (!loadMore) {
               this.allMedia = [];
@@ -212,7 +231,7 @@ export class MedialistPage implements OnInit {
             }
             resolve();
           }
-        }
+        },
       });
     });
   }
@@ -220,7 +239,7 @@ export class MedialistPage implements OnInit {
   loadMoreAlbums(event?: any) {
     console.log('loadMoreAlbums called, searchTerm:', this.searchTerm.trim());
     console.log('hasMoreAlbums:', this.hasMoreAlbums, 'isLoading:', this.isLoading);
-    
+
     // Handle search results pagination
     if (this.searchTerm.trim()) {
       console.log('Loading more search results...');
@@ -233,42 +252,45 @@ export class MedialistPage implements OnInit {
       }
       return;
     }
-    
+
     // Handle normal album loading - find artist ID from raw data
     if (this.hasMoreAlbums && !this.isLoading) {
-      const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
+      const url = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
       const clientId = this.getArtistClientId();
-      
-      this.http.get<Media[]>(url, {
-        params: { clientId }
-      }).subscribe({
-        next: (rawMedia) => {
-          const artistEntry = rawMedia.find(item => 
-            item.artist === this.artist.name && 
-            (item.category || 'audiobook') === (this.artist.coverMedia?.category || 'audiobook')
-          );
-          
-          if (artistEntry && artistEntry.artistid) {
-            this.fetchArtistAlbums(artistEntry.artistid, true).then(() => {
+
+      this.http
+        .get<Media[]>(url, {
+          params: { clientId },
+        })
+        .subscribe({
+          next: rawMedia => {
+            const artistEntry = rawMedia.find(
+              item =>
+                item.artist === this.artist.name &&
+                (item.category || 'audiobook') === (this.artist.coverMedia?.category || 'audiobook')
+            );
+
+            if (artistEntry && artistEntry.artistid) {
+              this.fetchArtistAlbums(artistEntry.artistid, true).then(() => {
+                if (event) {
+                  event.target.complete();
+                }
+              });
+            } else {
+              console.log('No artist ID found for loading more albums');
               if (event) {
                 event.target.complete();
+                event.target.disabled = true;
               }
-            });
-          } else {
-            console.log('No artist ID found for loading more albums');
+            }
+          },
+          error: err => {
+            console.error('Failed to load raw media for more albums:', err);
             if (event) {
               event.target.complete();
-              event.target.disabled = true;
             }
-          }
-        },
-        error: (err) => {
-          console.error('Failed to load raw media for more albums:', err);
-          if (event) {
-            event.target.complete();
-          }
-        }
-      });
+          },
+        });
     } else if (event) {
       event.target.complete();
       if (!this.hasMoreAlbums) {
@@ -280,15 +302,15 @@ export class MedialistPage implements OnInit {
   coverClicked(clickedMedia: Media) {
     const navigationExtras: NavigationExtras = {
       state: {
-        media: clickedMedia
-      }
+        media: clickedMedia,
+      },
     };
     this.router.navigate(['/player'], navigationExtras);
   }
 
   mediaNameClicked(clickedMedia: Media) {
     this.playerService.getConfig().subscribe(config => {
-      if (config.tts == null || config.tts.enabled === true) {
+      if (config.tts == null || config.tts.enabled === true) {
         this.playerService.say(clickedMedia.title);
       }
     });
@@ -321,10 +343,8 @@ export class MedialistPage implements OnInit {
     }
 
     const term = this.searchTerm.toLowerCase();
-    const filteredResults = this.allMedia.filter(album => 
-      album.title.toLowerCase().includes(term)
-    );
-    
+    const filteredResults = this.allMedia.filter(album => album.title.toLowerCase().includes(term));
+
     // Show first 20 search results
     this.media = filteredResults.slice(0, 20);
     this.searchResults = filteredResults;
@@ -333,17 +353,17 @@ export class MedialistPage implements OnInit {
 
   loadMoreSearchResults() {
     console.log('Loading more search results:', this.searchOffset, 'of', this.searchResults.length);
-    
+
     if (!this.searchResults || this.searchOffset >= this.searchResults.length) {
       console.log('No more search results to load');
       return false;
     }
-    
+
     const nextBatch = this.searchResults.slice(this.searchOffset, this.searchOffset + 20);
     console.log('Adding', nextBatch.length, 'more search results');
     this.media = [...this.media, ...nextBatch];
     this.searchOffset += 20;
-    
+
     const hasMore = this.searchOffset < this.searchResults.length;
     console.log('Has more search results:', hasMore);
     return hasMore;

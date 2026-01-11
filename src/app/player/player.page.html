@@ -1,88 +1,130 @@
 <ion-header class="modern-header">
-    <ion-toolbar class="modern-toolbar">
-        <ion-buttons slot="start">
-            <ion-back-button defaultHref="/medialist"></ion-back-button>
-        </ion-buttons>
-        <ion-title>{{media?.title || 'Player'}}</ion-title>
-        <ion-buttons slot="end">
-            <ion-select class="modern-select" [(ngModel)]="selectedSpeaker" interface="popover" *ngIf="enableSpeakerSelection && availableSpeakers.length > 0" (ionChange)="speakerChanged($event)">
-                <ion-select-option *ngFor="let speaker of availableSpeakers" [value]="speaker">{{speaker}}</ion-select-option>
-            </ion-select>
-            <ion-title *ngIf="selectedSpeaker && !enableSpeakerSelection" class="speaker-name">{{selectedSpeaker}}</ion-title>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar class="modern-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/medialist"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{media?.title || 'Player'}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-select
+        class="modern-select"
+        [(ngModel)]="selectedSpeaker"
+        interface="popover"
+        *ngIf="enableSpeakerSelection && availableSpeakers.length > 0"
+        (ionChange)="speakerChanged($event)"
+      >
+        <ion-select-option *ngFor="let speaker of availableSpeakers" [value]="speaker"
+          >{{speaker}}</ion-select-option
+        >
+      </ion-select>
+      <ion-title *ngIf="selectedSpeaker && !enableSpeakerSelection" class="speaker-name"
+        >{{selectedSpeaker}}</ion-title
+      >
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-grid>
-        <ion-row>
-            <ion-col size="6">
-                <ion-card class="cover-card modern-card" *ngIf="!errorMessage">
-                    <img src="{{this.cover || 'assets/default-cover.png'}} " draggable="false" style="-moz-user-select: none;" ondragstart="return false;">
-                </ion-card>
-                <ion-card *ngIf="errorMessage" class="error-card modern-card">
-                    <ion-card-content>
-                        <ion-icon name="musical-notes-outline" class="error-icon"></ion-icon>
-                        <p class="error-text">{{errorMessage}}</p>
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6">
+        <ion-card class="cover-card modern-card" *ngIf="!errorMessage">
+          <img
+            src="{{this.cover || 'assets/default-cover.png'}} "
+            draggable="false"
+            style="-moz-user-select: none"
+            ondragstart="return false;"
+          />
+        </ion-card>
+        <ion-card *ngIf="errorMessage" class="error-card modern-card">
+          <ion-card-content>
+            <ion-icon name="musical-notes-outline" class="error-icon"></ion-icon>
+            <p class="error-text">{{errorMessage}}</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-            <ion-col size="6">
-                <ion-grid>
-                    <ion-row class="play-controls">
-                        <ion-col size="4" class="ion-text-center">
-                            <ion-button class="modern-button secondary" (click)="skipPrev()">
-                                <ion-icon slot="icon-only" name="play-back" class="small-icon"></ion-icon>
-                            </ion-button>
-                        </ion-col>
-                        <ion-col size="4" class="ion-text-center">
-                            <ion-button class="modern-button primary" (click)="playPause()">
-                                <ion-icon *ngIf="playing" slot="icon-only" name="pause" class="small-icon"></ion-icon>
-                                <ion-icon *ngIf="!playing" slot="icon-only" name="play" class="small-icon"></ion-icon>
-                            </ion-button>
-                        </ion-col>
-                        <ion-col size="4" class="ion-text-center">
-                            <ion-button class="modern-button secondary" (click)="skipNext()">
-                                <ion-icon slot="icon-only" name="play-forward" class="small-icon"></ion-icon>
-                            </ion-button>
-                        </ion-col>
-                    </ion-row>
-
-                    <ion-row class="volume-controls">
-                        <ion-col size="4" class="ion-text-center">
-                            <ion-button (click)="volDown()" color="light">
-                                <ion-icon slot="icon-only" name="remove" class="small-icon"></ion-icon>
-                            </ion-button>
-                        </ion-col>
-                        <ion-col size="4" class="ion-text-center">
-                            <ion-button color="light" class="indicator-button">
-                                <ion-icon slot="icon-only" name="volume-medium" class="small-icon"></ion-icon>
-                            </ion-button>
-                        </ion-col>
-                        <ion-col size="4" class="ion-text-center">
-                            <ion-button (click)="volUp()" color="light">
-                                <ion-icon slot="icon-only" name="add" class="small-icon"></ion-icon>
-                            </ion-button>
-                        </ion-col>
-                    </ion-row>
-                    
-                    <ion-row *ngIf="currentTrack" class="now-playing">
-                        <ion-col size="12">
-                            <ion-card>
-                                <ion-card-header>
-                                    <ion-card-title>Now Playing</ion-card-title>
-                                </ion-card-header>
-                                <ion-card-content>
-                                    <h2>{{currentTrack?.title}}</h2>
-                                    <p>{{currentTrack?.artist}}</p>
-                                    <p *ngIf="currentTrack?.album">{{currentTrack.album}}</p>
-                                </ion-card-content>
-                            </ion-card>
-                        </ion-col>
-                    </ion-row>
-                </ion-grid>
+      <ion-col size="6">
+        <ion-grid>
+          <ion-row class="play-controls">
+            <ion-col size="4" class="ion-text-center">
+              <ion-button class="modern-button secondary" (click)="skipPrev()">
+                <ion-icon slot="icon-only" name="play-back" class="small-icon"></ion-icon>
+              </ion-button>
             </ion-col>
-        </ion-row>
-    </ion-grid>
+            <ion-col size="4" class="ion-text-center">
+              <ion-button class="modern-button primary" (click)="playPause()">
+                <ion-icon
+                  *ngIf="playing"
+                  slot="icon-only"
+                  name="pause"
+                  class="small-icon"
+                ></ion-icon>
+                <ion-icon
+                  *ngIf="!playing"
+                  slot="icon-only"
+                  name="play"
+                  class="small-icon"
+                ></ion-icon>
+              </ion-button>
+            </ion-col>
+            <ion-col size="4" class="ion-text-center">
+              <ion-button class="modern-button secondary" (click)="skipNext()">
+                <ion-icon slot="icon-only" name="play-forward" class="small-icon"></ion-icon>
+              </ion-button>
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="volume-controls">
+            <ion-col size="4" class="ion-text-center">
+              <ion-button (click)="volDown()" color="light">
+                <ion-icon slot="icon-only" name="remove" class="small-icon"></ion-icon>
+              </ion-button>
+            </ion-col>
+            <ion-col size="4" class="ion-text-center">
+              <ion-button color="light" class="indicator-button">
+                <ion-icon slot="icon-only" name="volume-medium" class="small-icon"></ion-icon>
+              </ion-button>
+            </ion-col>
+            <ion-col size="4" class="ion-text-center">
+              <ion-button (click)="volUp()" color="light">
+                <ion-icon slot="icon-only" name="add" class="small-icon"></ion-icon>
+              </ion-button>
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="autoplay-controls">
+            <ion-col size="12" class="ion-text-center">
+              <ion-button
+                (click)="toggleAutoplay()"
+                [color]="autoplayEnabled ? 'primary' : 'medium'"
+                size="small"
+              >
+                <ion-icon
+                  slot="start"
+                  [name]="autoplayEnabled ? 'repeat' : 'repeat-outline'"
+                  class="small-icon"
+                ></ion-icon>
+                Autoplay {{autoplayEnabled ? 'On' : 'Off'}}
+              </ion-button>
+            </ion-col>
+          </ion-row>
+
+          <ion-row *ngIf="currentTrack" class="now-playing">
+            <ion-col size="12">
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>Now Playing</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <h2>{{currentTrack?.title}}</h2>
+                  <p>{{currentTrack?.artist}}</p>
+                  <p *ngIf="currentTrack?.album">{{currentTrack.album}}</p>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

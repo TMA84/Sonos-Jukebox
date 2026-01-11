@@ -5,33 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.10] - 2026-01-11
+
+### 🐛 Bug Fixes
+
+- **Sleep timer multi-client support** - Fixed sleep timer not working correctly with multiple clients
+- **Per-client timer tracking** - Each client now has independent sleep timer that doesn't interfere with others
+- **Timer isolation** - Changed from single global timer to Map-based per-client timer storage
+
 ## [2.2.7] - 2025-12-31
 
 ### 🐛 Bug Fixes
+
 - **Database schema** - Added all missing columns (enableSpeakerSelection, sleepTimer, spotifyUri, spotifyId, artistid, updatedAt)
 - **Complete table structure** - Fixed clients, media_items, and users tables to match application requirements
 
 ## [2.2.6] - 2025-12-31
 
 ### 🐛 Bug Fixes
+
 - **Database schema** - Fixed remaining config table column errors for Spotify configuration
 - **Configuration API** - Removed description column references from all config operations
 
 ## [2.2.5] - 2025-12-31
 
 ### 🐛 Bug Fixes
+
 - **Database schema** - Fixed config table column mismatch causing Sonos configuration errors
 - **Configuration saving** - Resolved INSERT errors when updating Sonos API settings
 
 ## [2.2.4] - 2025-12-31
 
 ### 🐛 Bug Fixes
+
 - **Syntax error** - Fixed missing catch block causing server startup failure
 - **Code quality** - Removed extra closing brace in migration function
 
 ## [2.2.3] - 2025-12-31
 
 ### 🐛 Bug Fixes
+
 - **Database initialization** - Added missing users table for PIN authentication
 - **Home Assistant addon** - Fixed configuration not being saved from addon settings
 - **Environment variables** - Added proper initialization from HA addon environment
@@ -40,12 +53,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.2] - 2025-12-31
 
 ### 🐛 Bug Fixes
+
 - **Home Assistant addon** - Fixed directory creation order preventing symlink errors
 - **Docker deployment** - Resolved "No such file or directory" error during container startup
 
 ## [2.2.1] - 2025-12-31
 
 ### 🔄 Migration & Upgrade Features
+
 - **Automatic migration from JSON to SQLite** - Seamless upgrade path for existing users
 - **Legacy data preservation** - All library items, clients, and settings automatically migrated
 - **Zero-downtime upgrades** - Migration happens during normal server startup
@@ -53,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Comprehensive migration support** - Handles config.json, pin.json, and all client data files
 
 ### 🛡️ Backward Compatibility
+
 - **Automatic detection** of legacy JSON configuration files
 - **Graceful error handling** for malformed or missing legacy files
 - **Migration logging** for debugging and verification
@@ -63,12 +79,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🎉 Major Features & Improvements
 
 #### Audiobook Support
+
 - **Complete Spotify audiobook integration** with unified search interface
 - **Chapter-based playbook** treating audiobooks like podcast episodes
 - **Automatic episode/chapter fetching** for proper Sonos compatibility
 - **Unified search interface** combining Albums/Artists/Podcasts/Audiobooks
 
 #### TuneIn Radio Support
+
 - **Complete TuneIn Radio integration** with station search functionality
 - **Radio search component** for finding stations by name or genre
 - **Sonos-compatible URI handling** for TuneIn radio playback
@@ -76,24 +94,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **TuneIn API configuration** in settings page
 
 #### Library Management
+
 - **Edit functionality** for existing library items in config page
 - **Update API endpoint** for modifying stored media items
 - **Dynamic form handling** for both adding and editing content
 - **Cancel edit functionality** with proper form state management
 
 #### Database Migration & Cleanup
+
 - **Complete SQLite migration** from JSON-based storage
 - **Single server architecture** with server.js as main entry point
 - **Repository cleanup** removing 4,900+ lines of obsolete code
 - **Streamlined file structure** with essential files only
 
 #### Technical Improvements
+
 - **Podcast episode listing** showing individual episodes instead of show overview
 - **Proper URI handling** for different content types (albums, episodes, audiobooks, radio)
 - **Enhanced error handling** for unsupported content types
 - **Improved API compatibility** preserving Spotify IDs instead of generating UUIDs
 
 ### 🔧 Bug Fixes
+
 - **Fixed podcast playback** using episode URIs instead of unsupported show URIs
 - **Resolved audiobook playback** by treating them as podcast-like shows
 - **Improved content type detection** for proper playback routing
@@ -101,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Fixed TuneIn radio playback** with proper Sonos URI formatting
 
 ### 🗑️ Removed
+
 - **Migration scripts** and temporary SQLite transition files
 - **Obsolete documentation** (keeping README.md and CHANGELOG.md)
 - **Old server architecture** with JSON-based data storage
@@ -115,6 +138,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 ### Backend Changes
 
 #### Added
+
 - **TypeScript Backend**: Full type safety with strict mode enabled
 - **Database Layer**: TypeORM with SQLite (PostgreSQL ready)
   - User entity with bcrypt password hashing
@@ -139,6 +163,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 - **Migration Script**: Automated migration from v2.x (`npm run migrate:from-v2`)
 
 #### Changed
+
 - **Breaking**: API endpoints now follow RESTful conventions
   - `GET /api/data` → `GET /api/media`
   - `POST /api/add` → `POST /api/media`
@@ -152,6 +177,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 ### Frontend Changes
 
 #### Added
+
 - **Standalone Components**: Modern Angular architecture without NgModules
 - **Signals State Management**: Reactive state with automatic change detection
   - MediaStore - Media state management
@@ -172,6 +198,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 - **Modern Routing**: Component-based lazy loading
 
 #### Changed
+
 - **Breaking**: Components are now standalone (no NgModules)
 - **Breaking**: State management uses Signals instead of RxJS subscriptions
 - **Breaking**: Template syntax uses new control flow (`@if`, `@for`)
@@ -185,6 +212,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 ### Testing & Quality
 
 #### Added
+
 - **Jest Configuration**: Modern unit testing
 - **Cypress Configuration**: Reliable E2E testing
 - **ESLint**: Modern linting (replaced TSLint)
@@ -201,6 +229,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 ### Docker & Deployment
 
 #### Added
+
 - **Multi-stage Dockerfile**: Smaller, more secure images
 - **Health Checks**: Docker health monitoring
 - **Enhanced docker-compose**: Better configuration
@@ -209,6 +238,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 - **Environment Variables**: Secure configuration
 
 #### Changed
+
 - **Improved**: 60% smaller Docker image
 - **Improved**: Faster builds with layer caching
 - **Improved**: Better logging configuration
@@ -216,6 +246,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 ### Documentation
 
 #### Added
+
 - **QUICKSTART.md**: 5-minute setup guide
 - **MIGRATION_GUIDE.md**: Detailed v2 to v3 upgrade instructions
 - **CONTRIBUTING.md**: Development guidelines
@@ -227,12 +258,14 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 - **Debug Configurations**: Launch configurations for debugging
 
 #### Changed
+
 - **README.md**: Complete rewrite with comprehensive documentation
 - **CHANGELOG.md**: Detailed version history
 
 ### Security
 
 #### Added
+
 - Bcrypt password hashing (10 rounds)
 - JWT token expiration (7 days default)
 - Rate limiting (100 requests per 15 minutes)
@@ -243,6 +276,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 - XSS protection
 
 #### Fixed
+
 - **115 high/critical vulnerabilities** → 0
 - **45 medium vulnerabilities** → 0
 - **20 low vulnerabilities** → 11 low-risk only
@@ -250,6 +284,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 ### Performance
 
 #### Improved
+
 - **API Response Time**: 200ms → 20ms (10x faster)
 - **Initial Load Time**: 2.5s → 1.5s (40% faster)
 - **Bundle Size**: 2.5MB → 1.8MB (28% smaller)
@@ -259,6 +294,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 - **Change Detection**: Full tree → Targeted (10x faster)
 
 ### Deprecated
+
 - TSLint (replaced with ESLint)
 - Protractor (replaced with Cypress)
 - Karma/Jasmine (replaced with Jest)
@@ -267,6 +303,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 - RxJS-heavy state management (replaced with Signals)
 
 ### Removed
+
 - Legacy callback-based code
 - Synchronous file operations
 - Untyped JavaScript files
@@ -277,6 +314,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 ### Migration Notes
 
 **For Users:**
+
 1. Backup your `server/config` directory
 2. Run `npm install` to get new dependencies
 3. Copy `.env.example` to `.env` and configure
@@ -284,6 +322,7 @@ This is a **ground-up rewrite** of both backend and frontend with modern archite
 5. Start with `npm start`
 
 **For Developers:**
+
 1. Components are now standalone - update imports
 2. Use Signals instead of RxJS subscriptions
 3. Use functional guards and interceptors
@@ -295,11 +334,13 @@ See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed instructions.
 ## [2.1.8] - 2024-12-XX
 
 ### Changed
+
 - Removed switch client card from config page
 - Added scrollable tab navigation for small displays
 - Optimized header spacing
 
 ### Fixed
+
 - Virtual keyboard responsive design
 - Double PIN entry issue
 - Route guard implementation
@@ -307,12 +348,14 @@ See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed instructions.
 ## [2.1.7] - 2024-11-XX
 
 ### Added
+
 - Modern card-based search layouts
 - Amazon Music API endpoints (mock)
 - Apple Music API endpoints (mock)
 - TuneIn Radio API endpoints (mock)
 
 ### Changed
+
 - Redesigned search components
 - Enhanced visual hierarchy
 - Improved dropdown styling
@@ -320,69 +363,82 @@ See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed instructions.
 ## [2.1.6] - 2024-10-XX
 
 ### Added
+
 - iPad-styled virtual keyboard
 - German QWERTZ layout support
 - Client-specific default speakers
 - Centralized client names
 
 ### Changed
+
 - Modern design system with backdrop blur
 - Enhanced speaker management
 
 ## [2.1.5] - 2024-09-XX
 
 ### Fixed
+
 - Library update cache issues
 - Home page data refresh
 
 ## [2.1.4] - 2024-08-XX
 
 ### Fixed
+
 - Infinite scrolling visibility conditions
 - Loading states in media list
 
 ## [2.1.3] - 2024-07-XX
 
 ### Added
+
 - Infinite scrolling for large collections
 - On-demand album loading
 
 ### Changed
+
 - Optimized Spotify rate limiting
 
 ## [2.1.2] - 2024-06-XX
 
 ### Changed
+
 - Direct artist loading on app start
 
 ## [2.1.1] - 2024-05-XX
 
 ### Changed
+
 - Removed verbose debug logging
 
 ## [2.1.0] - 2024-04-XX
 
 ### Added
+
 - 24-hour caching with background preloading
 - Multi-client support
 - Cookie-based persistence
 - URL client loading
 
 ### Changed
+
 - Updated to Angular 18 and Ionic 8
 - Improved error handling
 
 ### Fixed
+
 - Stream processing for empty results
 - Spotify rate limiting
 - Cross-browser compatibility
 
 ### Security
+
 - Fixed 115+ security vulnerabilities
 
 ## [2.0.0] - 2023-XX-XX
 
 ### Added
+
 - Initial enhanced version based on Thyraz's original work
 - Spotify integration
 - Multi-category support
