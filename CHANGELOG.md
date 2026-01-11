@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.13] - 2026-01-11
+
+### 🐛 Bug Fixes
+
+- **PIN verification** - Fixed production URL path from `../api/pin/verify` to `/api/pin/verify` for proper routing
+
+## [2.2.12] - 2026-01-11
+
+### 🐛 Bug Fixes
+
+- **PIN dialog** - Removed auto-check at 4 digits to support longer PINs
+
 ## [2.2.11] - 2026-01-11
 
 ### 🐛 Bug Fixes

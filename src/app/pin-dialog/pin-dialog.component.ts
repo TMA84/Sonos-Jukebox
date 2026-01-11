@@ -40,7 +40,7 @@ export class PinDialogComponent implements OnInit {
 
   checkPin() {
     const pinUrl = environment.production
-      ? '../api/pin/verify'
+      ? '/api/pin/verify'
       : 'http://localhost:8200/api/pin/verify';
 
     this.http.post<{ valid: boolean }>(pinUrl, { pin: this.pin }).subscribe({
