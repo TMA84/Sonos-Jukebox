@@ -938,17 +938,17 @@ app.post('/api/config/pin', async (req, res) => {
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
     if (!user || !verifyPin(currentPin, user.pin)) {
-      return res.status(401).send('Current PIN incorrect');
+      return res.status(401).json({ error: 'Current PIN incorrect' });
     }
 
     await dbRun('UPDATE users SET pin = ?, updatedAt = CURRENT_TIMESTAMP WHERE username = ?', [
       hashPin(newPin),
       'admin',
     ]);
-    res.send('PIN changed successfully');
+    res.json({ success: true, message: 'PIN changed successfully' });
   } catch (error) {
     console.error('Error updating PIN:', error);
-    res.status(500).send('Failed to save PIN');
+    res.status(500).json({ error: 'Failed to save PIN' });
   }
 });
 
