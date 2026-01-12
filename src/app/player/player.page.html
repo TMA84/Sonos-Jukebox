@@ -93,7 +93,7 @@
           </ion-row>
 
           <ion-row class="autoplay-controls">
-            <ion-col size="12" class="ion-text-center">
+            <ion-col size="6" class="ion-text-center">
               <ion-button
                 (click)="toggleAutoplay()"
                 [color]="autoplayEnabled ? 'primary' : 'medium'"
@@ -101,10 +101,24 @@
               >
                 <ion-icon
                   slot="start"
-                  [name]="autoplayEnabled ? 'repeat' : 'repeat-outline'"
+                  [name]="autoplayEnabled ? 'play-skip-forward' : 'play-skip-forward-outline'"
                   class="small-icon"
                 ></ion-icon>
-                Autoplay {{autoplayEnabled ? 'On' : 'Off'}}
+                Autoplay
+              </ion-button>
+            </ion-col>
+            <ion-col size="6" class="ion-text-center">
+              <ion-button
+                (click)="toggleRepeat()"
+                [color]="repeatEnabled ? 'primary' : 'medium'"
+                size="small"
+              >
+                <ion-icon
+                  slot="start"
+                  [name]="repeatEnabled ? 'repeat' : 'repeat-outline'"
+                  class="small-icon"
+                ></ion-icon>
+                Repeat
               </ion-button>
             </ion-col>
           </ion-row>

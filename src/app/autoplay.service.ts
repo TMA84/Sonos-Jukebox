@@ -10,6 +10,7 @@ import { environment } from '../environments/environment';
 })
 export class AutoplayService {
   private autoplayEnabled = new BehaviorSubject<boolean>(false); // Default OFF
+  private repeatEnabled = new BehaviorSubject<boolean>(false); // Default OFF
   private currentArtistQueue: Media[] = [];
   private currentIndex = 0;
   private currentArtist: string = '';
@@ -22,10 +23,20 @@ export class AutoplayService {
     if (saved !== null) {
       this.autoplayEnabled.next(saved === 'true');
     }
+
+    // Load repeat preference from localStorage for this client
+    const savedRepeat = localStorage.getItem(`repeatEnabled_${clientId}`);
+    if (savedRepeat !== null) {
+      this.repeatEnabled.next(savedRepeat === 'true');
+    }
   }
 
   isEnabled(): Observable<boolean> {
     return this.autoplayEnabled.asObservable();
+  }
+
+  isRepeatEnabled(): Observable<boolean> {
+    return this.repeatEnabled.asObservable();
   }
 
   toggleAutoplay(): void {
@@ -35,10 +46,23 @@ export class AutoplayService {
     localStorage.setItem(`autoplayEnabled_${clientId}`, String(newValue));
   }
 
+  toggleRepeat(): void {
+    const clientId = this.clientService.getClientId();
+    const newValue = !this.repeatEnabled.value;
+    this.repeatEnabled.next(newValue);
+    localStorage.setItem(`repeatEnabled_${clientId}`, String(newValue));
+  }
+
   setEnabled(enabled: boolean): void {
     const clientId = this.clientService.getClientId();
     this.autoplayEnabled.next(enabled);
     localStorage.setItem(`autoplayEnabled_${clientId}`, String(enabled));
+  }
+
+  setRepeatEnabled(enabled: boolean): void {
+    const clientId = this.clientService.getClientId();
+    this.repeatEnabled.next(enabled);
+    localStorage.setItem(`repeatEnabled_${clientId}`, String(enabled));
   }
 
   async buildQueue(currentMedia: Media): Promise<void> {
@@ -277,6 +301,13 @@ export class AutoplayService {
     this.currentIndex++;
 
     if (this.currentIndex >= this.currentArtistQueue.length) {
+      // If repeat is enabled, loop back to the beginning
+      if (this.repeatEnabled.value) {
+        console.log('Repeat enabled: looping back to start of queue');
+        this.currentIndex = 0;
+        return this.currentArtistQueue[this.currentIndex];
+      }
+
       console.log('Reached end of artist queue');
       return null;
     }
@@ -285,6 +316,11 @@ export class AutoplayService {
   }
 
   hasNext(): boolean {
+    // If repeat is enabled, there's always a next track
+    if (this.repeatEnabled.value && this.currentArtistQueue.length > 0) {
+      return this.autoplayEnabled.value;
+    }
+
     return (
       this.autoplayEnabled.value &&
       this.currentArtistQueue.length > 0 &&

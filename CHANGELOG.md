@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.15] - 2026-01-12
+
+### ✨ New Features
+
+- **Album repeat** - Added repeat toggle button to player page
+- **Per-client repeat** - Repeat preference is stored per client in localStorage
+- **Seamless looping** - When repeat is enabled, queue loops back to start automatically
+
+### 🔧 Changes
+
+- Split autoplay controls into two buttons: Autoplay and Repeat
+- Changed autoplay icon from repeat to play-skip-forward for clarity
+- Repeat and autoplay can be used independently or together
+
 ## [2.2.14] - 2026-01-11
 
 ### 🐛 Bug Fixes

@@ -26,6 +26,7 @@ export class PlayerPage implements OnInit {
   errorMessage = '';
   fromShortcut = false;
   autoplayEnabled = true;
+  repeatEnabled = false;
   lastTrackUri = '';
   isCheckingForNext = false;
 
@@ -62,6 +63,11 @@ export class PlayerPage implements OnInit {
     // Subscribe to autoplay enabled state
     this.autoplayService.isEnabled().subscribe(enabled => {
       this.autoplayEnabled = enabled;
+    });
+
+    // Subscribe to repeat enabled state
+    this.autoplayService.isRepeatEnabled().subscribe(enabled => {
+      this.repeatEnabled = enabled;
     });
 
     this.loadAvailableSpeakers();
@@ -272,10 +278,6 @@ export class PlayerPage implements OnInit {
     }
   }
 
-  toggleAutoplay() {
-    this.autoplayService.toggleAutoplay();
-  }
-
   stopStatusPolling() {
     if (this.statusInterval) {
       clearInterval(this.statusInterval);
@@ -409,5 +411,13 @@ export class PlayerPage implements OnInit {
     console.log('Extracted Spotify ID:', id);
 
     return id;
+  }
+
+  toggleAutoplay() {
+    this.autoplayService.toggleAutoplay();
+  }
+
+  toggleRepeat() {
+    this.autoplayService.toggleRepeat();
   }
 }
