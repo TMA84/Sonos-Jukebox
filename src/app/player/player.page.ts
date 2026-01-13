@@ -414,10 +414,18 @@ export class PlayerPage implements OnInit {
   }
 
   toggleAutoplay() {
+    // If turning on autoplay, turn off repeat
+    if (!this.autoplayEnabled) {
+      this.autoplayService.setRepeatEnabled(false);
+    }
     this.autoplayService.toggleAutoplay();
   }
 
   toggleRepeat() {
+    // If turning on repeat, turn off autoplay
+    if (!this.repeatEnabled) {
+      this.autoplayService.setEnabled(false);
+    }
     this.autoplayService.toggleRepeat();
   }
 }
