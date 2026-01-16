@@ -29,26 +29,35 @@ export class ClientService {
 
   private loadClientByNameSync(clientName: string): void {
     // Immediately try to load the client
+    console.log('[ClientService] Loading client by name:', clientName);
     const clientsUrl = `${environment.apiUrl}/clients`;
+    console.log('[ClientService] Clients URL:', clientsUrl);
 
     // Use XMLHttpRequest for synchronous-like behavior in constructor
     const xhr = new XMLHttpRequest();
     xhr.open('GET', clientsUrl, false); // false = synchronous
     try {
       xhr.send();
+      console.log('[ClientService] XHR status:', xhr.status);
       if (xhr.status === 200) {
         const clients = JSON.parse(xhr.responseText);
+        console.log('[ClientService] Available clients:', clients);
         const existingClient = clients.find((c: any) => c.name === clientName);
         if (existingClient) {
           this.clientId = existingClient.id;
           this.setCookie('sonos-client-id', existingClient.id, 365);
-          console.log('Loaded client from URL parameter:', clientName, '→', existingClient.id);
+          console.log(
+            '[ClientService] ✓ Loaded client from URL parameter:',
+            clientName,
+            '→',
+            existingClient.id
+          );
         } else {
-          console.warn('Client not found:', clientName);
+          console.warn('[ClientService] ✗ Client not found:', clientName);
         }
       }
     } catch (err) {
-      console.error('Could not load clients synchronously:', err);
+      console.error('[ClientService] Could not load clients synchronously:', err);
       // Fall back to async load
       this.loadClientByName(clientName);
     }
