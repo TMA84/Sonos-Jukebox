@@ -17,11 +17,12 @@ export class ClientService {
     const clientNameFromUrl = urlParams.get('client');
 
     if (clientNameFromUrl) {
-      // URL parameter takes precedence - set a flag and load that client
-      this.clientId = this.generateClientId(); // Use existing or generate new
+      // URL parameter takes precedence - ALWAYS override cookie
+      console.log('[ClientService] URL parameter detected, will override any existing cookie');
+      this.clientId = 'temp-loading'; // Temporary until we load the real one
       this.loadClientByNameSync(clientNameFromUrl);
     } else {
-      // No URL parameter, use normal flow
+      // No URL parameter, use normal flow (cookie or generate new)
       this.clientId = this.generateClientId();
       this.checkDefaultClient();
     }
