@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiUrl: 'api', // Relative path for Home Assistant ingress compatibility
 };
