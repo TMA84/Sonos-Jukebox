@@ -213,16 +213,21 @@ export class PlayerPage implements OnInit {
   }
 
   private async checkAndPlayNext() {
-    if (!this.autoplayEnabled || this.isCheckingForNext) {
-      console.log('Autoplay check skipped:', {
+    // Check if either autoplay or repeat is enabled
+    if ((!this.autoplayEnabled && !this.repeatEnabled) || this.isCheckingForNext) {
+      console.log('Autoplay/Repeat check skipped:', {
         autoplayEnabled: this.autoplayEnabled,
+        repeatEnabled: this.repeatEnabled,
         isCheckingForNext: this.isCheckingForNext,
       });
       return;
     }
 
     this.isCheckingForNext = true;
-    console.log('Checking for next item to autoplay...');
+    console.log('Checking for next item to play...', {
+      autoplay: this.autoplayEnabled,
+      repeat: this.repeatEnabled,
+    });
 
     try {
       // Wait a moment to ensure playback has actually stopped
@@ -239,7 +244,16 @@ export class PlayerPage implements OnInit {
         return;
       }
 
-      // Check if we have a next item in queue
+      // If repeat is enabled, replay the current media
+      if (this.repeatEnabled && this.media) {
+        console.log('Repeat enabled: replaying current media:', this.media.title);
+        await this.playerService.playMedia(this.media, true);
+        this.playing = true;
+        this.isCheckingForNext = false;
+        return;
+      }
+
+      // Otherwise check if we have a next item in queue (autoplay mode)
       console.log(
         'Has next?',
         this.autoplayService.hasNext(),
