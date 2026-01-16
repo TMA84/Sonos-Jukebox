@@ -16,7 +16,7 @@ export class ConfigService {
   ) {}
 
   getConfig(): Observable<any> {
-    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    const configUrl = `${environment.apiUrl}/config`;
     return this.http.get(configUrl, { 
       params: { clientId: this.clientService.getClientId() }
     });

@@ -95,7 +95,7 @@ export class PlayerService {
       case PlayerCmds.PLAY:
         this.http
           .post(
-            environment.production ? '../api/sonos/play' : 'http://localhost:8200/api/sonos/play',
+            `${environment.apiUrl}/sonos/play`,
             { room }
           )
           .subscribe({
@@ -109,7 +109,7 @@ export class PlayerService {
       case PlayerCmds.PAUSE:
         this.http
           .post(
-            environment.production ? '../api/sonos/pause' : 'http://localhost:8200/api/sonos/pause',
+            `${environment.apiUrl}/sonos/pause`,
             { room }
           )
           .subscribe({
@@ -120,7 +120,7 @@ export class PlayerService {
       case PlayerCmds.NEXT:
         this.http
           .post(
-            environment.production ? '../api/sonos/next' : 'http://localhost:8200/api/sonos/next',
+            `${environment.apiUrl}/sonos/next`,
             { room }
           )
           .subscribe({
@@ -197,7 +197,7 @@ export class PlayerService {
 
   private async getSpotifyToken(): Promise<string> {
     const response = await fetch(
-      environment.production ? '../api/token' : 'http://localhost:8200/api/token'
+      `${environment.apiUrl}/token`
     );
     const data = await response.json();
     return data.access_token;
@@ -363,7 +363,7 @@ export class PlayerService {
   }
 
   getCurrentTrack(): Observable<any> {
-    const url = environment.production ? '../api/sonos' : 'http://localhost:8200/api/sonos';
+    const url = `${environment.apiUrl}/sonos`;
 
     return new Observable(observer => {
       this.getClientRoom()
@@ -405,7 +405,7 @@ export class PlayerService {
     }
 
     // Get client's sleep timer setting
-    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    const configUrl = `${environment.apiUrl}/config`;
     this.http
       .get<any>(configUrl, {
         params: { clientId },

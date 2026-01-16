@@ -57,7 +57,7 @@ export class HomePage implements OnInit {
   }
 
   loadDefaultSpeaker() {
-    const configUrl = environment.production ? '../api/config' : 'http://localhost:8200/api/config';
+    const configUrl = `${environment.apiUrl}/config`;
     this.http.get<any>(configUrl, {
       params: { clientId: this.getClientId() }
     }).subscribe(config => {

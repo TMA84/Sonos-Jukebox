@@ -14,7 +14,7 @@ export class SpotifyService {
   }
 
   getMediaByQuery(query: string, category: string): Observable<Media[]> {
-    const searchUrl = environment.production ? '../api/spotify/search/albums' : 'http://localhost:8200/api/spotify/search/albums';
+    const searchUrl = `${environment.apiUrl}/spotify/search/albums`;
     
     return this.http.get<any>(searchUrl, { 
       params: { q: query, limit: '50' }
@@ -76,7 +76,7 @@ export class SpotifyService {
   }
 
   getAlbumArtwork(artist: string, title: string): Observable<string> {
-    const searchUrl = environment.production ? '../api/spotify/search/albums' : 'http://localhost:8200/api/spotify/search/albums';
+    const searchUrl = `${environment.apiUrl}/spotify/search/albums`;
     const query = `album:${title} artist:${artist}`;
     
     return this.http.get<any>(searchUrl, { 
@@ -89,7 +89,7 @@ export class SpotifyService {
   }
 
   searchAlbums(query: string): Observable<Media[]> {
-    const searchUrl = environment.production ? '../api/spotify/search/albums' : 'http://localhost:8200/api/spotify/search/albums';
+    const searchUrl = `${environment.apiUrl}/spotify/search/albums`;
     
     return this.http.get<any>(searchUrl, { 
       params: { q: query, limit: '20' }
@@ -111,7 +111,7 @@ export class SpotifyService {
   }
 
   searchArtists(query: string): Observable<any[]> {
-    const searchUrl = environment.production ? '../api/spotify/search/artists' : 'http://localhost:8200/api/spotify/search/artists';
+    const searchUrl = `${environment.apiUrl}/spotify/search/artists`;
     
     return this.http.get<any>(searchUrl, { 
       params: { q: query, limit: '20' }
@@ -128,7 +128,7 @@ export class SpotifyService {
   }
 
   searchTracks(query: string, category: string): Observable<Media[]> {
-    const searchUrl = environment.production ? '../api/spotify/search/tracks' : 'http://localhost:8200/api/spotify/search/tracks';
+    const searchUrl = `${environment.apiUrl}/spotify/search/tracks`;
     
     return this.http.get<any>(searchUrl, { 
       params: { q: query, limit: '20' }

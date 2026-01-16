@@ -68,7 +68,7 @@ export class ConfigPage implements OnInit {
   }
 
   loadCurrentConfig() {
-    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    const configUrl = `${environment.apiUrl}/config/client`;
     this.http.get<any>(configUrl, { 
       params: { clientId: this.clientId }
     }).subscribe(config => {
@@ -79,7 +79,7 @@ export class ConfigPage implements OnInit {
 
   findSpeakers() {
     this.isLoading = true;
-    const speakersUrl = environment.production ? '../api/speakers' : 'http://localhost:8200/api/speakers';
+    const speakersUrl = `${environment.apiUrl}/speakers`;
     
     this.http.get<any[]>(speakersUrl).subscribe({
       next: (speakers) => {
@@ -109,7 +109,7 @@ export class ConfigPage implements OnInit {
     // Save to localStorage for home page access
     localStorage.setItem('selectedSpeaker', speaker);
     
-    const saveUrl = environment.production ? '../api/config/speaker' : 'http://localhost:8200/api/config/speaker';
+    const saveUrl = `${environment.apiUrl}/config/speaker`;
     
     this.http.post(saveUrl, { 
       speaker, 
@@ -125,7 +125,7 @@ export class ConfigPage implements OnInit {
   }
 
   saveSleepTimer() {
-    const saveUrl = environment.production ? '../api/config/sleepTimer' : 'http://localhost:8200/api/config/sleepTimer';
+    const saveUrl = `${environment.apiUrl}/config/sleepTimer`;
     
     this.http.post(saveUrl, { 
       sleepTimer: this.sleepTimer, 
@@ -155,7 +155,7 @@ export class ConfigPage implements OnInit {
   }
 
   changePin() {
-    const pinUrl = environment.production ? '../api/config/pin' : 'http://localhost:8200/api/config/pin';
+    const pinUrl = `${environment.apiUrl}/config/pin`;
     
     this.http.post(pinUrl, { currentPin: this.currentPin, newPin: this.newPin }).subscribe({
       next: () => {
@@ -185,7 +185,7 @@ export class ConfigPage implements OnInit {
   }
 
   loadFullConfig() {
-    const configUrl = environment.production ? '../api/config/full' : 'http://localhost:8200/api/config/full';
+    const configUrl = `${environment.apiUrl}/config/full`;
     this.http.get<any>(configUrl).subscribe(config => {
       this.spotifyConfig = {
         clientId: config.spotify?.clientId || '',
@@ -203,7 +203,7 @@ export class ConfigPage implements OnInit {
   }
 
   saveSpotifyConfig() {
-    const saveUrl = environment.production ? '../api/config/spotify' : 'http://localhost:8200/api/config/spotify';
+    const saveUrl = `${environment.apiUrl}/config/spotify`;
     this.http.post(saveUrl, this.spotifyConfig).subscribe({
       next: () => console.log('Spotify configuration saved'),
       error: (err) => console.error('Failed to save Spotify config:', err)
@@ -211,7 +211,7 @@ export class ConfigPage implements OnInit {
   }
 
   saveSonosConfig() {
-    const saveUrl = environment.production ? '../api/config/sonos' : 'http://localhost:8200/api/config/sonos';
+    const saveUrl = `${environment.apiUrl}/config/sonos`;
     this.http.post(saveUrl, this.sonosConfig).subscribe({
       next: () => console.log('Sonos configuration saved'),
       error: (err) => console.error('Failed to save Sonos config:', err)
@@ -229,7 +229,7 @@ export class ConfigPage implements OnInit {
   }
 
   async saveClientName() {
-    const saveUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    const saveUrl = `${environment.apiUrl}/config/client`;
     this.http.post(saveUrl, { 
       clientId: this.clientId,
       name: this.clientName 
@@ -258,7 +258,7 @@ export class ConfigPage implements OnInit {
   }
 
   loadClients() {
-    const clientsUrl = environment.production ? '../api/clients' : 'http://localhost:8200/api/clients';
+    const clientsUrl = `${environment.apiUrl}/clients`;
     this.http.get<any[]>(clientsUrl).subscribe(clients => {
       this.availableClients = clients.map(client => {
         const displayName = client.name || `Client ${client.id.replace('client-', '').replace('client_', '')}`;
@@ -424,7 +424,7 @@ export class ConfigPage implements OnInit {
       return;
     }
     
-    const deleteUrl = environment.production ? '../api/clients/delete' : 'http://localhost:8200/api/clients/delete';
+    const deleteUrl = `${environment.apiUrl}/clients/delete`;
     
     this.http.post(deleteUrl, { clientId }, { responseType: 'text' }).subscribe({
       next: async (response) => {
@@ -451,7 +451,7 @@ export class ConfigPage implements OnInit {
 
   async createNewClient() {
     const newClientId = 'client_' + Date.now();
-    const createUrl = environment.production ? '../api/clients/create' : 'http://localhost:8200/api/clients/create';
+    const createUrl = `${environment.apiUrl}/clients/create`;
     
     this.http.post(createUrl, {
       clientId: newClientId,
@@ -489,7 +489,7 @@ export class ConfigPage implements OnInit {
 
   loadLibraryItems() {
     // Load from server API
-    const dataUrl = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
+    const dataUrl = `${environment.apiUrl}/data`;
     this.http.get<any[]>(dataUrl, {
       params: { clientId: this.clientId }
     }).subscribe({
@@ -534,7 +534,7 @@ export class ConfigPage implements OnInit {
     
     if (this.editingIndex >= 0) {
       // Update existing item
-      const updateUrl = environment.production ? '../api/update' : 'http://localhost:8200/api/update';
+      const updateUrl = `${environment.apiUrl}/update`;
       this.http.post(updateUrl, {
         index: this.editingIndex,
         item: item
@@ -550,7 +550,7 @@ export class ConfigPage implements OnInit {
       });
     } else {
       // Add new item
-      const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+      const addUrl = `${environment.apiUrl}/add`;
       this.http.post(addUrl, item).subscribe({
         next: () => {
           console.log('Manual item added to server:', item);
@@ -571,7 +571,7 @@ export class ConfigPage implements OnInit {
   }
 
   removeFromLibrary(index: number) {
-    const deleteUrl = environment.production ? '../api/delete' : 'http://localhost:8200/api/delete';
+    const deleteUrl = `${environment.apiUrl}/delete`;
     this.http.post(deleteUrl, {
       index: index,
       clientId: this.clientId
@@ -637,7 +637,7 @@ export class ConfigPage implements OnInit {
     };
     
     // Save to server via API
-    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+    const addUrl = `${environment.apiUrl}/add`;
     this.http.post(addUrl, item).subscribe({
       next: () => {
         console.log('Album added to server:', item);
@@ -662,7 +662,7 @@ export class ConfigPage implements OnInit {
     };
     
     // Save to server via API
-    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+    const addUrl = `${environment.apiUrl}/add`;
     this.http.post(addUrl, item).subscribe({
       next: () => {
         console.log('Artist added to server:', item);
@@ -746,7 +746,7 @@ export class ConfigPage implements OnInit {
     };
     
     // Save to server via API
-    const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+    const addUrl = `${environment.apiUrl}/add`;
     this.http.post(addUrl, item).subscribe({
       next: () => {
         console.log('Service content added to server:', item);
@@ -768,7 +768,7 @@ export class ConfigPage implements OnInit {
   }
 
   loadSpeakerSelectionSetting() {
-    const configUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    const configUrl = `${environment.apiUrl}/config/client`;
     this.http.get<any>(configUrl, { 
       params: { clientId: this.clientId }
     }).subscribe(config => {
@@ -777,7 +777,7 @@ export class ConfigPage implements OnInit {
   }
 
   async saveSpeakerSelectionSetting() {
-    const saveUrl = environment.production ? '../api/config/client' : 'http://localhost:8200/api/config/client';
+    const saveUrl = `${environment.apiUrl}/config/client`;
     this.http.post(saveUrl, { 
       clientId: this.clientId,
       enableSpeakerSelection: this.enableSpeakerSelection

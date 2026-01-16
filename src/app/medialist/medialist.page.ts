@@ -58,7 +58,7 @@ export class MedialistPage implements OnInit {
 
   loadMediaFromArtist() {
     // Load albums from raw data first to get artist ID
-    const url = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
+    const url = `${environment.apiUrl}/data`;
     const clientId = this.getArtistClientId();
 
     this.http
@@ -114,7 +114,7 @@ export class MedialistPage implements OnInit {
 
   async fetchShowEpisodes(showId: string) {
     try {
-      const tokenUrl = environment.production ? '../api/token' : 'http://localhost:8200/api/token';
+      const tokenUrl = `${environment.apiUrl}/token`;
       const tokenResponse = await fetch(tokenUrl);
       const tokenData = await tokenResponse.json();
 
@@ -259,7 +259,7 @@ export class MedialistPage implements OnInit {
 
     // Handle normal album loading - find artist ID from raw data
     if (this.hasMoreAlbums && !this.isLoading) {
-      const url = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
+      const url = `${environment.apiUrl}/data`;
       const clientId = this.getArtistClientId();
 
       this.http
@@ -427,7 +427,7 @@ export class MedialistPage implements OnInit {
   async searchAndFetchArtist(artistName: string) {
     try {
       // Get Spotify token
-      const tokenUrl = environment.production ? '../api/token' : 'http://localhost:8200/api/token';
+      const tokenUrl = `${environment.apiUrl}/token`;
       const tokenResponse = await fetch(tokenUrl);
       const tokenData = await tokenResponse.json();
 
@@ -446,7 +446,7 @@ export class MedialistPage implements OnInit {
 
         // Update the database with the artist ID
         const clientId = this.getArtistClientId();
-        const updateUrl = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
+        const updateUrl = `${environment.apiUrl}/data`;
 
         // Get current media items to find and update the one without artistid
         const rawMedia = await this.http
@@ -459,7 +459,7 @@ export class MedialistPage implements OnInit {
 
         if (itemToUpdate) {
           // Update the item with artistid
-          const addUrl = environment.production ? '../api/add' : 'http://localhost:8200/api/add';
+          const addUrl = `${environment.apiUrl}/add`;
           await this.http
             .post(addUrl, {
               ...itemToUpdate,

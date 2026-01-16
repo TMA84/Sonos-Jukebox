@@ -135,7 +135,7 @@ export class AutoplayService {
   private async fetchArtistContent(media: Media): Promise<void> {
     try {
       // First get raw data to find artist ID
-      const url = environment.production ? '../api/data' : 'http://localhost:8200/api/data';
+      const url = `${environment.apiUrl}/data`;
       const clientId = this.clientService.getClientId();
       console.log('Fetching artist content with clientId:', clientId);
 
