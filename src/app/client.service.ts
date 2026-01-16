@@ -26,7 +26,7 @@ export class ClientService {
 
   private loadClientByName(clientName: string): void {
     // Check if client exists on server first
-    const clientsUrl = window.location.origin + '/api/clients';
+    const clientsUrl = `${environment.apiUrl}/clients`;
     fetch(clientsUrl)
       .then(response => response.json())
       .then(clients => {
@@ -65,9 +65,7 @@ export class ClientService {
       return of(this.clientNameCache);
     }
 
-    const configUrl = environment.production
-      ? '../api/config/client'
-      : 'http://localhost:8200/api/config/client';
+    const configUrl = `${environment.apiUrl}/config/client`;
     return this.http
       .get<any>(configUrl, {
         params: { clientId: this.clientId },
