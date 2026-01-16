@@ -17,13 +17,40 @@ export class ClientService {
     const clientNameFromUrl = urlParams.get('client');
 
     if (clientNameFromUrl) {
-      // URL parameter takes precedence - load that client
-      this.clientId = 'temp-' + Date.now(); // Temporary ID until we load the real one
-      this.loadClientByName(clientNameFromUrl);
+      // URL parameter takes precedence - set a flag and load that client
+      this.clientId = this.generateClientId(); // Use existing or generate new
+      this.loadClientByNameSync(clientNameFromUrl);
     } else {
       // No URL parameter, use normal flow
       this.clientId = this.generateClientId();
       this.checkDefaultClient();
+    }
+  }
+
+  private loadClientByNameSync(clientName: string): void {
+    // Immediately try to load the client
+    const clientsUrl = `${environment.apiUrl}/clients`;
+
+    // Use XMLHttpRequest for synchronous-like behavior in constructor
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', clientsUrl, false); // false = synchronous
+    try {
+      xhr.send();
+      if (xhr.status === 200) {
+        const clients = JSON.parse(xhr.responseText);
+        const existingClient = clients.find((c: any) => c.name === clientName);
+        if (existingClient) {
+          this.clientId = existingClient.id;
+          this.setCookie('sonos-client-id', existingClient.id, 365);
+          console.log('Loaded client from URL parameter:', clientName, '→', existingClient.id);
+        } else {
+          console.warn('Client not found:', clientName);
+        }
+      }
+    } catch (err) {
+      console.error('Could not load clients synchronously:', err);
+      // Fall back to async load
+      this.loadClientByName(clientName);
     }
   }
 
