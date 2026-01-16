@@ -31,7 +31,14 @@ export class ClientService {
   private loadClientByNameSync(clientName: string): void {
     // Immediately try to load the client
     console.log('[ClientService] Loading client by name:', clientName);
-    const clientsUrl = `${environment.apiUrl}/clients`;
+
+    // Build absolute URL for production (Home Assistant)
+    const baseUrl = window.location.origin;
+    const apiPath = environment.production ? '/api' : environment.apiUrl;
+    const clientsUrl = environment.production
+      ? `${baseUrl}${apiPath}/clients`
+      : `${environment.apiUrl}/clients`;
+
     console.log('[ClientService] Clients URL:', clientsUrl);
 
     // Use XMLHttpRequest for synchronous-like behavior in constructor
@@ -40,10 +47,13 @@ export class ClientService {
     try {
       xhr.send();
       console.log('[ClientService] XHR status:', xhr.status);
+      console.log('[ClientService] XHR response:', xhr.responseText);
       if (xhr.status === 200) {
         const clients = JSON.parse(xhr.responseText);
         console.log('[ClientService] Available clients:', clients);
-        const existingClient = clients.find((c: any) => c.name === clientName);
+        const existingClient = clients.find(
+          (c: any) => c.name.toLowerCase() === clientName.toLowerCase()
+        );
         if (existingClient) {
           this.clientId = existingClient.id;
           this.setCookie('sonos-client-id', existingClient.id, 365);
@@ -55,11 +65,21 @@ export class ClientService {
           );
         } else {
           console.warn('[ClientService] ✗ Client not found:', clientName);
+          console.warn(
+            '[ClientService] Available client names:',
+            clients.map((c: any) => c.name)
+          );
+          // Fall back to default
+          this.clientId = this.generateClientId();
         }
+      } else {
+        console.error('[ClientService] XHR failed with status:', xhr.status);
+        this.clientId = this.generateClientId();
       }
     } catch (err) {
       console.error('[ClientService] Could not load clients synchronously:', err);
-      // Fall back to async load
+      // Fall back to async load and generate temp ID
+      this.clientId = this.generateClientId();
       this.loadClientByName(clientName);
     }
   }
@@ -79,7 +99,7 @@ export class ClientService {
     fetch(clientsUrl)
       .then(response => response.json())
       .then(clients => {
-        const existingClient = clients.find(c => c.name === clientName);
+        const existingClient = clients.find(c => c.name.toLowerCase() === clientName.toLowerCase());
         if (existingClient) {
           this.setClientId(existingClient.id);
         }

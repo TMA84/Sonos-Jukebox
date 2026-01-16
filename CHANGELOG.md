@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.20] - 2026-01-16
+
+### 🐛 Bug Fixes
+
+- **Client URL parameter** - Fixed case-sensitive client name matching in URL parameter (e.g., `?client=mateo` now matches "Mateo")
+- **Production URL handling** - Improved absolute URL construction for Home Assistant deployments
+- **Error handling** - Added better fallback handling when client lookup fails
+- **Logging** - Enhanced debug logging to show available clients and XHR responses
+
 ## [2.2.19] - 2026-01-16
 
 ### 🔧 Changes
