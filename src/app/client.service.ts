@@ -12,9 +12,19 @@ export class ClientService {
   private clientNameCache: string | null = null;
 
   constructor(private http: HttpClient) {
-    this.clientId = this.generateClientId();
-    this.checkUrlForClient();
-    this.checkDefaultClient();
+    // Check URL parameter first (highest priority)
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientNameFromUrl = urlParams.get('client');
+
+    if (clientNameFromUrl) {
+      // URL parameter takes precedence - load that client
+      this.clientId = 'temp-' + Date.now(); // Temporary ID until we load the real one
+      this.loadClientByName(clientNameFromUrl);
+    } else {
+      // No URL parameter, use normal flow
+      this.clientId = this.generateClientId();
+      this.checkDefaultClient();
+    }
   }
 
   private checkDefaultClient(): void {
@@ -23,14 +33,6 @@ export class ClientService {
     if (defaultClient && !this.getCookie('sonos-client-id')) {
       // Only use default client if no client is already set
       this.loadClientByName(defaultClient);
-    }
-  }
-
-  private checkUrlForClient(): void {
-    const urlParams = new URLSearchParams(window.location.search);
-    const clientName = urlParams.get('client');
-    if (clientName) {
-      this.loadClientByName(clientName);
     }
   }
 
