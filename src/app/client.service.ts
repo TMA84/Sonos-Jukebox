@@ -14,6 +14,16 @@ export class ClientService {
   constructor(private http: HttpClient) {
     this.clientId = this.generateClientId();
     this.checkUrlForClient();
+    this.checkDefaultClient();
+  }
+
+  private checkDefaultClient(): void {
+    // Check if default client is set via window object (injected by HA addon)
+    const defaultClient = (window as any).DEFAULT_CLIENT;
+    if (defaultClient && !this.getCookie('sonos-client-id')) {
+      // Only use default client if no client is already set
+      this.loadClientByName(defaultClient);
+    }
   }
 
   private checkUrlForClient(): void {
