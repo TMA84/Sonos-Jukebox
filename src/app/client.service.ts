@@ -32,12 +32,8 @@ export class ClientService {
     // Immediately try to load the client
     console.log('[ClientService] Loading client by name:', clientName);
 
-    // Build absolute URL for production (Home Assistant)
-    const baseUrl = window.location.origin;
-    const apiPath = environment.production ? '/api' : environment.apiUrl;
-    const clientsUrl = environment.production
-      ? `${baseUrl}${apiPath}/clients`
-      : `${environment.apiUrl}/clients`;
+    // Use relative URL for ingress compatibility
+    const clientsUrl = `${environment.apiUrl}/clients`;
 
     console.log('[ClientService] Clients URL:', clientsUrl);
 
