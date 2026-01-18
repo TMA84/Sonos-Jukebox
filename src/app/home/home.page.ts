@@ -37,7 +37,6 @@ export class HomePage implements OnInit {
   currentPage = 0;
   pageSize = 12;
 
-
   constructor(
     private mediaService: MediaService,
     private artworkService: ArtworkService,
@@ -58,30 +57,34 @@ export class HomePage implements OnInit {
 
   loadDefaultSpeaker() {
     const configUrl = `${environment.apiUrl}/config`;
-    this.http.get<any>(configUrl, {
-      params: { clientId: this.getClientId() }
-    }).subscribe(config => {
-      if (config.currentRoom) {
-        localStorage.setItem('selectedSpeaker', config.currentRoom);
-      }
-    });
+    this.http
+      .get<any>(configUrl, {
+        params: { clientId: this.getClientId() },
+      })
+      .subscribe(config => {
+        if (config.currentRoom) {
+          localStorage.setItem('selectedSpeaker', config.currentRoom);
+        }
+      });
   }
 
   loadLibraryData() {
     const clientId = this.getClientId();
     console.log('Loading library for client:', clientId);
-    
+    console.log('Loading library for category:', this.category);
+
     // Clear previous data
     this.artists = [];
     this.media = [];
     this.filteredArtists = [];
     this.filteredMedia = [];
-    
+
+    // IMPORTANT: Set category BEFORE loading artists
     this.mediaService.setCategory(this.category);
-    
+
     // Load artists directly without albums/tracks to avoid rate limiting
     this.mediaService.getArtists().subscribe(artists => {
-      console.log('Artists loaded:', artists.length);
+      console.log('Artists loaded for category', this.category, ':', artists.length);
       this.artists = artists;
       this.currentPage = 0;
       this.loadInitialArtists();
@@ -105,12 +108,15 @@ export class HomePage implements OnInit {
   }
 
   categoryChanged(event: any) {
-    this.category = event.detail.value;
-    console.log('Category changed to:', this.category);
+    const newCategory = event.detail.value;
+    console.log('Category changed from', this.category, 'to:', newCategory);
+    this.category = newCategory;
+
+    // Force reload with new category
     this.loadLibraryData();
   }
 
-  update() {
+  update() {
     this.mediaService.getArtists().subscribe(artists => {
       this.artists = artists;
       this.currentPage = 0;
@@ -125,8 +131,8 @@ export class HomePage implements OnInit {
       // For radio stations, navigate directly to player without calling playMedia here
       const navigationExtras: NavigationExtras = {
         state: {
-          media: clickedArtist.coverMedia
-        }
+          media: clickedArtist.coverMedia,
+        },
       };
       this.router.navigate(['/player'], navigationExtras);
       return;
@@ -139,13 +145,13 @@ export class HomePage implements OnInit {
         // Add client ID to artist data
         const artistWithClient = {
           ...clickedArtist,
-          clientId: this.getClientId()
+          clientId: this.getClientId(),
         };
-        
+
         const navigationExtras: NavigationExtras = {
           state: {
-            artist: artistWithClient
-          }
+            artist: artistWithClient,
+          },
         };
         this.router.navigate(['/medialist'], navigationExtras);
       });
@@ -154,7 +160,7 @@ export class HomePage implements OnInit {
 
   artistNameClicked(clickedArtist: Artist) {
     this.playerService.getConfig().subscribe(config => {
-      if (config.tts == null || config.tts.enabled === true) {
+      if (config.tts == null || config.tts.enabled === true) {
         this.playerService.say(clickedArtist.name);
       }
     });
@@ -163,18 +169,18 @@ export class HomePage implements OnInit {
   mediaCoverClicked(clickedMedia: Media) {
     // Start playing immediately
     this.playerService.playMedia(clickedMedia);
-    
+
     const navigationExtras: NavigationExtras = {
       state: {
-        media: clickedMedia
-      }
+        media: clickedMedia,
+      },
     };
     this.router.navigate(['/player'], navigationExtras);
   }
 
   mediaNameClicked(clickedMedia: Media) {
     this.playerService.getConfig().subscribe(config => {
-      if (config.tts == null || config.tts.enabled === true) {
+      if (config.tts == null || config.tts.enabled === true) {
         this.playerService.say(clickedMedia.title);
       }
     });
@@ -212,17 +218,19 @@ export class HomePage implements OnInit {
     // Load from server API
     const clientId = this.getClientId();
     console.log('Loading categories for client:', clientId);
-    
+
     this.mediaService.updateRawMedia();
     this.mediaService.getRawMediaObservable().subscribe(libraryItems => {
       console.log('Categories - library items:', libraryItems.length);
-      
-      this.availableCategories = [...new Set(libraryItems.map((item: any) => item.category || 'audiobook'))] as string[];
-      
+
+      this.availableCategories = [
+        ...new Set(libraryItems.map((item: any) => item.category || 'audiobook')),
+      ] as string[];
+
       if (this.availableCategories.length === 0) {
         this.availableCategories = ['audiobook', 'music', 'playlist', 'radio'];
       }
-      
+
       if (!this.availableCategories.includes(this.category)) {
         this.category = this.availableCategories[0];
       }
@@ -239,8 +247,6 @@ export class HomePage implements OnInit {
   hideKeyboard() {
     this.showKeyboard = false;
   }
-
-
 
   toggleSearch() {
     this.showSearch = !this.showSearch;
@@ -261,10 +267,8 @@ export class HomePage implements OnInit {
     }
 
     const term = this.searchTerm.toLowerCase();
-    const searchResults = this.artists.filter(artist => 
-      artist.name.toLowerCase().includes(term)
-    );
-    
+    const searchResults = this.artists.filter(artist => artist.name.toLowerCase().includes(term));
+
     this.filteredArtists = searchResults.slice(0, this.pageSize);
     this.hasMoreArtists = searchResults.length > this.pageSize;
     this.currentPage = 0;
@@ -288,8 +292,6 @@ export class HomePage implements OnInit {
     }
   }
 
-
-
   getClientId(): string {
     // Use ClientService to get current client ID
     const clientId = this.clientService.getClientId();
@@ -307,8 +309,8 @@ export class HomePage implements OnInit {
   goToPlayer() {
     const navigationExtras: NavigationExtras = {
       state: {
-        fromShortcut: true
-      }
+        fromShortcut: true,
+      },
     };
     this.router.navigate(['/player'], navigationExtras);
   }
@@ -328,15 +330,15 @@ export class HomePage implements OnInit {
       const startIndex = this.currentPage * this.pageSize;
       const endIndex = startIndex + this.pageSize;
       const newArtists = this.artists.slice(startIndex, endIndex);
-      
+
       this.filteredArtists = [...this.filteredArtists, ...newArtists];
       this.hasMoreArtists = this.artists.length > endIndex;
-      
+
       // Load artwork for new artists
       this.loadArtistArtworkBatch(newArtists);
-      
+
       event.target.complete();
-      
+
       if (!this.hasMoreArtists) {
         event.target.disabled = true;
       }
@@ -345,7 +347,7 @@ export class HomePage implements OnInit {
 
   nextInput() {
     const inputOrder = ['search'];
-    
+
     const currentIndex = inputOrder.indexOf(this.activeInput);
     if (currentIndex >= 0 && currentIndex < inputOrder.length - 1) {
       this.activeInput = inputOrder[currentIndex + 1];

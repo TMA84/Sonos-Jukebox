@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.22] - 2026-01-17
+
+### 🐛 Bug Fixes
+
+- **Category switching** - Fixed artists not reloading when switching between categories (e.g., podcast to audiobook)
+- **Artist loading** - Added better logging to track category changes and artist loading
+- **Data refresh** - Ensured artists always reload when returning to home page
+
 ## [2.2.21] - 2026-01-16
 
 ### 🐛 Bug Fixes
