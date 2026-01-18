@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.23] - 2026-01-17
+
+### 🐛 Bug Fixes
+
+- **Infinite scroll** - Fixed infinite scroll not working after switching categories
+- **Pagination reset** - Properly reset infinite scroll component when loading new category data
+- **Load more items** - Ensured all artists can be loaded after category switch, not just first 12
+
 ## [2.2.22] - 2026-01-17
 
 ### 🐛 Bug Fixes

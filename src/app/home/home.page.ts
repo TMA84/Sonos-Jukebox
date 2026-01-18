@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonInfiniteScroll } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { MediaService } from '../media.service';
@@ -18,6 +18,8 @@ import { Media } from '../media';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
+
   category = 'audiobook';
   artists: Artist[] = [];
   media: Media[] = [];
@@ -73,11 +75,17 @@ export class HomePage implements OnInit {
     console.log('Loading library for client:', clientId);
     console.log('Loading library for category:', this.category);
 
-    // Clear previous data
+    // Clear previous data and reset pagination
     this.artists = [];
     this.media = [];
     this.filteredArtists = [];
     this.filteredMedia = [];
+    this.currentPage = 0;
+
+    // Reset infinite scroll to allow loading more items
+    if (this.infiniteScroll) {
+      this.infiniteScroll.disabled = false;
+    }
 
     // IMPORTANT: Set category BEFORE loading artists
     this.mediaService.setCategory(this.category);
