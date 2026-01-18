@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { Media } from '../media';
 import { Artist } from '../artist';
 
@@ -18,26 +18,34 @@ export class VirtualGridComponent implements OnChanges {
   displayedItems: (Media | Artist)[] = [];
   filteredItems: (Media | Artist)[] = [];
   searchTerm = '';
+  lastLoadedCount = 0;
 
-  ngOnChanges() {
-    // When items change, load all of them (no pagination within component)
+  ngOnChanges(changes: SimpleChanges) {
     this.applyFilter();
     this.displayedItems = this.filteredItems;
 
-    // Emit for artwork loading
-    if (this.filteredItems.length > 0) {
-      this.loadMoreArtwork.emit(this.filteredItems.slice(0, this.itemsPerPage));
+    // Load artwork for new items only
+    if (this.filteredItems.length > this.lastLoadedCount) {
+      const newItems = this.filteredItems.slice(this.lastLoadedCount);
+      const itemsToLoad = newItems.slice(0, this.itemsPerPage);
+      if (itemsToLoad.length > 0) {
+        this.loadMoreArtwork.emit(itemsToLoad);
+      }
+      this.lastLoadedCount = this.filteredItems.length;
     }
   }
 
   reset() {
+    this.lastLoadedCount = 0;
     this.applyFilter();
     this.displayedItems = this.filteredItems;
 
-    // Emit for artwork loading
-    if (this.filteredItems.length > 0) {
-      this.loadMoreArtwork.emit(this.filteredItems.slice(0, this.itemsPerPage));
+    // Load first batch of artwork
+    const itemsToLoad = this.filteredItems.slice(0, this.itemsPerPage);
+    if (itemsToLoad.length > 0) {
+      this.loadMoreArtwork.emit(itemsToLoad);
     }
+    this.lastLoadedCount = Math.min(this.itemsPerPage, this.filteredItems.length);
   }
 
   onSearchChange(searchTerm: string) {

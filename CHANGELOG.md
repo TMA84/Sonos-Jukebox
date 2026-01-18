@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.28] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Virtual grid** - Fixed artwork loading by tracking loaded items and loading in batches
+- **Display** - Virtual grid now displays all items while loading artwork progressively
+
 ## [2.2.27] - 2026-01-18
 
 ### 🐛 Bug Fixes
