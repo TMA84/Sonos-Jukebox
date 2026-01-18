@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
@@ -17,7 +17,8 @@ import { Media } from '../media';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, AfterViewInit {
+  @ViewChild('scrollTrigger', { read: ElementRef }) scrollTrigger: ElementRef;
   category = 'audiobook';
   artists: Artist[] = [];
   media: Media[] = [];
@@ -99,6 +100,32 @@ export class HomePage implements OnInit {
     this.loadAvailableCategories();
     this.loadClientName();
     this.needsUpdate = false;
+  }
+
+  ngAfterViewInit() {
+    // Observer will be set up after data loads
+  }
+
+  setupScrollObserver() {
+    // Set up Intersection Observer to detect when user scrolls near bottom
+    if (this.scrollTrigger && this.scrollTrigger.nativeElement) {
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && this.hasMoreArtists) {
+              this.loadMoreArtists();
+            }
+          });
+        },
+        {
+          root: null,
+          rootMargin: '200px',
+          threshold: 0.1,
+        }
+      );
+
+      observer.observe(this.scrollTrigger.nativeElement);
+    }
   }
 
   ionViewDidLeave() {
@@ -323,9 +350,12 @@ export class HomePage implements OnInit {
     this.filteredArtists = this.artists.slice(startIndex, endIndex);
     this.hasMoreArtists = this.artists.length > endIndex;
     this.loadArtistArtworkBatch(this.filteredArtists.slice(0, 6));
+
+    // Set up scroll observer after initial load
+    setTimeout(() => this.setupScrollObserver(), 100);
   }
 
-  loadMoreArtists(event: any) {
+  loadMoreArtists(event?: any) {
     setTimeout(() => {
       this.currentPage++;
       const startIndex = this.currentPage * this.pageSize;
@@ -338,9 +368,9 @@ export class HomePage implements OnInit {
       // Load artwork for new artists
       this.loadArtistArtworkBatch(newArtists);
 
-      event.target.complete();
-
-      // No need to manually disable - the [disabled]="!hasMoreArtists" binding handles this
+      if (event) {
+        event.target.complete();
+      }
     }, 500);
   }
 

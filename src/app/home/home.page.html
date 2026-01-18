@@ -1,78 +1,81 @@
 <ion-header class="modern-header">
-    <ion-toolbar class="modern-toolbar">
-
-        <ion-buttons slot="start">
-            <ion-button disabled="true" style="opacity: 0;">
-                <ion-icon name=""></ion-icon>
-            </ion-button>
-        </ion-buttons>
-        <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
-            <ion-segment-button *ngIf="availableCategories.includes('audiobook')" value="audiobook">
-                <ion-icon name="book-outline"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button *ngIf="availableCategories.includes('music')" value="music">
-                <ion-icon name="musical-notes-outline"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button *ngIf="availableCategories.includes('playlist')" value="playlist">
-                <ion-icon name="document-text-outline"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button *ngIf="availableCategories.includes('radio')" value="radio">
-                <ion-icon name="radio-outline"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button *ngIf="availableCategories.includes('podcast')" value="podcast">
-                <ion-icon name="mic-outline"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button *ngIf="availableCategories.includes('radioplay')" value="radioplay">
-                <ion-icon name="play-circle-outline"></ion-icon>
-            </ion-segment-button>
-        </ion-segment>
-        <ion-searchbar 
-            *ngIf="showSearch"
-            [(ngModel)]="searchTerm"
-            (ionInput)="onSearch()"
-            (ionFocus)="setActiveInput('search')"
-            placeholder="Search library..."
-            debounce="300">
-        </ion-searchbar>
-        <ion-buttons slot="end">
-            <ion-title *ngIf="clientName" class="client-name modern-title">{{clientName}}</ion-title>
-            <ion-button class="modern-button-icon" (click)="goToPlayer()">
-                <ion-icon name="play-outline"></ion-icon>
-            </ion-button>
-            <ion-button class="modern-button-icon" (click)="toggleSearch()">
-                <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
-            </ion-button>
-            <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
-                <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
-            </ion-button>
-            <ion-button class="modern-button-icon" (click)="configButtonPressed()">
-                <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar class="modern-toolbar">
+    <ion-buttons slot="start">
+      <ion-button disabled="true" style="opacity: 0">
+        <ion-icon name=""></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
+      <ion-segment-button *ngIf="availableCategories.includes('audiobook')" value="audiobook">
+        <ion-icon name="book-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="availableCategories.includes('music')" value="music">
+        <ion-icon name="musical-notes-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="availableCategories.includes('playlist')" value="playlist">
+        <ion-icon name="document-text-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="availableCategories.includes('radio')" value="radio">
+        <ion-icon name="radio-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="availableCategories.includes('podcast')" value="podcast">
+        <ion-icon name="mic-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button *ngIf="availableCategories.includes('radioplay')" value="radioplay">
+        <ion-icon name="play-circle-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+    <ion-searchbar
+      *ngIf="showSearch"
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearch()"
+      (ionFocus)="setActiveInput('search')"
+      placeholder="Search library..."
+      debounce="300"
+    >
+    </ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-title *ngIf="clientName" class="client-name modern-title">{{clientName}}</ion-title>
+      <ion-button class="modern-button-icon" (click)="goToPlayer()">
+        <ion-icon name="play-outline"></ion-icon>
+      </ion-button>
+      <ion-button class="modern-button-icon" (click)="toggleSearch()">
+        <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
+      </ion-button>
+      <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
+        <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+      </ion-button>
+      <ion-button class="modern-button-icon" (click)="configButtonPressed()">
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content [class.keyboard-visible]="showKeyboard">
-    <app-virtual-grid 
-        [items]="filteredArtists" 
-        [covers]="covers"
-        [itemsPerPage]="12"
-        (itemClick)="artistCoverClicked($event)"
-        (nameClick)="artistNameClicked($event)"
-        (loadMoreArtwork)="loadMoreArtistArtwork($event)">
-    </app-virtual-grid>
-    
-    <ion-infinite-scroll (ionInfinite)="loadMoreArtists($event)" [disabled]="!hasMoreArtists">
-        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more artists...">
-        </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+  <app-virtual-grid
+    [items]="filteredArtists"
+    [covers]="covers"
+    [itemsPerPage]="12"
+    (itemClick)="artistCoverClicked($event)"
+    (nameClick)="artistNameClicked($event)"
+    (loadMoreArtwork)="loadMoreArtistArtwork($event)"
+  >
+  </app-virtual-grid>
 
-    <!-- Virtual Keyboard -->
-    <app-virtual-keyboard 
-        [isVisible]="showKeyboard"
-        (keyPress)="addKey($event)"
-        (backspace)="backspace()"
-        (tab)="nextInput()"
-        (hide)="hideKeyboard()">
-    </app-virtual-keyboard>
+  <!-- Scroll trigger for loading more artists -->
+  <div
+    #scrollTrigger
+    style="height: 1px; width: 100%; position: absolute; bottom: 200px; pointer-events: none"
+  ></div>
+
+  <!-- Virtual Keyboard -->
+  <app-virtual-keyboard
+    [isVisible]="showKeyboard"
+    (keyPress)="addKey($event)"
+    (backspace)="backspace()"
+    (tab)="nextInput()"
+    (hide)="hideKeyboard()"
+  >
+  </app-virtual-keyboard>
 </ion-content>

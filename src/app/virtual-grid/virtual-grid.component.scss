@@ -6,12 +6,19 @@
   overflow: hidden;
   transition: all 0.3s ease;
   margin: var(--spacing-xs);
-  
+
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-large);
   }
-  
+
+  img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+  }
+
   .cover-image {
     width: 100%;
     height: 120px;
@@ -24,7 +31,7 @@
   padding: var(--spacing-sm);
   cursor: pointer;
   transition: background 0.2s ease;
-  
+
   &:hover {
     background: rgba(0, 122, 255, 0.05);
   }
@@ -46,7 +53,7 @@
 
 ion-grid {
   --ion-grid-padding: var(--spacing-md);
-  
+
   ion-row {
     ion-col {
       --ion-grid-column-padding: var(--spacing-xs);

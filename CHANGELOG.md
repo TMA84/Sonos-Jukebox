@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.37] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **Image sizing** - Fixed last artist image height by adding aspect-ratio CSS to ensure square images
+- **Scroll trigger** - Positioned scroll trigger absolutely to not affect grid layout
+
+## [2.2.36] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **Home scroll observer** - Set up observer after data loads to ensure it works correctly
+
+## [2.2.35] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **Consistency** - Applied Intersection Observer to home page for consistent infinite scroll behavior
+- **Maintainability** - Both home and medialist pages now use the same scroll approach
+
 ## [2.2.34] - 2026-01-18
 
 ### 🐛 Bug Fixes
