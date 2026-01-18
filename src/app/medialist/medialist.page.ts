@@ -237,7 +237,7 @@ export class MedialistPage implements OnInit {
               response.next
             );
 
-            this.loadArtworkBatch(newAlbums.slice(0, 12));
+            this.loadArtworkBatch(newAlbums);
           } else {
             this.hasMoreAlbums = false;
             console.log('No items in response, setting hasMoreAlbums to false');

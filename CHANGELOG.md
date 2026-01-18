@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.30] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Infinite scroll** - Replaced virtual-grid with direct ion-grid to fix infinite scroll not triggering
+- **Artwork loading** - Load all artwork for new albums, not just first 12
+
+## [2.2.29] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Infinite scroll debug** - Added test spacer and increased threshold to 500px to debug scroll triggering
+- **Threshold** - Increased infinite scroll threshold for earlier triggering
+
 ## [2.2.28] - 2026-01-18
 
 ### 🐛 Bug Fixes
