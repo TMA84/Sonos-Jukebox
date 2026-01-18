@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.27] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Infinite scroll** - Fixed infinite scroll by removing competing scroll handler in virtual-grid component
+- **Virtual grid** - Simplified virtual-grid to display all items instead of internal pagination
+- **Album loading** - Infinite scroll now works automatically to load all albums from Spotify
+
 ## [2.2.26] - 2026-01-18
 
 ### 🐛 Bug Fixes

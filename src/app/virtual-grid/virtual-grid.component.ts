@@ -5,7 +5,7 @@ import { Artist } from '../artist';
 @Component({
   selector: 'app-virtual-grid',
   templateUrl: './virtual-grid.component.html',
-  styleUrls: ['./virtual-grid.component.scss']
+  styleUrls: ['./virtual-grid.component.scss'],
 })
 export class VirtualGridComponent implements OnChanges {
   @Input() items: (Media | Artist)[] = [];
@@ -17,19 +17,27 @@ export class VirtualGridComponent implements OnChanges {
 
   displayedItems: (Media | Artist)[] = [];
   filteredItems: (Media | Artist)[] = [];
-  currentPage = 0;
-  hasMore = true;
   searchTerm = '';
 
   ngOnChanges() {
-    this.reset();
+    // When items change, load all of them (no pagination within component)
+    this.applyFilter();
+    this.displayedItems = this.filteredItems;
+
+    // Emit for artwork loading
+    if (this.filteredItems.length > 0) {
+      this.loadMoreArtwork.emit(this.filteredItems.slice(0, this.itemsPerPage));
+    }
   }
 
   reset() {
-    this.displayedItems = [];
-    this.currentPage = 0;
     this.applyFilter();
-    this.loadMore();
+    this.displayedItems = this.filteredItems;
+
+    // Emit for artwork loading
+    if (this.filteredItems.length > 0) {
+      this.loadMoreArtwork.emit(this.filteredItems.slice(0, this.itemsPerPage));
+    }
   }
 
   onSearchChange(searchTerm: string) {
@@ -38,26 +46,10 @@ export class VirtualGridComponent implements OnChanges {
   }
 
   private applyFilter() {
-    this.filteredItems = this.searchTerm ? 
-      this.items.filter(item => this.getItemTitle(item).toLowerCase().includes(this.searchTerm)) :
-      this.items;
-    this.hasMore = this.filteredItems.length > 0;
+    this.filteredItems = this.searchTerm
+      ? this.items.filter(item => this.getItemTitle(item).toLowerCase().includes(this.searchTerm))
+      : this.items;
   }
-
-  loadMore() {
-    if (!this.hasMore) return;
-
-    const start = this.currentPage * this.itemsPerPage;
-    const newItems = this.filteredItems.slice(start, start + this.itemsPerPage);
-    
-    this.displayedItems.push(...newItems);
-    this.currentPage++;
-    this.hasMore = start + this.itemsPerPage < this.filteredItems.length;
-    
-    this.loadMoreArtwork.emit(newItems);
-  }
-
-
 
   getItemTitle(item: Media | Artist): string {
     return 'name' in item ? item.name : item.title;
@@ -66,11 +58,6 @@ export class VirtualGridComponent implements OnChanges {
   getItemCover(item: Media | Artist): string {
     const key = this.getItemTitle(item);
     return this.covers[key] || '../assets/images/nocover.png';
-  }
-
-  onInfiniteScroll(event: any) {
-    this.loadMore();
-    event.target.complete();
   }
 
   trackByFn(index: number, item: Media | Artist): string {
