@@ -25,7 +25,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content (ionScroll)="onScroll($event)">
   <!-- Error Message -->
   <ion-card *ngIf="showError" color="danger">
     <ion-card-header>
@@ -51,6 +51,21 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- Debug Info -->
+  <ion-card *ngIf="media.length > 0" color="light">
+    <ion-card-content>
+      <p><strong>Debug Info:</strong></p>
+      <p>Total albums: {{media.length}}</p>
+      <p>Current offset: {{offset}}</p>
+      <p>Has more: {{hasMoreAlbums}}</p>
+      <p>Is loading: {{isLoading}}</p>
+      <p>Scroll Y: {{scrollY}}</p>
+      <ion-button size="small" (click)="loadMoreAlbums()" [disabled]="isLoading || !hasMoreAlbums">
+        Load More Manually
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
   <!-- Albums Grid -->
   <app-virtual-grid
     *ngIf="!showError && media.length > 0"
@@ -65,6 +80,7 @@
 
   <ion-infinite-scroll
     *ngIf="!showError && media.length > 0"
+    threshold="100px"
     (ionInfinite)="loadMoreAlbums($event)"
     [disabled]="isLoading || (!hasMoreAlbums && !searchTerm.trim()) || (searchTerm.trim() && searchOffset >= searchResults.length)"
   >

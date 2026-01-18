@@ -36,6 +36,7 @@ export class MedialistPage implements OnInit {
   ];
   showError = false;
   errorMessage = '';
+  scrollY = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -184,8 +185,22 @@ export class MedialistPage implements OnInit {
         ? `../api/spotify/artists/${artistId}/albums`
         : `http://localhost:8200/api/spotify/artists/${artistId}/albums`;
 
+      console.log(
+        'Fetching albums with URL:',
+        `${searchUrl}?offset=${this.offset}&limit=${this.limit}`
+      );
+
       this.http.get<any>(`${searchUrl}?offset=${this.offset}&limit=${this.limit}`).subscribe({
         next: response => {
+          console.log('Spotify API Response:', {
+            total: response?.total,
+            limit: response?.limit,
+            offset: response?.offset,
+            next: response?.next,
+            previous: response?.previous,
+            itemsCount: response?.items?.length,
+          });
+
           if (response && response.items) {
             const newAlbums = response.items.map(album => ({
               artist: this.artist.name,
@@ -468,6 +483,10 @@ export class MedialistPage implements OnInit {
     this.offset = 0;
     this.hasMoreAlbums = true;
     this.loadMediaFromArtist();
+  }
+
+  onScroll(event: any) {
+    this.scrollY = event.detail.scrollTop;
   }
 
   async searchAndFetchArtist(artistName: string) {
