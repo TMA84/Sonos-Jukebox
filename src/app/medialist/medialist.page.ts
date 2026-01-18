@@ -153,7 +153,28 @@ export class MedialistPage implements OnInit {
 
   fetchArtistAlbums(artistId: string, loadMore = false, retryCount = 0): Promise<void> {
     return new Promise(resolve => {
+      console.log(
+        'fetchArtistAlbums called - artistId:',
+        artistId,
+        'loadMore:',
+        loadMore,
+        'offset:',
+        this.offset,
+        'hasMoreAlbums:',
+        this.hasMoreAlbums,
+        'isLoading:',
+        this.isLoading
+      );
+
       if (this.isLoading || (!loadMore && !this.hasMoreAlbums)) {
+        console.log(
+          'Early return from fetchArtistAlbums - isLoading:',
+          this.isLoading,
+          'loadMore:',
+          loadMore,
+          'hasMoreAlbums:',
+          this.hasMoreAlbums
+        );
         resolve();
         return;
       }
@@ -190,9 +211,21 @@ export class MedialistPage implements OnInit {
             this.hasMoreAlbums = response.next !== null;
             this.offset += this.limit;
 
+            console.log(
+              'Album fetch complete - Offset:',
+              this.offset,
+              'Total albums:',
+              this.media.length,
+              'Has more:',
+              this.hasMoreAlbums,
+              'Response.next:',
+              response.next
+            );
+
             this.loadArtworkBatch(newAlbums.slice(0, 12));
           } else {
             this.hasMoreAlbums = false;
+            console.log('No items in response, setting hasMoreAlbums to false');
           }
 
           this.isLoading = false;
@@ -241,8 +274,12 @@ export class MedialistPage implements OnInit {
   }
 
   loadMoreAlbums(event?: any) {
-    console.log('loadMoreAlbums called, searchTerm:', this.searchTerm.trim());
-    console.log('hasMoreAlbums:', this.hasMoreAlbums, 'isLoading:', this.isLoading);
+    console.log('=== loadMoreAlbums called ===');
+    console.log('searchTerm:', this.searchTerm.trim());
+    console.log('hasMoreAlbums:', this.hasMoreAlbums);
+    console.log('isLoading:', this.isLoading);
+    console.log('current offset:', this.offset);
+    console.log('current media count:', this.media.length);
 
     // Handle search results pagination
     if (this.searchTerm.trim()) {
@@ -250,9 +287,6 @@ export class MedialistPage implements OnInit {
       const hasMore = this.loadMoreSearchResults();
       if (event) {
         event.target.complete();
-        if (!hasMore) {
-          event.target.disabled = true;
-        }
       }
       return;
     }
@@ -275,16 +309,23 @@ export class MedialistPage implements OnInit {
             );
 
             if (artistEntry && artistEntry.artistid) {
-              this.fetchArtistAlbums(artistEntry.artistid, true).then(() => {
-                if (event) {
-                  event.target.complete();
-                }
-              });
+              this.fetchArtistAlbums(artistEntry.artistid, true)
+                .then(() => {
+                  console.log('fetchArtistAlbums completed in loadMoreAlbums');
+                  if (event) {
+                    event.target.complete();
+                  }
+                })
+                .catch(err => {
+                  console.error('Error in fetchArtistAlbums:', err);
+                  if (event) {
+                    event.target.complete();
+                  }
+                });
             } else {
               console.log('No artist ID found for loading more albums');
               if (event) {
                 event.target.complete();
-                event.target.disabled = true;
               }
             }
           },
@@ -295,10 +336,15 @@ export class MedialistPage implements OnInit {
             }
           },
         });
-    } else if (event) {
-      event.target.complete();
-      if (!this.hasMoreAlbums) {
-        event.target.disabled = true;
+    } else {
+      console.log(
+        'Skipping load - hasMoreAlbums:',
+        this.hasMoreAlbums,
+        'isLoading:',
+        this.isLoading
+      );
+      if (event) {
+        event.target.complete();
       }
     }
   }

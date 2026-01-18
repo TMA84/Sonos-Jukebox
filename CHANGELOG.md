@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.25] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Album loading** - Enhanced logging and fixed infinite scroll for albums to load beyond 40 items
+- **Infinite scroll** - Improved infinite scroll reliability by using property binding instead of \*ngIf conditions
+- **Error handling** - Added catch block to ensure infinite scroll event always completes
+
 ## [2.2.24] - 2026-01-17
 
 ### 🐛 Bug Fixes

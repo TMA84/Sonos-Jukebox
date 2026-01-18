@@ -1,120 +1,126 @@
 <ion-header>
-    <ion-toolbar>
-        <ion-buttons slot="start">
-            <ion-back-button defaultHref="/home"></ion-back-button>
-        </ion-buttons>
-        <ion-title>{{artist.name}}</ion-title>
-        <ion-buttons slot="end">
-            <ion-button (click)="toggleSearch()">
-                <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
-            </ion-button>
-            <ion-button (click)="toggleKeyboard()">
-                <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
-    <ion-toolbar *ngIf="showSearch">
-        <ion-searchbar 
-            [(ngModel)]="searchTerm"
-            (ionInput)="onSearch()"
-            (ionFocus)="setActiveInput('search')"
-            placeholder="Search albums..."
-            debounce="300">
-        </ion-searchbar>
-    </ion-toolbar>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{artist.name}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleSearch()">
+        <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
+      </ion-button>
+      <ion-button (click)="toggleKeyboard()">
+        <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="showSearch">
+    <ion-searchbar
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearch()"
+      (ionFocus)="setActiveInput('search')"
+      placeholder="Search albums..."
+      debounce="300"
+    >
+    </ion-searchbar>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <!-- Error Message -->
-    <ion-card *ngIf="showError" color="danger">
-        <ion-card-header>
-            <ion-card-title>
-                <ion-icon name="warning-outline"></ion-icon>
-                Unable to Load Albums
-            </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-            <p>{{errorMessage}}</p>
-            <ion-button fill="outline" color="light" (click)="retryLoadAlbums()">
-                <ion-icon name="refresh-outline" slot="start"></ion-icon>
-                Try Again
-            </ion-button>
-        </ion-card-content>
-    </ion-card>
+  <!-- Error Message -->
+  <ion-card *ngIf="showError" color="danger">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="warning-outline"></ion-icon>
+        Unable to Load Albums
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>{{errorMessage}}</p>
+      <ion-button fill="outline" color="light" (click)="retryLoadAlbums()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Try Again
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
 
-    <!-- Loading Indicator -->
-    <ion-card *ngIf="isLoading && media.length === 0">
-        <ion-card-content class="ion-text-center">
-            <ion-spinner></ion-spinner>
-            <p>Loading albums...</p>
-        </ion-card-content>
-    </ion-card>
+  <!-- Loading Indicator -->
+  <ion-card *ngIf="isLoading && media.length === 0">
+    <ion-card-content class="ion-text-center">
+      <ion-spinner></ion-spinner>
+      <p>Loading albums...</p>
+    </ion-card-content>
+  </ion-card>
 
-    <!-- Albums Grid -->
-    <app-virtual-grid 
-        *ngIf="!showError && media.length > 0"
-        [items]="media" 
-        [covers]="covers"
-        [itemsPerPage]="12"
-        (itemClick)="coverClicked($event)"
-        (nameClick)="mediaNameClicked($event)"
-        (loadMoreArtwork)="loadMoreArtwork($event)">
-    </app-virtual-grid>
-    
-    <ion-infinite-scroll 
-        *ngIf="!showError && media.length > 0 && ((hasMoreAlbums && !searchTerm.trim()) || (searchTerm.trim() && searchOffset < searchResults.length))" 
-        (ionInfinite)="loadMoreAlbums($event)"
-        [disabled]="isLoading">
-        <ion-infinite-scroll-content
-            loadingSpinner="bubbles"
-            [loadingText]="searchTerm.trim() ? 'Loading more search results...' : 'Loading more albums...'">
-        </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+  <!-- Albums Grid -->
+  <app-virtual-grid
+    *ngIf="!showError && media.length > 0"
+    [items]="media"
+    [covers]="covers"
+    [itemsPerPage]="12"
+    (itemClick)="coverClicked($event)"
+    (nameClick)="mediaNameClicked($event)"
+    (loadMoreArtwork)="loadMoreArtwork($event)"
+  >
+  </app-virtual-grid>
 
-    <!-- Virtual Keyboard -->
-    <div *ngIf="showKeyboard" class="virtual-keyboard">
-        <ion-grid>
-            <ion-row>
-                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
-                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col size="1" *ngFor="let key of keyboardRows[0]">
-                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col size="1" *ngFor="let key of keyboardRows[1]">
-                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col size="1" *ngFor="let key of keyboardRows[2]">
-                    <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
-                    <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col size="2">
-                    <ion-button size="small" fill="outline" (click)="toggleCase()">{{isUpperCase ? 'abc' : 'ABC'}}</ion-button>
-                </ion-col>
-                <ion-col size="6">
-                    <ion-button size="small" fill="outline" (click)="addKey(' ')">Space</ion-button>
-                </ion-col>
-                <ion-col size="2">
-                    <ion-button size="small" fill="outline" (click)="backspace()">
-                        <ion-icon name="backspace-outline"></ion-icon>
-                    </ion-button>
-                </ion-col>
-                <ion-col size="2">
-                    <ion-button size="small" fill="solid" (click)="hideKeyboard()">Done</ion-button>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
-    </div>
+  <ion-infinite-scroll
+    *ngIf="!showError && media.length > 0"
+    (ionInfinite)="loadMoreAlbums($event)"
+    [disabled]="isLoading || (!hasMoreAlbums && !searchTerm.trim()) || (searchTerm.trim() && searchOffset >= searchResults.length)"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      [loadingText]="searchTerm.trim() ? 'Loading more search results...' : 'Loading more albums...'"
+    >
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <!-- Virtual Keyboard -->
+  <div *ngIf="showKeyboard" class="virtual-keyboard">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+          <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="1" *ngFor="let key of keyboardRows[0]">
+          <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="1" *ngFor="let key of keyboardRows[1]">
+          <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="1" *ngFor="let key of keyboardRows[2]">
+          <ion-button size="small" fill="outline" (click)="addKey(key)">{{key}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="1" *ngFor="let digit of ['1','2','3','4','5','6','7','8','9','0']">
+          <ion-button size="small" fill="outline" (click)="addKey(digit)">{{digit}}</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="2">
+          <ion-button size="small" fill="outline" (click)="toggleCase()"
+            >{{isUpperCase ? 'abc' : 'ABC'}}</ion-button
+          >
+        </ion-col>
+        <ion-col size="6">
+          <ion-button size="small" fill="outline" (click)="addKey(' ')">Space</ion-button>
+        </ion-col>
+        <ion-col size="2">
+          <ion-button size="small" fill="outline" (click)="backspace()">
+            <ion-icon name="backspace-outline"></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col size="2">
+          <ion-button size="small" fill="solid" (click)="hideKeyboard()">Done</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 </ion-content>
