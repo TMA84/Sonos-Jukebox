@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.39] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **Artwork loading** - Reset artwork tracking when category changes to load all covers
+
+## [2.2.38] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **Artwork loading** - Load artwork for all new items, not just first 12
+
 ## [2.2.37] - 2026-01-19
 
 ### 🐛 Bug Fixes

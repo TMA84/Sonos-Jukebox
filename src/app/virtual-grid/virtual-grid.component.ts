@@ -21,15 +21,23 @@ export class VirtualGridComponent implements OnChanges {
   lastLoadedCount = 0;
 
   ngOnChanges(changes: SimpleChanges) {
+    // If items array was replaced (not just added to), reset tracking
+    if (
+      changes['items'] &&
+      changes['items'].previousValue &&
+      changes['items'].currentValue.length < changes['items'].previousValue.length
+    ) {
+      this.lastLoadedCount = 0;
+    }
+
     this.applyFilter();
     this.displayedItems = this.filteredItems;
 
     // Load artwork for new items only
     if (this.filteredItems.length > this.lastLoadedCount) {
       const newItems = this.filteredItems.slice(this.lastLoadedCount);
-      const itemsToLoad = newItems.slice(0, this.itemsPerPage);
-      if (itemsToLoad.length > 0) {
-        this.loadMoreArtwork.emit(itemsToLoad);
+      if (newItems.length > 0) {
+        this.loadMoreArtwork.emit(newItems);
       }
       this.lastLoadedCount = this.filteredItems.length;
     }
@@ -40,12 +48,11 @@ export class VirtualGridComponent implements OnChanges {
     this.applyFilter();
     this.displayedItems = this.filteredItems;
 
-    // Load first batch of artwork
-    const itemsToLoad = this.filteredItems.slice(0, this.itemsPerPage);
-    if (itemsToLoad.length > 0) {
-      this.loadMoreArtwork.emit(itemsToLoad);
+    // Load artwork for all items
+    if (this.filteredItems.length > 0) {
+      this.loadMoreArtwork.emit(this.filteredItems);
     }
-    this.lastLoadedCount = Math.min(this.itemsPerPage, this.filteredItems.length);
+    this.lastLoadedCount = this.filteredItems.length;
   }
 
   onSearchChange(searchTerm: string) {
