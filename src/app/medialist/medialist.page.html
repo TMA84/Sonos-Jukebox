@@ -25,7 +25,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content (ionScroll)="onScroll($event)">
+<ion-content [scrollEvents]="true">
   <!-- Error Message -->
   <ion-card *ngIf="showError" color="danger">
     <ion-card-header>
@@ -51,21 +51,6 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- Debug Info -->
-  <ion-card *ngIf="media.length > 0" color="light">
-    <ion-card-content>
-      <p><strong>Debug Info:</strong></p>
-      <p>Total albums: {{media.length}}</p>
-      <p>Current offset: {{offset}}</p>
-      <p>Has more: {{hasMoreAlbums}}</p>
-      <p>Is loading: {{isLoading}}</p>
-      <p>Scroll Y: {{scrollY}}</p>
-      <ion-button size="small" (click)="loadMoreAlbums()" [disabled]="isLoading || !hasMoreAlbums">
-        Load More Manually
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
-
   <!-- Albums Grid -->
   <ion-grid *ngIf="!showError && media.length > 0">
     <ion-row>
@@ -87,23 +72,8 @@
     </ion-row>
   </ion-grid>
 
-  <ion-infinite-scroll
-    *ngIf="!showError && media.length > 0"
-    threshold="500px"
-    (ionInfinite)="loadMoreAlbums($event)"
-    [disabled]="isLoading || (!hasMoreAlbums && !searchTerm.trim()) || (searchTerm.trim() && searchOffset >= searchResults.length)"
-  >
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      [loadingText]="searchTerm.trim() ? 'Loading more search results...' : 'Loading more albums...'"
-    >
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-
-  <!-- Spacer to ensure page is scrollable for testing -->
-  <div style="height: 200px; background: rgba(255, 0, 0, 0.1); text-align: center; padding: 20px">
-    <p>Scroll Test Area - If you see this, infinite scroll should trigger above</p>
-  </div>
+  <!-- Scroll trigger for loading more albums -->
+  <div #scrollTrigger style="height: 1px"></div>
 
   <!-- Virtual Keyboard -->
   <div *ngIf="showKeyboard" class="virtual-keyboard">

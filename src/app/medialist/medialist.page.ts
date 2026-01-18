@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MediaService } from '../media.service';
@@ -13,7 +13,9 @@ import { environment } from '../../environments/environment';
   templateUrl: './medialist.page.html',
   styleUrls: ['./medialist.page.scss'],
 })
-export class MedialistPage implements OnInit {
+export class MedialistPage implements OnInit, AfterViewInit {
+  @ViewChild('scrollTrigger', { read: ElementRef }) scrollTrigger: ElementRef;
+
   artist: Artist;
   media: Media[] = [];
   allMedia: Media[] = [];
@@ -36,7 +38,6 @@ export class MedialistPage implements OnInit {
   ];
   showError = false;
   errorMessage = '';
-  scrollY = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -55,6 +56,28 @@ export class MedialistPage implements OnInit {
 
   ngOnInit() {
     this.loadMediaFromArtist();
+  }
+
+  ngAfterViewInit() {
+    // Set up Intersection Observer to detect when user scrolls near bottom
+    if (this.scrollTrigger) {
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && this.hasMoreAlbums && !this.isLoading) {
+              this.loadMoreAlbums();
+            }
+          });
+        },
+        {
+          root: null,
+          rootMargin: '200px',
+          threshold: 0.1,
+        }
+      );
+
+      observer.observe(this.scrollTrigger.nativeElement);
+    }
   }
 
   loadMediaFromArtist() {
@@ -154,30 +177,9 @@ export class MedialistPage implements OnInit {
 
   fetchArtistAlbums(artistId: string, loadMore = false, retryCount = 0): Promise<void> {
     return new Promise(resolve => {
-      console.log(
-        'fetchArtistAlbums called - artistId:',
-        artistId,
-        'loadMore:',
-        loadMore,
-        'offset:',
-        this.offset,
-        'hasMoreAlbums:',
-        this.hasMoreAlbums,
-        'isLoading:',
-        this.isLoading
-      );
-
       if (this.isLoading || (!loadMore && !this.hasMoreAlbums)) {
-        console.log(
-          'Early return from fetchArtistAlbums - isLoading:',
-          this.isLoading,
-          'loadMore:',
-          loadMore,
-          'hasMoreAlbums:',
-          this.hasMoreAlbums
-        );
         resolve();
-        return;
+        return();
       }
 
       this.isLoading = true;
@@ -185,22 +187,8 @@ export class MedialistPage implements OnInit {
         ? `../api/spotify/artists/${artistId}/albums`
         : `http://localhost:8200/api/spotify/artists/${artistId}/albums`;
 
-      console.log(
-        'Fetching albums with URL:',
-        `${searchUrl}?offset=${this.offset}&limit=${this.limit}`
-      );
-
       this.http.get<any>(`${searchUrl}?offset=${this.offset}&limit=${this.limit}`).subscribe({
         next: response => {
-          console.log('Spotify API Response:', {
-            total: response?.total,
-            limit: response?.limit,
-            offset: response?.offset,
-            next: response?.next,
-            previous: response?.previous,
-            itemsCount: response?.items?.length,
-          });
-
           if (response && response.items) {
             const newAlbums = response.items.map(album => ({
               artist: this.artist.name,
@@ -226,25 +214,12 @@ export class MedialistPage implements OnInit {
             this.hasMoreAlbums = response.next !== null;
             this.offset += this.limit;
 
-            console.log(
-              'Album fetch complete - Offset:',
-              this.offset,
-              'Total albums:',
-              this.media.length,
-              'Has more:',
-              this.hasMoreAlbums,
-              'Response.next:',
-              response.next
-            );
-
             this.loadArtworkBatch(newAlbums);
           } else {
             this.hasMoreAlbums = false;
-            console.log('No items in response, setting hasMoreAlbums to false');
           }
 
           this.isLoading = false;
-          console.log('Fetched albums for artist:', this.artist.name, 'Total:', this.media.length);
           resolve();
         },
         error: err => {
@@ -254,12 +229,10 @@ export class MedialistPage implements OnInit {
           // Retry up to 3 times with exponential backoff
           if (retryCount < 3) {
             const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
-            console.log(`Retrying in ${delay}ms... (attempt ${retryCount + 1}/3)`);
             setTimeout(() => {
               this.fetchArtistAlbums(artistId, loadMore, retryCount + 1).then(resolve);
             }, delay);
           } else {
-            console.error('Max retries reached, showing error message');
             this.hasMoreAlbums = false;
             this.showError = true;
             if (err.status === 429) {
@@ -289,16 +262,8 @@ export class MedialistPage implements OnInit {
   }
 
   loadMoreAlbums(event?: any) {
-    console.log('=== loadMoreAlbums called ===');
-    console.log('searchTerm:', this.searchTerm.trim());
-    console.log('hasMoreAlbums:', this.hasMoreAlbums);
-    console.log('isLoading:', this.isLoading);
-    console.log('current offset:', this.offset);
-    console.log('current media count:', this.media.length);
-
     // Handle search results pagination
     if (this.searchTerm.trim()) {
-      console.log('Loading more search results...');
       const hasMore = this.loadMoreSearchResults();
       if (event) {
         event.target.complete();
@@ -326,7 +291,6 @@ export class MedialistPage implements OnInit {
             if (artistEntry && artistEntry.artistid) {
               this.fetchArtistAlbums(artistEntry.artistid, true)
                 .then(() => {
-                  console.log('fetchArtistAlbums completed in loadMoreAlbums');
                   if (event) {
                     event.target.complete();
                   }
@@ -338,7 +302,6 @@ export class MedialistPage implements OnInit {
                   }
                 });
             } else {
-              console.log('No artist ID found for loading more albums');
               if (event) {
                 event.target.complete();
               }
@@ -352,12 +315,6 @@ export class MedialistPage implements OnInit {
           },
         });
     } else {
-      console.log(
-        'Skipping load - hasMoreAlbums:',
-        this.hasMoreAlbums,
-        'isLoading:',
-        this.isLoading
-      );
       if (event) {
         event.target.complete();
       }
@@ -417,20 +374,15 @@ export class MedialistPage implements OnInit {
   }
 
   loadMoreSearchResults() {
-    console.log('Loading more search results:', this.searchOffset, 'of', this.searchResults.length);
-
     if (!this.searchResults || this.searchOffset >= this.searchResults.length) {
-      console.log('No more search results to load');
       return false;
     }
 
     const nextBatch = this.searchResults.slice(this.searchOffset, this.searchOffset + 20);
-    console.log('Adding', nextBatch.length, 'more search results');
     this.media = [...this.media, ...nextBatch];
     this.searchOffset += 20;
 
     const hasMore = this.searchOffset < this.searchResults.length;
-    console.log('Has more search results:', hasMore);
     return hasMore;
   }
 
@@ -485,10 +437,6 @@ export class MedialistPage implements OnInit {
     this.loadMediaFromArtist();
   }
 
-  onScroll(event: any) {
-    this.scrollY = event.detail.scrollTop;
-  }
-
   async searchAndFetchArtist(artistName: string) {
     try {
       // Get Spotify token
@@ -507,7 +455,6 @@ export class MedialistPage implements OnInit {
 
       if (data.artists && data.artists.items && data.artists.items.length > 0) {
         const artist = data.artists.items[0];
-        console.log('Found artist on Spotify:', artist.name, 'ID:', artist.id);
 
         // Update the database with the artist ID
         const clientId = this.getArtistClientId();
@@ -532,8 +479,6 @@ export class MedialistPage implements OnInit {
               clientId,
             })
             .toPromise();
-
-          console.log('Updated artist with ID:', artist.id);
         }
 
         // Now fetch albums with the found artist ID

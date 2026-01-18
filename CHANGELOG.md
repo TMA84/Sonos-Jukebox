@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.33] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Cleanup** - Removed all debug code, logs, and test elements
+- **Production ready** - Clean implementation with Intersection Observer for infinite scroll
+
+## [2.2.32] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Infinite scroll** - Added Intersection Observer as fallback since ion-infinite-scroll isn't triggering
+- **Auto-load** - Albums will now load automatically when scroll trigger element becomes visible
+
+## [2.2.31] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+- **Infinite scroll debug** - Disabled condition check, enabled scrollEvents, added detailed scroll logging
+- **Testing** - Simplified to isolate why infinite scroll isn't triggering
+
 ## [2.2.30] - 2026-01-18
 
 ### 🐛 Bug Fixes
