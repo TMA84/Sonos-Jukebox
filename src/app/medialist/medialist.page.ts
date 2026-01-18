@@ -179,7 +179,7 @@ export class MedialistPage implements OnInit, AfterViewInit {
     return new Promise(resolve => {
       if (this.isLoading || (!loadMore && !this.hasMoreAlbums)) {
         resolve();
-        return();
+        return;
       }
 
       this.isLoading = true;
