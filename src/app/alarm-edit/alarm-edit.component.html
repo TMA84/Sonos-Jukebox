@@ -1,0 +1,115 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ alarm.id ? 'Edit' : 'Create' }} Alarm</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card class="modern-card">
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Alarm Name (optional)</ion-label>
+        <ion-input [(ngModel)]="alarm.name" placeholder="Auto-generated based on time"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="medium">
+          <small>Leave empty to auto-generate name</small>
+        </ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Time</ion-label>
+        <ion-datetime
+          [(ngModel)]="alarmTime"
+          presentation="time"
+          [preferWheel]="true"
+          [hourCycle]="'h23'"
+          (ionChange)="onTimeChange()"
+        >
+        </ion-datetime>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Repeat</ion-label>
+      </ion-item>
+      <div class="days-selector">
+        <ion-chip
+          *ngFor="let day of weekDays"
+          [class.selected]="isDaySelected(day.value)"
+          (click)="toggleDay(day.value)"
+        >
+          {{ day.label }}
+        </ion-chip>
+      </div>
+      <ion-item>
+        <ion-label color="medium">
+          <small>Leave all unselected for one-time alarm</small>
+        </ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Content to Play</ion-label>
+        <ion-select
+          [(ngModel)]="alarm.mediaId"
+          placeholder="Select content"
+          (ionChange)="onMediaChange()"
+          interface="action-sheet"
+        >
+          <ion-select-option *ngIf="libraryItems.length === 0" disabled>
+            No content available - Add items to your library first
+          </ion-select-option>
+          <ion-select-option *ngFor="let item of libraryItems" [value]="item.id || item.title">
+            {{ item.title }} - {{ item.artist }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item *ngIf="libraryItems.length === 0">
+        <ion-label color="warning">
+          <small>Please add content to your library before creating an alarm</small>
+        </ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Volume: {{ alarm.volume || 30 }}%</ion-label>
+        <ion-range
+          [(ngModel)]="alarm.volume"
+          [min]="0"
+          [max]="100"
+          [step]="5"
+          [pin]="true"
+        ></ion-range>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Fade In</ion-label>
+        <ion-toggle [(ngModel)]="alarm.fadeIn"></ion-toggle>
+      </ion-item>
+
+      <ion-item *ngIf="alarm.fadeIn">
+        <ion-label>Fade Duration: {{ alarm.fadeDuration || 30 }}s</ion-label>
+        <ion-range
+          [(ngModel)]="alarm.fadeDuration"
+          [min]="10"
+          [max]="300"
+          [step]="10"
+          [pin]="true"
+        ></ion-range>
+      </ion-item>
+
+      <ion-button
+        class="modern-button primary"
+        expand="block"
+        (click)="saveAlarm()"
+        [disabled]="!alarm.time || !alarm.mediaId"
+      >
+        <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+        Save Alarm
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

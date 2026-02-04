@@ -9,6 +9,7 @@ import { PlayerService } from '../player.service';
 import { ActivityIndicatorService } from '../activity-indicator.service';
 import { ClientService } from '../client.service';
 import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
+import { AlarmManagerComponent } from '../alarm-manager/alarm-manager.component';
 import { Artist } from '../artist';
 import { Media } from '../media';
 
@@ -34,6 +35,7 @@ export class HomePage implements OnInit, AfterViewInit {
   filteredArtists: Artist[] = [];
   filteredMedia: Media[] = [];
   clientName = '';
+  enableAlarmClock = true;
   hasMoreArtists = true;
   currentPage = 0;
   pageSize = 12;
@@ -238,6 +240,15 @@ export class HomePage implements OnInit, AfterViewInit {
     this.loadArtistArtworkBatch(items);
   }
 
+  async openAlarmManager() {
+    const modal = await this.modalController.create({
+      component: AlarmManagerComponent,
+      cssClass: 'alarm-manager-modal',
+    });
+
+    return await modal.present();
+  }
+
   configButtonPressed() {
     this.router.navigate(['/config']);
   }
@@ -332,6 +343,16 @@ export class HomePage implements OnInit, AfterViewInit {
       this.clientName = name;
       console.log('Loaded client display name:', name);
     });
+
+    // Load alarm clock setting
+    const clientId = this.clientService.getClientId();
+    this.http
+      .get<any>(`${environment.apiUrl}/config/client`, {
+        params: { clientId },
+      })
+      .subscribe(config => {
+        this.enableAlarmClock = config.enableAlarmClock !== false;
+      });
   }
 
   goToPlayer() {

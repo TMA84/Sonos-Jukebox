@@ -1,0 +1,18 @@
+.days-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+  justify-content: center;
+}
+
+.days-selector ion-chip {
+  cursor: pointer;
+  --background: var(--ion-color-light);
+  --color: var(--ion-color-dark);
+}
+
+.days-selector ion-chip.selected {
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-primary-contrast);
+}

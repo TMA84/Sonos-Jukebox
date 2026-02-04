@@ -8,6 +8,8 @@ import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ArtistSearchComponent } from '../artist-search/artist-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
 import { RadioSearchComponent } from '../radio-search/radio-search.component';
+import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
+import { AlarmService, Alarm } from '../alarm.service';
 
 @Component({
   selector: 'app-config',
@@ -42,18 +44,21 @@ export class ConfigPage implements OnInit {
   libraryItems: any[] = [];
   editingIndex: number = -1;
   enableSpeakerSelection = true;
+  enableAlarmClock = true;
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
     tunein: true, // TuneIn doesn't need configuration
   };
+  alarms: Alarm[] = [];
 
   constructor(
     private http: HttpClient,
     private clientService: ClientService,
     private router: Router,
     private toastController: ToastController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private alarmService: AlarmService
   ) {}
 
   ngOnInit() {
@@ -65,6 +70,7 @@ export class ConfigPage implements OnInit {
     this.loadClientName();
     this.loadLibraryItems();
     this.loadSpeakerSelectionSetting();
+    this.loadAlarms();
     this.findSpeakers(); // Automatically load speakers on page load
   }
 
@@ -869,9 +875,9 @@ export class ConfigPage implements OnInit {
       })
       .subscribe(config => {
         this.enableSpeakerSelection = config.enableSpeakerSelection !== false;
+        this.enableAlarmClock = config.enableAlarmClock !== false;
       });
   }
-
   async saveSpeakerSelectionSetting() {
     const saveUrl = `${environment.apiUrl}/config/client`;
     this.http
@@ -888,6 +894,39 @@ export class ConfigPage implements OnInit {
           console.log('Speaker selection setting saved:', response);
           const toast = await this.toastController.create({
             message: 'Speaker selection setting saved',
+            duration: 2000,
+            color: 'success',
+          });
+          toast.present();
+        },
+        error: async error => {
+          console.error('Error saving speaker selection setting:', error);
+          const toast = await this.toastController.create({
+            message: 'Error saving speaker selection setting',
+            duration: 2000,
+            color: 'danger',
+          });
+          toast.present();
+        },
+      });
+  }
+
+  async saveAlarmClockSetting() {
+    const saveUrl = `${environment.apiUrl}/config/client`;
+    this.http
+      .post(
+        saveUrl,
+        {
+          clientId: this.clientId,
+          enableAlarmClock: this.enableAlarmClock,
+        },
+        { responseType: 'text' }
+      )
+      .subscribe({
+        next: async response => {
+          console.log('Alarm clock setting saved:', response);
+          const toast = await this.toastController.create({
+            message: 'Alarm clock setting saved',
             duration: 2000,
             color: 'success',
           });
@@ -945,5 +984,153 @@ export class ConfigPage implements OnInit {
     return id
       ? `https://cdn-radiotime-logos.tunein.com/${id}q.png`
       : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
+  }
+
+  // Alarm methods
+  loadAlarms() {
+    this.alarmService.getAlarms(this.clientId).subscribe({
+      next: alarms => {
+        this.alarms = alarms;
+      },
+      error: err => {
+        console.error('Failed to load alarms:', err);
+        this.alarms = [];
+      },
+    });
+  }
+
+  async createNewAlarm() {
+    const modal = await this.modalController.create({
+      component: AlarmEditComponent,
+      componentProps: {
+        alarm: {
+          clientId: this.clientId,
+          name: '',
+          time: '07:00',
+          enabled: true,
+          days: [],
+          volume: 30,
+          fadeIn: true,
+          fadeDuration: 30,
+        },
+        libraryItems: this.libraryItems,
+      },
+      cssClass: 'alarm-edit-modal',
+    });
+
+    modal.onDidDismiss().then(result => {
+      if (result.data) {
+        this.alarmService.createAlarm(result.data).subscribe({
+          next: async () => {
+            this.loadAlarms();
+            const toast = await this.toastController.create({
+              message: 'Alarm created successfully',
+              duration: 2000,
+              color: 'success',
+            });
+            toast.present();
+          },
+          error: async err => {
+            console.error('Failed to create alarm:', err);
+            const toast = await this.toastController.create({
+              message: 'Failed to create alarm',
+              duration: 2000,
+              color: 'danger',
+            });
+            toast.present();
+          },
+        });
+      }
+    });
+
+    return await modal.present();
+  }
+
+  async editAlarm(alarm: Alarm) {
+    const modal = await this.modalController.create({
+      component: AlarmEditComponent,
+      componentProps: {
+        alarm: { ...alarm },
+        libraryItems: this.libraryItems,
+      },
+      cssClass: 'alarm-edit-modal',
+    });
+
+    modal.onDidDismiss().then(result => {
+      if (result.data) {
+        this.alarmService.updateAlarm(result.data).subscribe({
+          next: async () => {
+            this.loadAlarms();
+            const toast = await this.toastController.create({
+              message: 'Alarm updated successfully',
+              duration: 2000,
+              color: 'success',
+            });
+            toast.present();
+          },
+          error: async err => {
+            console.error('Failed to update alarm:', err);
+            const toast = await this.toastController.create({
+              message: 'Failed to update alarm',
+              duration: 2000,
+              color: 'danger',
+            });
+            toast.present();
+          },
+        });
+      }
+    });
+
+    return await modal.present();
+  }
+
+  async deleteAlarm(alarm: Alarm) {
+    if (!alarm.id) return;
+
+    this.alarmService.deleteAlarm(alarm.id).subscribe({
+      next: async () => {
+        this.loadAlarms();
+        const toast = await this.toastController.create({
+          message: 'Alarm deleted successfully',
+          duration: 2000,
+          color: 'success',
+        });
+        toast.present();
+      },
+      error: async err => {
+        console.error('Failed to delete alarm:', err);
+        const toast = await this.toastController.create({
+          message: 'Failed to delete alarm',
+          duration: 2000,
+          color: 'danger',
+        });
+        toast.present();
+      },
+    });
+  }
+
+  toggleAlarmEnabled(alarm: Alarm) {
+    if (!alarm.id) return;
+
+    this.alarmService.toggleAlarm(alarm.id, alarm.enabled).subscribe({
+      next: () => {
+        console.log('Alarm toggled:', alarm.enabled);
+      },
+      error: err => {
+        console.error('Failed to toggle alarm:', err);
+        alarm.enabled = !alarm.enabled; // Revert on error
+      },
+    });
+  }
+
+  getAlarmDaysText(alarm: Alarm): string {
+    if (alarm.days.length === 0) {
+      return 'One time';
+    }
+    if (alarm.days.length === 7) {
+      return 'Every day';
+    }
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return alarm.days.map(d => dayNames[d]).join(', ');
   }
 }

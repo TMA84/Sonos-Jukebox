@@ -53,6 +53,7 @@ async function initializeDatabase() {
             name TEXT NOT NULL,
             room TEXT,
             enableSpeakerSelection INTEGER DEFAULT 1,
+            enableAlarmClock INTEGER DEFAULT 1,
             sleepTimer INTEGER DEFAULT 0,
             isActive INTEGER DEFAULT 1,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -76,6 +77,24 @@ async function initializeDatabase() {
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id, clientId),
+            FOREIGN KEY (clientId) REFERENCES clients(id)
+        )`);
+
+    // Create alarms table
+    await dbRun(`CREATE TABLE IF NOT EXISTS alarms (
+            id TEXT PRIMARY KEY,
+            clientId TEXT NOT NULL,
+            name TEXT NOT NULL,
+            time TEXT NOT NULL,
+            enabled INTEGER DEFAULT 1,
+            days TEXT,
+            mediaId TEXT,
+            mediaTitle TEXT,
+            volume INTEGER DEFAULT 30,
+            fadeIn INTEGER DEFAULT 1,
+            fadeDuration INTEGER DEFAULT 30,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (clientId) REFERENCES clients(id)
         )`);
 
@@ -107,12 +126,18 @@ async function migrateClientsSchema() {
     // Check if migration is needed by looking at table schema
     const tableInfo = await dbAll('PRAGMA table_info(clients)');
     const hasEnableSpeakerSelection = tableInfo.some(col => col.name === 'enableSpeakerSelection');
+    const hasEnableAlarmClock = tableInfo.some(col => col.name === 'enableAlarmClock');
     const hasSleepTimer = tableInfo.some(col => col.name === 'sleepTimer');
     const hasUpdatedAt = tableInfo.some(col => col.name === 'updatedAt');
 
     if (!hasEnableSpeakerSelection) {
       console.log('Adding enableSpeakerSelection column to clients table...');
       await dbRun('ALTER TABLE clients ADD COLUMN enableSpeakerSelection INTEGER DEFAULT 1');
+    }
+
+    if (!hasEnableAlarmClock) {
+      console.log('Adding enableAlarmClock column to clients table...');
+      await dbRun('ALTER TABLE clients ADD COLUMN enableAlarmClock INTEGER DEFAULT 1');
     }
 
     if (!hasSleepTimer) {
@@ -810,6 +835,341 @@ app.delete('/api/media/:id', async (req, res) => {
   }
 });
 
+// ===== ALARM ROUTES =====
+
+// Get alarms for client
+app.get('/api/alarms', async (req, res) => {
+  try {
+    const { clientId } = req.query;
+
+    if (!clientId) {
+      return res.status(400).json({ error: 'Client ID required' });
+    }
+
+    const alarms = await dbAll('SELECT * FROM alarms WHERE clientId = ? ORDER BY time ASC', [
+      clientId,
+    ]);
+
+    // Parse days JSON string back to array
+    const parsedAlarms = alarms.map(alarm => ({
+      ...alarm,
+      days: alarm.days ? JSON.parse(alarm.days) : [],
+      enabled: Boolean(alarm.enabled),
+      fadeIn: Boolean(alarm.fadeIn),
+    }));
+
+    res.json(parsedAlarms);
+  } catch (error) {
+    console.error('Error getting alarms:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Create alarm
+app.post('/api/alarms', async (req, res) => {
+  try {
+    const {
+      clientId,
+      name,
+      time,
+      enabled,
+      days,
+      mediaId,
+      mediaTitle,
+      volume,
+      fadeIn,
+      fadeDuration,
+    } = req.body;
+
+    if (!clientId || !name || !time) {
+      return res.status(400).json({ error: 'Client ID, name, and time are required' });
+    }
+
+    const id = uuidv4();
+    const daysJson = JSON.stringify(days || []);
+
+    await dbRun(
+      `INSERT INTO alarms (id, clientId, name, time, enabled, days, mediaId, mediaTitle, volume, fadeIn, fadeDuration)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        clientId,
+        name,
+        time,
+        enabled ? 1 : 0,
+        daysJson,
+        mediaId,
+        mediaTitle,
+        volume || 30,
+        fadeIn ? 1 : 0,
+        fadeDuration || 30,
+      ]
+    );
+
+    const alarm = await dbGet('SELECT * FROM alarms WHERE id = ?', [id]);
+    const parsedAlarm = {
+      ...alarm,
+      days: alarm.days ? JSON.parse(alarm.days) : [],
+      enabled: Boolean(alarm.enabled),
+      fadeIn: Boolean(alarm.fadeIn),
+    };
+
+    res.json(parsedAlarm);
+  } catch (error) {
+    console.error('Error creating alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update alarm
+app.put('/api/alarms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, time, enabled, days, mediaId, mediaTitle, volume, fadeIn, fadeDuration } =
+      req.body;
+
+    const daysJson = JSON.stringify(days || []);
+
+    const result = await dbRun(
+      `UPDATE alarms 
+       SET name = ?, time = ?, enabled = ?, days = ?, mediaId = ?, mediaTitle = ?, volume = ?, fadeIn = ?, fadeDuration = ?, updatedAt = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+      [
+        name,
+        time,
+        enabled ? 1 : 0,
+        daysJson,
+        mediaId,
+        mediaTitle,
+        volume,
+        fadeIn ? 1 : 0,
+        fadeDuration,
+        id,
+      ]
+    );
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Alarm not found' });
+    }
+
+    const alarm = await dbGet('SELECT * FROM alarms WHERE id = ?', [id]);
+    const parsedAlarm = {
+      ...alarm,
+      days: alarm.days ? JSON.parse(alarm.days) : [],
+      enabled: Boolean(alarm.enabled),
+      fadeIn: Boolean(alarm.fadeIn),
+    };
+
+    res.json(parsedAlarm);
+  } catch (error) {
+    console.error('Error updating alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Toggle alarm enabled/disabled
+app.patch('/api/alarms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { enabled } = req.body;
+
+    const result = await dbRun(
+      'UPDATE alarms SET enabled = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?',
+      [enabled ? 1 : 0, id]
+    );
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Alarm not found' });
+    }
+
+    const alarm = await dbGet('SELECT * FROM alarms WHERE id = ?', [id]);
+    const parsedAlarm = {
+      ...alarm,
+      days: alarm.days ? JSON.parse(alarm.days) : [],
+      enabled: Boolean(alarm.enabled),
+      fadeIn: Boolean(alarm.fadeIn),
+    };
+
+    res.json(parsedAlarm);
+  } catch (error) {
+    console.error('Error toggling alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete alarm
+app.delete('/api/alarms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await dbRun('DELETE FROM alarms WHERE id = ?', [id]);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Alarm not found' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Test alarm (manually trigger)
+app.post('/api/alarms/:id/test', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const alarm = await dbGet('SELECT * FROM alarms WHERE id = ?', [id]);
+
+    if (!alarm) {
+      return res.status(404).json({ error: 'Alarm not found' });
+    }
+
+    console.log(`[Test Alarm] Manually triggering alarm: ${alarm.name}`);
+    await triggerAlarm(alarm);
+
+    res.json({ success: true, message: `Alarm "${alarm.name}" triggered successfully` });
+  } catch (error) {
+    console.error('Error testing alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Stop alarm (pause playback)
+app.post('/api/alarms/stop', async (req, res) => {
+  try {
+    const { clientId } = req.body;
+
+    if (!clientId) {
+      return res.status(400).json({ error: 'Client ID required' });
+    }
+
+    // Get client's speaker
+    const client = await dbGet('SELECT * FROM clients WHERE id = ?', [clientId]);
+    if (!client || !client.room) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    const sonosServer = process.env.SONOS_SERVER || '172.30.0.50';
+    const sonosPort = process.env.SONOS_PORT || '5005';
+    const pauseUrl = `http://${sonosServer}:${sonosPort}/${encodeURIComponent(client.room)}/pause`;
+
+    console.log(`[Alarm Stop] Stopping alarm for client ${clientId}, speaker: ${client.room}`);
+    await fetch(pauseUrl);
+
+    // Delete any snooze alarms for this client
+    await dbRun('DELETE FROM alarms WHERE clientId = ? AND name LIKE ?', [clientId, '%Snooze%']);
+    console.log(`[Alarm Stop] Deleted snooze alarms for client ${clientId}`);
+
+    // Clear active alarm for this client
+    activeAlarms.delete(clientId);
+
+    res.json({ success: true, message: 'Alarm stopped' });
+  } catch (error) {
+    console.error('Error stopping alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Snooze alarm (reschedule for X minutes later)
+app.post('/api/alarms/:id/snooze', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { minutes } = req.body;
+
+    if (!minutes || minutes < 1) {
+      return res.status(400).json({ error: 'Valid snooze duration required' });
+    }
+
+    const alarm = await dbGet('SELECT * FROM alarms WHERE id = ?', [id]);
+    if (!alarm) {
+      return res.status(404).json({ error: 'Alarm not found' });
+    }
+
+    // Delete any existing snooze alarms for this client
+    await dbRun('DELETE FROM alarms WHERE clientId = ? AND name LIKE ?', [
+      alarm.clientId,
+      '%Snooze%',
+    ]);
+    console.log(`[Alarm Snooze] Deleted previous snooze alarms for client ${alarm.clientId}`);
+
+    // Calculate new time
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + minutes);
+    const snoozeTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    // Create a temporary one-time alarm for the snooze
+    const snoozeAlarm = {
+      id: uuidv4(),
+      clientId: alarm.clientId,
+      name: `${alarm.name} (Snooze)`,
+      time: snoozeTime,
+      enabled: 1,
+      days: '[]', // One-time
+      mediaId: alarm.mediaId,
+      mediaTitle: alarm.mediaTitle,
+      volume: alarm.volume,
+      fadeIn: alarm.fadeIn,
+      fadeDuration: alarm.fadeDuration,
+    };
+
+    await dbRun(
+      `INSERT INTO alarms (id, clientId, name, time, enabled, days, mediaId, mediaTitle, volume, fadeIn, fadeDuration)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        snoozeAlarm.id,
+        snoozeAlarm.clientId,
+        snoozeAlarm.name,
+        snoozeAlarm.time,
+        snoozeAlarm.enabled,
+        snoozeAlarm.days,
+        snoozeAlarm.mediaId,
+        snoozeAlarm.mediaTitle,
+        snoozeAlarm.volume,
+        snoozeAlarm.fadeIn,
+        snoozeAlarm.fadeDuration,
+      ]
+    );
+
+    // Pause current playback
+    const client = await dbGet('SELECT * FROM clients WHERE id = ?', [alarm.clientId]);
+    if (client && client.room) {
+      const sonosServer = process.env.SONOS_SERVER || '172.30.0.50';
+      const sonosPort = process.env.SONOS_PORT || '5005';
+      const pauseUrl = `http://${sonosServer}:${sonosPort}/${encodeURIComponent(client.room)}/pause`;
+      await fetch(pauseUrl);
+    }
+
+    console.log(
+      `[Alarm Snooze] Alarm "${alarm.name}" snoozed for ${minutes} minutes until ${snoozeTime}`
+    );
+    res.json({ success: true, message: `Alarm snoozed for ${minutes} minutes`, snoozeTime });
+  } catch (error) {
+    console.error('Error snoozing alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get active alarm for client
+app.get('/api/alarms/active', async (req, res) => {
+  try {
+    const { clientId } = req.query;
+
+    if (!clientId) {
+      return res.status(400).json({ error: 'Client ID required' });
+    }
+
+    const activeAlarm = activeAlarms.get(clientId);
+    if (activeAlarm) {
+      res.json({ alarm: activeAlarm });
+    } else {
+      res.status(404).json({ error: 'No active alarm' });
+    }
+  } catch (error) {
+    console.error('Error getting active alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get Spotify token
 app.get('/api/token', async (req, res) => {
   try {
@@ -1010,6 +1370,7 @@ app.get('/api/config/client', async (req, res) => {
       room: client.room,
       sleepTimer: client.sleepTimer || 0,
       enableSpeakerSelection: !!client.enableSpeakerSelection,
+      enableAlarmClock: client.enableAlarmClock !== 0,
     });
   } catch (error) {
     console.error('Error getting client config:', error);
@@ -1019,7 +1380,7 @@ app.get('/api/config/client', async (req, res) => {
 
 app.post('/api/config/client', async (req, res) => {
   try {
-    const { clientId, name, room, enableSpeakerSelection } = req.body;
+    const { clientId, name, room, enableSpeakerSelection, enableAlarmClock } = req.body;
 
     if (!clientId) {
       return res.status(400).json({ error: 'Client ID required' });
@@ -1048,6 +1409,11 @@ app.post('/api/config/client', async (req, res) => {
     if (enableSpeakerSelection !== undefined) {
       updates.push('enableSpeakerSelection = ?');
       values.push(enableSpeakerSelection ? 1 : 0);
+    }
+
+    if (enableAlarmClock !== undefined) {
+      updates.push('enableAlarmClock = ?');
+      values.push(enableAlarmClock ? 1 : 0);
     }
 
     if (updates.length === 0) {
@@ -1608,16 +1974,305 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'www', 'index.html'));
 });
 
+// ===== ALARM SCHEDULER SERVICE =====
+
+let alarmCheckInterval = null;
+let lastCheckedMinute = null;
+let activeAlarms = new Map(); // Track active alarms per client: clientId -> { alarm, triggeredAt }
+
+async function checkAndTriggerAlarms() {
+  try {
+    const now = new Date();
+    const currentDay = now.getDay(); // 0=Sunday, 1=Monday, etc.
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const currentMinute = `${currentDay}-${currentTime}`;
+
+    // Prevent duplicate triggers within the same minute
+    if (currentMinute === lastCheckedMinute) {
+      return;
+    }
+    lastCheckedMinute = currentMinute;
+
+    console.log(`[Alarm Check] Current time: ${currentTime}, Day: ${currentDay}`);
+
+    // Get all enabled alarms
+    const alarms = await dbAll('SELECT * FROM alarms WHERE enabled = 1');
+    console.log(`[Alarm Check] Found ${alarms.length} enabled alarms`);
+
+    if (alarms.length > 0) {
+      alarms.forEach(alarm => {
+        const days = alarm.days ? JSON.parse(alarm.days) : [];
+        console.log(
+          `  - ${alarm.name}: time=${alarm.time}, days=${JSON.stringify(days)}, enabled=${alarm.enabled}`
+        );
+      });
+    }
+
+    for (const alarm of alarms) {
+      // Check if alarm time matches
+      if (alarm.time !== currentTime) {
+        continue;
+      }
+
+      console.log(`[Alarm Match] Time matches for alarm: ${alarm.name}`);
+
+      // Parse days array
+      const days = alarm.days ? JSON.parse(alarm.days) : [];
+
+      // Check if alarm should trigger today
+      let shouldTrigger = false;
+      if (days.length === 0) {
+        // One-time alarm - trigger once and disable
+        shouldTrigger = true;
+        await dbRun('UPDATE alarms SET enabled = 0 WHERE id = ?', [alarm.id]);
+        console.log(`[Alarm Trigger] One-time alarm "${alarm.name}" triggered and disabled`);
+      } else if (days.includes(currentDay)) {
+        // Recurring alarm - check if today is included
+        shouldTrigger = true;
+        console.log(
+          `[Alarm Trigger] Recurring alarm "${alarm.name}" triggered (day ${currentDay} is in schedule)`
+        );
+      } else {
+        console.log(
+          `[Alarm Skip] Alarm "${alarm.name}" not scheduled for today (day ${currentDay})`
+        );
+      }
+
+      if (shouldTrigger) {
+        console.log(
+          `[Alarm Execute] Triggering alarm: ${alarm.name} at ${currentTime} for client ${alarm.clientId}`
+        );
+        await triggerAlarm(alarm);
+      }
+    }
+  } catch (error) {
+    console.error('[Alarm Error] Error checking alarms:', error);
+  }
+}
+
+async function triggerAlarm(alarm) {
+  try {
+    console.log(`[Trigger Alarm] Starting alarm: ${alarm.name}`);
+
+    // Get client configuration
+    const client = await dbGet('SELECT * FROM clients WHERE id = ?', [alarm.clientId]);
+    if (!client || !client.room) {
+      console.error(`[Trigger Alarm] No speaker configured for client ${alarm.clientId}`);
+      return;
+    }
+
+    const speaker = client.room;
+    console.log(`[Trigger Alarm] Speaker: ${speaker}`);
+
+    // Get media item to play
+    if (!alarm.mediaId) {
+      console.error(`[Trigger Alarm] No media configured for alarm ${alarm.name}`);
+      return;
+    }
+
+    console.log(`[Trigger Alarm] Looking for media with ID: ${alarm.mediaId}`);
+    const mediaItem = await dbGet(
+      'SELECT * FROM media_items WHERE (id = ? OR title = ?) AND clientId = ?',
+      [alarm.mediaId, alarm.mediaId, alarm.clientId]
+    );
+
+    if (!mediaItem) {
+      console.error(
+        `[Trigger Alarm] Media item not found for alarm ${alarm.name}, mediaId: ${alarm.mediaId}`
+      );
+      return;
+    }
+
+    console.log(
+      `[Trigger Alarm] Found media: ${mediaItem.title} by ${mediaItem.artist}, type: ${mediaItem.type}`
+    );
+
+    // Parse metadata if it exists
+    let metadata = {};
+    if (mediaItem.metadata) {
+      try {
+        metadata = JSON.parse(mediaItem.metadata);
+        console.log(`[Trigger Alarm] Parsed metadata:`, JSON.stringify(metadata));
+      } catch (e) {
+        console.log('[Trigger Alarm] Could not parse metadata:', e.message);
+      }
+    }
+
+    // Prepare volume settings
+    const targetVolume = alarm.volume || 30;
+    const startVolume = alarm.fadeIn ? 5 : targetVolume; // Start at 5% if fade-in is enabled
+    const sonosServer = process.env.SONOS_SERVER || '172.30.0.50';
+    const sonosPort = process.env.SONOS_PORT || '5005';
+    const sonosBaseUrl = `http://${sonosServer}:${sonosPort}`;
+
+    // Set initial volume BEFORE playing
+    try {
+      const volumeUrl = `${sonosBaseUrl}/${encodeURIComponent(speaker)}/volume/${startVolume}`;
+      console.log(`[Trigger Alarm] Setting initial volume: ${volumeUrl}`);
+      const volumeResponse = await fetch(volumeUrl);
+      console.log(
+        `[Trigger Alarm] Volume set to ${startVolume}%, status: ${volumeResponse.status}`
+      );
+    } catch (error) {
+      console.error('[Trigger Alarm] Error setting volume:', error.message);
+    }
+
+    // Play media based on type
+    let playUrl = '';
+    const artistid = mediaItem.artistid || metadata.artistid;
+    const spotifyId = mediaItem.spotifyId || metadata.spotifyId || mediaItem.id;
+    const contentType = mediaItem.contentType || metadata.contentType;
+
+    console.log(
+      `[Trigger Alarm] Media details - artistid: ${artistid}, spotifyId: ${spotifyId}, contentType: ${contentType}`
+    );
+
+    if (mediaItem.type === 'spotify') {
+      if (artistid && contentType === 'artist') {
+        // For artists, fetch their albums and play the first one
+        console.log(`[Trigger Alarm] Fetching albums for artist: ${artistid}`);
+        try {
+          const albumsResponse = await fetch(
+            `http://localhost:8200/api/spotify/artists/${artistid}/albums?limit=1`
+          );
+          const albumsData = await albumsResponse.json();
+
+          if (albumsData.items && albumsData.items.length > 0) {
+            const firstAlbum = albumsData.items[0];
+            playUrl = `${sonosBaseUrl}/${encodeURIComponent(speaker)}/spotify/now/spotify:album:${firstAlbum.id}`;
+            console.log(
+              `[Trigger Alarm] Playing first album: ${firstAlbum.name} (${firstAlbum.id})`
+            );
+          } else {
+            console.error(`[Trigger Alarm] No albums found for artist ${artistid}`);
+            return;
+          }
+        } catch (error) {
+          console.error(`[Trigger Alarm] Error fetching artist albums:`, error.message);
+          return;
+        }
+      } else if (spotifyId) {
+        // Play specific album/playlist
+        const uriType =
+          contentType === 'show' ? 'show' : contentType === 'audiobook' ? 'audiobook' : 'album';
+        playUrl = `${sonosBaseUrl}/${encodeURIComponent(speaker)}/spotify/now/spotify:${uriType}:${spotifyId}`;
+        console.log(`[Trigger Alarm] Playing ${uriType}: ${spotifyId}`);
+      }
+    } else if (mediaItem.type === 'tunein') {
+      // Play TuneIn radio station - use set endpoint then play
+      const stationId = metadata.id || mediaItem.id;
+      const cleanId = stationId.startsWith('s') ? stationId.substring(1) : stationId;
+      const setUrl = `${sonosBaseUrl}/${encodeURIComponent(speaker)}/tunein/set/${cleanId}`;
+      console.log(`[Trigger Alarm] Setting TuneIn station: ${setUrl}`);
+      try {
+        await fetch(setUrl);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        playUrl = `${sonosBaseUrl}/${encodeURIComponent(speaker)}/play`;
+        console.log(`[Trigger Alarm] Playing TuneIn station: ${cleanId}`);
+      } catch (error) {
+        console.error('[Trigger Alarm] Error setting TuneIn station:', error.message);
+      }
+    } else if (mediaItem.type === 'library') {
+      // Play from music library
+      playUrl = `${sonosBaseUrl}/${encodeURIComponent(speaker)}/musicsearch/${encodeURIComponent(mediaItem.artist)}/${encodeURIComponent(mediaItem.title)}`;
+      console.log(`[Trigger Alarm] Playing from library: ${mediaItem.artist} - ${mediaItem.title}`);
+    }
+
+    if (playUrl) {
+      console.log(`[Trigger Alarm] Playing alarm content: ${playUrl}`);
+      try {
+        const playResponse = await fetch(playUrl);
+        const playResult = await playResponse.text();
+        console.log(`[Trigger Alarm] Play response status: ${playResponse.status}`);
+        console.log(`[Trigger Alarm] Play response body: ${playResult}`);
+
+        if (!playResponse.ok) {
+          console.error(
+            `[Trigger Alarm] Failed to play content: ${playResponse.status} - ${playResult}`
+          );
+          return;
+        }
+
+        // Mark alarm as active for this client
+        activeAlarms.set(alarm.clientId, {
+          id: alarm.id,
+          name: alarm.name,
+          time: alarm.time,
+          mediaTitle: alarm.mediaTitle,
+          triggeredAt: new Date().toISOString(),
+        });
+        console.log(`[Trigger Alarm] Alarm marked as active for client ${alarm.clientId}`);
+
+        // Wait a moment for playback to start before fade-in
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Handle fade-in if enabled
+        if (alarm.fadeIn && alarm.fadeDuration) {
+          await handleFadeIn(speaker, targetVolume, alarm.fadeDuration, sonosBaseUrl);
+        }
+      } catch (error) {
+        console.error(`[Trigger Alarm] Error playing content:`, error.message);
+      }
+    } else {
+      console.error(`[Trigger Alarm] Could not determine play URL for alarm ${alarm.name}`);
+    }
+  } catch (error) {
+    console.error(`Error triggering alarm ${alarm.name}:`, error);
+  }
+}
+
+async function handleFadeIn(speaker, targetVolume, duration, sonosBaseUrl) {
+  try {
+    // Volume is already at 5% from before playback started
+    const startVolume = 5;
+
+    // Calculate steps
+    const steps = 10;
+    const volumeStep = (targetVolume - startVolume) / steps;
+    const timeStep = (duration * 1000) / steps;
+
+    // Gradually increase volume
+    for (let i = 1; i <= steps; i++) {
+      await new Promise(resolve => setTimeout(resolve, timeStep));
+      const newVolume = Math.round(startVolume + volumeStep * i);
+      await fetch(`${sonosBaseUrl}/${encodeURIComponent(speaker)}/volume/${newVolume}`);
+      console.log(`[Fade-in] Volume ${newVolume}%`);
+    }
+  } catch (error) {
+    console.error('[Fade-in] Error during fade-in:', error);
+  }
+}
+
+function startAlarmScheduler() {
+  console.log('Starting alarm scheduler...');
+
+  // Check alarms every 30 seconds
+  alarmCheckInterval = setInterval(checkAndTriggerAlarms, 30000);
+
+  // Also check immediately on startup
+  checkAndTriggerAlarms();
+}
+
+function stopAlarmScheduler() {
+  if (alarmCheckInterval) {
+    clearInterval(alarmCheckInterval);
+    alarmCheckInterval = null;
+    console.log('Alarm scheduler stopped');
+  }
+}
+
 // Initialize and start server
 async function startServer() {
   try {
     await initializeDatabase();
     await initializeSpotify();
+    startAlarmScheduler(); // Start alarm scheduler
 
     const port = process.env.PORT || 8200;
     app.listen(port, () => {
       console.log(`Server running on port ${port}`);
       console.log(`Open http://localhost:${port} in your browser`);
+      console.log('Alarm scheduler is active');
     });
   } catch (error) {
     console.error('Error starting server:', error);
@@ -1627,6 +2282,7 @@ async function startServer() {
 // Handle graceful shutdown
 process.on('SIGINT', () => {
   console.log('Shutting down server...');
+  stopAlarmScheduler(); // Stop alarm scheduler
   db.close(err => {
     if (err) {
       console.error('Error closing database:', err.message);

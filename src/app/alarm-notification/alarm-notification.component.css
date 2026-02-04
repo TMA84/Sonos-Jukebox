@@ -1,0 +1,44 @@
+.alarm-info {
+  text-align: center;
+  padding: 2rem 0;
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.alarm-icon {
+  font-size: 80px;
+  color: var(--ion-color-primary);
+  margin-bottom: 1rem;
+}
+
+.alarm-info h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.alarm-time {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--ion-color-primary);
+  margin: 0.5rem 0;
+}
+
+.alarm-media {
+  font-size: 1rem;
+  color: var(--ion-color-medium);
+  margin: 0.5rem 0;
+}
+
+.snooze-button {
+  height: 80px;
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+ion-content {
+  --padding-bottom: 0;
+}

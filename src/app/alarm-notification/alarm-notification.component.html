@@ -1,0 +1,18 @@
+<ion-content class="ion-padding">
+  <ion-button expand="block" color="danger" size="large" (click)="stopAlarm()">
+    <ion-icon slot="start" name="stop-circle-outline"></ion-icon>
+    Stop Alarm
+  </ion-button>
+
+  <div class="alarm-info">
+    <ion-icon name="alarm-outline" class="alarm-icon"></ion-icon>
+    <h2>{{ alarm?.name }}</h2>
+    <p class="alarm-time">{{ alarm?.time }}</p>
+    <p class="alarm-media" *ngIf="alarm?.mediaTitle">{{ alarm?.mediaTitle }}</p>
+  </div>
+
+  <ion-button expand="block" color="primary" size="large" class="snooze-button" (click)="snooze(5)">
+    <ion-icon slot="start" name="time-outline"></ion-icon>
+    Snooze (5 Minutes)
+  </ion-button>
+</ion-content>

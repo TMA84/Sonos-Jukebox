@@ -36,6 +36,9 @@
     </ion-searchbar>
     <ion-buttons slot="end">
       <ion-title *ngIf="clientName" class="client-name modern-title">{{clientName}}</ion-title>
+      <ion-button *ngIf="enableAlarmClock" class="modern-button-icon" (click)="openAlarmManager()">
+        <ion-icon name="alarm-outline"></ion-icon>
+      </ion-button>
       <ion-button class="modern-button-icon" (click)="goToPlayer()">
         <ion-icon name="play-outline"></ion-icon>
       </ion-button>

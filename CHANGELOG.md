@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.49] - 2026-02-04
+
+### ✨ New Features
+
+- **Alarm Notification Modal** - Added modal that appears when alarm triggers
+  - Stop button to immediately stop the alarm
+  - Snooze options: 5, 10, or 15 minutes
+  - Shows alarm name, time, and media being played
+  - Automatically appears on all clients when their alarm triggers
+  - Snooze creates a temporary one-time alarm for the selected duration
+
+## [2.2.48] - 2026-02-04
+
+### 🐛 Bug Fixes
+
+- **Alarm Playback** - Fixed alarm not playing content
+  - For Spotify artists, now fetches and plays the first album instead of trying to play artist directly (Sonos limitation)
+  - Fixed TuneIn radio playback using correct set/play sequence
+  - Added comprehensive logging for debugging alarm triggers
+  - Improved error handling with detailed response status logging
+
+## [2.2.47] - 2026-02-04
+
+### 🔧 Improvements
+
+- **Alarm Logging** - Added extensive logging to alarm trigger function for better debugging
+  - Logs metadata parsing, media details, volume setting, and play responses
+  - Clear prefixes for each step: [Trigger Alarm], [Alarm Check], [Alarm Match], etc.
+
+## [2.2.46] - 2026-01-19
+
+### ✨ New Features
+
+- **Alarm Scheduler Backend** - Implemented server-side alarm scheduler that checks every 30 seconds and triggers playback
+  - Automatically plays selected content at alarm time
+  - Supports Spotify, TuneIn Radio, and local library
+  - Volume control and fade-in functionality
+  - One-time alarms automatically disable after triggering
+  - Recurring alarms trigger on selected days
+- **24-Hour Time Format** - Changed time picker to use 24-hour format (h23)
+- **User-Accessible Alarms** - Added alarm button to home page so users can manage their own alarms without admin access
+
+## [2.2.45] - 2026-01-19
+
+### ✨ New Features
+
+- **Alarm Clock** - Added alarm clock functionality for each client
+  - Create multiple alarms per client with custom names
+  - Set alarm time with recurring schedules (daily, weekdays, weekends, one-time)
+  - Select library content to play when alarm triggers
+  - Volume control and fade-in option for gentle wake-up
+  - Enable/disable alarms with toggle switch
+  - New "Alarms" tab in config page
+  - Server-side alarm storage in SQLite database
+
 ## [2.2.44] - 2026-01-19
 
 ### 🐛 Bug Fixes
