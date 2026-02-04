@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { TuneInService, TuneInStation } from '../tunein.service';
 
 @Component({
   selector: 'app-radio-search',
   templateUrl: './radio-search.component.html',
-  styleUrls: ['./radio-search.component.scss']
+  styleUrls: ['./radio-search.component.scss'],
 })
 export class RadioSearchComponent {
   @Input() isVisible = false;
@@ -15,7 +16,10 @@ export class RadioSearchComponent {
   searchResults: TuneInStation[] = [];
   isLoading = false;
 
-  constructor(private tuneInService: TuneInService) {}
+  constructor(
+    private tuneInService: TuneInService,
+    private modalController: ModalController
+  ) {}
 
   onSearchInput(event: any) {
     this.searchQuery = event.target.value;
@@ -31,25 +35,22 @@ export class RadioSearchComponent {
 
     this.isLoading = true;
     this.tuneInService.searchStations(this.searchQuery, 20).subscribe({
-      next: (response) => {
+      next: response => {
         this.searchResults = response.stations.items;
         this.isLoading = false;
       },
-      error: (error) => {
+      error: error => {
         console.error('Radio search error:', error);
         this.isLoading = false;
-      }
+      },
     });
   }
 
   selectStation(station: TuneInStation) {
-    this.stationSelected.emit(station);
-    this.closeModal();
+    this.modalController.dismiss(station);
   }
 
   closeModal() {
-    this.searchQuery = '';
-    this.searchResults = [];
-    this.close.emit();
+    this.modalController.dismiss();
   }
 }

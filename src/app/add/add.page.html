@@ -1,105 +1,159 @@
 <ion-header>
-    <ion-toolbar class="modern-toolbar">
-        <ion-title class="modern-title">Add Content</ion-title>
-        <ion-buttons slot="start">
-            <ion-back-button defaultHref="/config"></ion-back-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-            <div class="select-spacer"></div>
-            <ion-button (click)="toggleKeyboard()" class="modern-button-icon">
-                <ion-icon [name]="showKeyboard ? 'keypad' : 'keypad-outline'"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar class="modern-toolbar">
+    <ion-title class="modern-title">Add Content</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/config"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <div class="select-spacer"></div>
+      <ion-button (click)="toggleKeyboard()" class="modern-button-icon">
+        <ion-icon [name]="showKeyboard ? 'keypad' : 'keypad-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-card class="modern-card">
-        <ion-card-header>
-            <ion-card-title class="modern-card-title">Add Content</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-            <div class="touch-selector">
-                <label>Content Type</label>
-                <div class="selector-grid">
-                    <div class="selector-button" [class.active]="category === 'audiobook'" (click)="selectCategory('audiobook')">
-                        <ion-icon name="book"></ion-icon>
-                        <span>Audiobook</span>
-                    </div>
-                    <div class="selector-button" [class.active]="category === 'music'" (click)="selectCategory('music')">
-                        <ion-icon name="musical-notes"></ion-icon>
-                        <span>Music</span>
-                    </div>
-                    <div class="selector-button" [class.active]="category === 'playlist'" (click)="selectCategory('playlist')">
-                        <ion-icon name="list"></ion-icon>
-                        <span>Playlist</span>
-                    </div>
-                    <div class="selector-button" [class.active]="category === 'radio'" (click)="selectCategory('radio')">
-                        <ion-icon name="radio"></ion-icon>
-                        <span>Radio</span>
-                    </div>
-                </div>
-            </div>
+  <ion-card class="modern-card">
+    <ion-card-header>
+      <ion-card-title class="modern-card-title">Add Content</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="touch-selector">
+        <label>Content Type</label>
+        <div class="selector-grid">
+          <div
+            class="selector-button"
+            [class.active]="category === 'audiobook'"
+            (click)="selectCategory('audiobook')"
+          >
+            <ion-icon name="book"></ion-icon>
+            <span>Audiobook</span>
+          </div>
+          <div
+            class="selector-button"
+            [class.active]="category === 'music'"
+            (click)="selectCategory('music')"
+          >
+            <ion-icon name="musical-notes"></ion-icon>
+            <span>Music</span>
+          </div>
+          <div
+            class="selector-button"
+            [class.active]="category === 'playlist'"
+            (click)="selectCategory('playlist')"
+          >
+            <ion-icon name="list"></ion-icon>
+            <span>Playlist</span>
+          </div>
+          <div
+            class="selector-button"
+            [class.active]="category === 'radio'"
+            (click)="selectCategory('radio')"
+          >
+            <ion-icon name="radio"></ion-icon>
+            <span>Radio</span>
+          </div>
+        </div>
+      </div>
 
-            <div class="touch-selector">
-                <label>Source</label>
-                <div class="selector-grid">
-                    <div class="selector-button" [class.active]="source === 'spotify'" [class.disabled]="!spotifyConfigured" (click)="spotifyConfigured && selectSource('spotify')">
-                        <ion-icon name="musical-notes"></ion-icon>
-                        <span>Spotify</span>
-                    </div>
-                    <div class="selector-button" [class.active]="source === 'library'" (click)="selectSource('library')">
-                        <ion-icon name="folder"></ion-icon>
-                        <span>Local</span>
-                    </div>
-                    <div class="selector-button" [class.active]="source === 'tunein'" [class.disabled]="!tuneinConfigured" (click)="tuneinConfigured && selectSource('tunein')">
-                        <ion-icon name="radio"></ion-icon>
-                        <span>TuneIn</span>
-                    </div>
-                </div>
-            </div>
+      <div class="touch-selector">
+        <label>Source</label>
+        <div class="selector-grid">
+          <div
+            class="selector-button"
+            [class.active]="source === 'spotify'"
+            [class.disabled]="!spotifyConfigured"
+            (click)="spotifyConfigured && selectSource('spotify')"
+          >
+            <ion-icon name="musical-notes"></ion-icon>
+            <span>Spotify</span>
+          </div>
+          <div
+            class="selector-button"
+            [class.active]="source === 'library'"
+            (click)="selectSource('library')"
+          >
+            <ion-icon name="folder"></ion-icon>
+            <span>Local</span>
+          </div>
+          <div
+            class="selector-button"
+            [class.active]="source === 'tunein'"
+            [class.disabled]="!tuneinConfigured"
+            (click)="tuneinConfigured && selectSource('tunein')"
+          >
+            <ion-icon name="radio"></ion-icon>
+            <span>TuneIn</span>
+          </div>
+        </div>
+      </div>
 
-            <div [ngSwitch]="source" *ngIf="category === 'radio' && source === 'tunein'">
-                <ion-item>
-                    <ion-label position="stacked">Artist</ion-label>
-                    <ion-input [(ngModel)]="artistName" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)"></ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="stacked">Title</ion-label>
-                    <ion-input [(ngModel)]="titleName" (ionInput)="inputChanged($event)" (ionFocus)="focusChanged($event)"></ion-input>
-                </ion-item>
-                
-                <ion-row>
-                    <ion-col size="6">
-                        <ion-button expand="block" fill="outline" (click)="openAlbumSearch()" class="modern-button secondary">
-                            <ion-icon name="search-outline" slot="start"></ion-icon>
-                            Search Albums
-                        </ion-button>
-                    </ion-col>
-                    <ion-col size="6">
-                        <ion-button expand="block" fill="outline" (click)="openArtistSearch()" class="modern-button secondary">
-                            <ion-icon name="person-outline" slot="start"></ion-icon>
-                            Search Artists
-                        </ion-button>
-                    </ion-col>
-                </ion-row>
+      <!-- TuneIn Radio Search -->
+      <div *ngIf="source === 'tunein'">
+        <ion-button
+          expand="block"
+          fill="solid"
+          color="primary"
+          (click)="openRadioSearch()"
+          class="modern-button primary"
+        >
+          <ion-icon name="radio-outline" slot="start"></ion-icon>
+          Search TuneIn Radio Stations
+        </ion-button>
+      </div>
 
-                <ion-button expand="block" fill="outline" (click)="openRadioSearch()" class="modern-button secondary">
-                    <ion-icon name="search-outline" slot="start"></ion-icon>
-                    Search TuneIn Radio
-                </ion-button>
+      <!-- Spotify/Other Sources Search -->
+      <div *ngIf="source === 'spotify' || source === 'library'">
+        <ion-item>
+          <ion-label position="stacked">Artist</ion-label>
+          <ion-input
+            [(ngModel)]="artistName"
+            (ionInput)="inputChanged($event)"
+            (ionFocus)="focusChanged($event)"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Title</ion-label>
+          <ion-input
+            [(ngModel)]="titleName"
+            (ionInput)="inputChanged($event)"
+            (ionFocus)="focusChanged($event)"
+          ></ion-input>
+        </ion-item>
 
-                <ion-button expand="block" [disabled]="!valid" class="modern-button primary">
-                    <ion-icon name="add-outline" slot="start"></ion-icon>
-                    Add to Library
-                </ion-button>
-            </div>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button
+              expand="block"
+              fill="outline"
+              (click)="openAlbumSearch()"
+              class="modern-button secondary"
+            >
+              <ion-icon name="search-outline" slot="start"></ion-icon>
+              Search Albums
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button
+              expand="block"
+              fill="outline"
+              (click)="openArtistSearch()"
+              class="modern-button secondary"
+            >
+              <ion-icon name="person-outline" slot="start"></ion-icon>
+              Search Artists
+            </ion-button>
+          </ion-col>
+        </ion-row>
 
-            <div *ngIf="category !== 'radio' || source !== 'tunein'">
-                <p>Select Radio category and TuneIn source to search radio stations</p>
-            </div>
-        </ion-card-content>
-    </ion-card>
+        <ion-button expand="block" [disabled]="!valid" class="modern-button primary">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Add to Library
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
 
-    <app-virtual-keyboard [isVisible]="showKeyboard"></app-virtual-keyboard>
+  <app-virtual-keyboard [isVisible]="showKeyboard"></app-virtual-keyboard>
 </ion-content>

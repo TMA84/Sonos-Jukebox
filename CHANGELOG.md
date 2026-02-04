@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.44] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **TuneIn search modal** - Fixed black screen issue by removing nested ion-modal wrapper and using ModalController properly
+
+## [2.2.43] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **TuneIn search in config page** - Fixed search button in config/library tab to show "Search TuneIn Radio Stations" when TuneIn source is selected, and hide search type selector for TuneIn (radio stations only)
+
+## [2.2.42] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **TuneIn search** - Changed search buttons to show "Search TuneIn Radio Stations" when TuneIn source is selected, and "Search Albums/Artists" for Spotify/Library sources
+
+## [2.2.41] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **TuneIn button** - Moved "Search TuneIn Radio Stations" button to top and made it larger and more visible
+
+## [2.2.40] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- **TuneIn debug** - Added debug output to diagnose why TuneIn Radio search button isn't showing
+
 ## [2.2.39] - 2026-01-19
 
 ### 🐛 Bug Fixes

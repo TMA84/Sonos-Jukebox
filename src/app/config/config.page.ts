@@ -7,11 +7,12 @@ import { ClientService } from '../client.service';
 import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ArtistSearchComponent } from '../artist-search/artist-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
+import { RadioSearchComponent } from '../radio-search/radio-search.component';
 
 @Component({
   selector: 'app-config',
   templateUrl: './config.page.html',
-  styleUrls: ['./config.page.scss']
+  styleUrls: ['./config.page.scss'],
 })
 export class ConfigPage implements OnInit {
   speakers: any[] = [];
@@ -44,7 +45,7 @@ export class ConfigPage implements OnInit {
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
-    tunein: true  // TuneIn doesn't need configuration
+    tunein: true, // TuneIn doesn't need configuration
   };
 
   constructor(
@@ -69,75 +70,81 @@ export class ConfigPage implements OnInit {
 
   loadCurrentConfig() {
     const configUrl = `${environment.apiUrl}/config/client`;
-    this.http.get<any>(configUrl, { 
-      params: { clientId: this.clientId }
-    }).subscribe(config => {
-      this.selectedSpeaker = config.room || '';
-      this.sleepTimer = config.sleepTimer || 0;
-    });
+    this.http
+      .get<any>(configUrl, {
+        params: { clientId: this.clientId },
+      })
+      .subscribe(config => {
+        this.selectedSpeaker = config.room || '';
+        this.sleepTimer = config.sleepTimer || 0;
+      });
   }
 
   findSpeakers() {
     this.isLoading = true;
     const speakersUrl = `${environment.apiUrl}/speakers`;
-    
+
     this.http.get<any[]>(speakersUrl).subscribe({
-      next: (speakers) => {
+      next: speakers => {
         this.speakers = speakers;
-        
+
         // Save available speakers for home page
         const speakerNames = speakers.map(s => this.getSpeakerName(s));
         const sonosConfig = {
           rooms: speakerNames,
           server: this.sonosConfig.server,
-          port: this.sonosConfig.port
+          port: this.sonosConfig.port,
         };
         localStorage.setItem('sonosConfig', JSON.stringify(sonosConfig));
-        
+
         this.isLoading = false;
       },
       error: () => {
         this.isLoading = false;
         this.speakers = [];
-      }
+      },
     });
   }
 
   selectSpeaker(speaker: string) {
     this.selectedSpeaker = speaker;
-    
+
     // Save to localStorage for home page access
     localStorage.setItem('selectedSpeaker', speaker);
-    
+
     const saveUrl = `${environment.apiUrl}/config/speaker`;
-    
-    this.http.post(saveUrl, { 
-      speaker, 
-      clientId: this.clientId 
-    }).subscribe({
-      next: () => {
-        console.log('Speaker saved for client:', this.clientId, speaker);
-      },
-      error: (err) => {
-        console.error('Failed to save speaker:', err);
-      }
-    });
+
+    this.http
+      .post(saveUrl, {
+        speaker,
+        clientId: this.clientId,
+      })
+      .subscribe({
+        next: () => {
+          console.log('Speaker saved for client:', this.clientId, speaker);
+        },
+        error: err => {
+          console.error('Failed to save speaker:', err);
+        },
+      });
   }
 
   saveSleepTimer() {
     const saveUrl = `${environment.apiUrl}/config/sleepTimer`;
-    
-    this.http.post(saveUrl, { 
-      sleepTimer: this.sleepTimer, 
-      clientId: this.clientId 
-    }).subscribe({
-      next: () => {
-        console.log('Sleep timer saved for client:', this.clientId, this.sleepTimer);
-      },
-      error: (err) => {
-        console.error('Failed to save sleep timer:', err);
-      }
-    });
+
+    this.http
+      .post(saveUrl, {
+        sleepTimer: this.sleepTimer,
+        clientId: this.clientId,
+      })
+      .subscribe({
+        next: () => {
+          console.log('Sleep timer saved for client:', this.clientId, this.sleepTimer);
+        },
+        error: err => {
+          console.error('Failed to save sleep timer:', err);
+        },
+      });
   }
 
   incrementTimer() {
@@ -156,7 +163,7 @@ export class ConfigPage implements OnInit {
 
   changePin() {
     const pinUrl = `${environment.apiUrl}/config/pin`;
-    
+
     this.http.post(pinUrl, { currentPin: this.currentPin, newPin: this.newPin }).subscribe({
       next: () => {
         this.currentPin = '';
@@ -164,23 +171,30 @@ export class ConfigPage implements OnInit {
         this.confirmPin = '';
         console.log('PIN changed successfully');
       },
-      error: (err) => {
+      error: err => {
         console.error('Failed to change PIN:', err);
         this.currentPin = '';
         this.newPin = '';
         this.confirmPin = '';
-      }
+      },
     });
   }
 
   getSpeakerName(speaker: any): string {
-    return speaker.roomName || speaker.coordinator?.roomName || speaker.coordinator?.playerName || 'Unknown Speaker';
+    return (
+      speaker.roomName ||
+      speaker.coordinator?.roomName ||
+      speaker.coordinator?.playerName ||
+      'Unknown Speaker'
+    );
   }
 
   getSpeakerDetails(speaker: any): string {
     const playerName = speaker.coordinator?.playerName || 'Unknown Player';
     const currentTrack = speaker.coordinator?.state?.currentTrack;
-    const trackInfo = currentTrack?.artist ? `${currentTrack.artist} - ${currentTrack.title}` : 'No track playing';
+    const trackInfo = currentTrack?.artist
+      ? `${currentTrack.artist} - ${currentTrack.title}`
+      : 'No track playing';
     return `${playerName} - ${trackInfo}`;
   }
 
@@ -189,15 +203,17 @@ export class ConfigPage implements OnInit {
     this.http.get<any>(configUrl).subscribe(config => {
       this.spotifyConfig = {
         clientId: config.spotify?.clientId || '',
-        clientSecret: config.spotify?.clientSecret || ''
+        clientSecret: config.spotify?.clientSecret || '',
       };
       this.sonosConfig = {
         server: config['node-sonos-http-api']?.server || '',
-        port: config['node-sonos-http-api']?.port || ''
+        port: config['node-sonos-http-api']?.port || '',
       };
-      
+
       // Update service configuration status
-      this.serviceConfigured.spotify = !!(this.spotifyConfig.clientId && this.spotifyConfig.clientSecret);
+      this.serviceConfigured.spotify = !!(
+        this.spotifyConfig.clientId && this.spotifyConfig.clientSecret
+      );
       this.serviceConfigured.tunein = true; // TuneIn uses public API, always available
     });
   }
@@ -206,7 +222,7 @@ export class ConfigPage implements OnInit {
     const saveUrl = `${environment.apiUrl}/config/spotify`;
     this.http.post(saveUrl, this.spotifyConfig).subscribe({
       next: () => console.log('Spotify configuration saved'),
-      error: (err) => console.error('Failed to save Spotify config:', err)
+      error: err => console.error('Failed to save Spotify config:', err),
     });
   }
 
@@ -214,7 +230,7 @@ export class ConfigPage implements OnInit {
     const saveUrl = `${environment.apiUrl}/config/sonos`;
     this.http.post(saveUrl, this.sonosConfig).subscribe({
       next: () => console.log('Sonos configuration saved'),
-      error: (err) => console.error('Failed to save Sonos config:', err)
+      error: err => console.error('Failed to save Sonos config:', err),
     });
   }
 
@@ -230,41 +246,48 @@ export class ConfigPage implements OnInit {
 
   async saveClientName() {
     const saveUrl = `${environment.apiUrl}/config/client`;
-    this.http.post(saveUrl, { 
-      clientId: this.clientId,
-      name: this.clientName 
-    }, { responseType: 'text' }).subscribe({
-      next: async (response) => {
-        console.log('Client name saved:', response);
-        // Clear cache to force reload of updated name
-        this.clientService['clientNameCache'] = null;
-        const toast = await this.toastController.create({
-          message: 'Client name saved successfully',
-          duration: 2000,
-          color: 'success'
-        });
-        toast.present();
-      },
-      error: async (err) => {
-        console.error('Failed to save client name:', err);
-        const toast = await this.toastController.create({
-          message: 'Failed to save client name',
-          duration: 2000,
-          color: 'danger'
-        });
-        toast.present();
-      }
-    });
+    this.http
+      .post(
+        saveUrl,
+        {
+          clientId: this.clientId,
+          name: this.clientName,
+        },
+        { responseType: 'text' }
+      )
+      .subscribe({
+        next: async response => {
+          console.log('Client name saved:', response);
+          // Clear cache to force reload of updated name
+          this.clientService['clientNameCache'] = null;
+          const toast = await this.toastController.create({
+            message: 'Client name saved successfully',
+            duration: 2000,
+            color: 'success',
+          });
+          toast.present();
+        },
+        error: async err => {
+          console.error('Failed to save client name:', err);
+          const toast = await this.toastController.create({
+            message: 'Failed to save client name',
+            duration: 2000,
+            color: 'danger',
+          });
+          toast.present();
+        },
+      });
   }
 
   loadClients() {
     const clientsUrl = `${environment.apiUrl}/clients`;
     this.http.get<any[]>(clientsUrl).subscribe(clients => {
       this.availableClients = clients.map(client => {
-        const displayName = client.name || `Client ${client.id.replace('client-', '').replace('client_', '')}`;
+        const displayName =
+          client.name || `Client ${client.id.replace('client-', '').replace('client_', '')}`;
         return {
           ...client,
-          name: displayName
+          name: displayName,
         };
       });
     });
@@ -278,11 +301,11 @@ export class ConfigPage implements OnInit {
     this.loadClientName();
     this.loadLibraryItems(); // Reload library for new client
     this.loadSpeakerSelectionSetting(); // Reload speaker setting for new client
-    
+
     const toast = await this.toastController.create({
       message: 'Client switched successfully',
       duration: 2000,
-      color: 'success'
+      color: 'success',
     });
     toast.present();
   }
@@ -318,12 +341,18 @@ export class ConfigPage implements OnInit {
 
   getFirstServiceInput(): string {
     switch (this.selectedService) {
-      case 'spotify': return 'spotifyClientId';
-      case 'amazon': return 'amazonAccessKey';
-      case 'apple': return 'appleDeveloperToken';
-      case 'tunein': return 'tuneinApiKey';
-      case 'sonos': return 'sonosServer';
-      default: return 'spotifyClientId';
+      case 'spotify':
+        return 'spotifyClientId';
+      case 'amazon':
+        return 'amazonAccessKey';
+      case 'apple':
+        return 'appleDeveloperToken';
+      case 'tunein':
+        return 'tuneinApiKey';
+      case 'sonos':
+        return 'sonosServer';
+      default:
+        return 'spotifyClientId';
     }
   }
 
@@ -411,104 +440,104 @@ export class ConfigPage implements OnInit {
     }
   }
 
-
-
   async deleteClient(clientId: string) {
     if (clientId === this.clientId) {
       const toast = await this.toastController.create({
         message: 'Cannot delete currently selected client',
         duration: 2000,
-        color: 'warning'
+        color: 'warning',
       });
       toast.present();
       return;
     }
-    
+
     const deleteUrl = `${environment.apiUrl}/clients/delete`;
-    
+
     this.http.post(deleteUrl, { clientId }, { responseType: 'text' }).subscribe({
-      next: async (response) => {
+      next: async response => {
         console.log('Client deleted:', response);
         this.loadClients();
         const toast = await this.toastController.create({
           message: 'Client deleted successfully',
           duration: 2000,
-          color: 'success'
+          color: 'success',
         });
         toast.present();
       },
-      error: async (err) => {
+      error: async err => {
         console.error('Failed to delete client:', err);
         const toast = await this.toastController.create({
           message: 'Failed to delete client',
           duration: 2000,
-          color: 'danger'
+          color: 'danger',
         });
         toast.present();
-      }
+      },
     });
   }
 
   async createNewClient() {
     const newClientId = 'client_' + Date.now();
     const createUrl = `${environment.apiUrl}/clients/create`;
-    
-    this.http.post(createUrl, {
-      clientId: newClientId,
-      name: this.newClientName
-    }, { responseType: 'text' }).subscribe({
-      next: async (response) => {
-        console.log('Client created:', response);
-        
-        this.clientService.setClientId(newClientId);
-        this.clientId = newClientId;
-        this.selectedClientId = newClientId;
-        this.clientName = this.newClientName;
-        this.newClientName = '';
-        this.loadClients();
-        this.loadLibraryItems(); // Load library for new client
-        
-        const toast = await this.toastController.create({
-          message: 'Client created successfully',
-          duration: 2000,
-          color: 'success'
-        });
-        toast.present();
-      },
-      error: async (err) => {
-        console.error('Failed to create client:', err);
-        const toast = await this.toastController.create({
-          message: 'Failed to create client',
-          duration: 2000,
-          color: 'danger'
-        });
-        toast.present();
-      }
-    });
+
+    this.http
+      .post(
+        createUrl,
+        {
+          clientId: newClientId,
+          name: this.newClientName,
+        },
+        { responseType: 'text' }
+      )
+      .subscribe({
+        next: async response => {
+          console.log('Client created:', response);
+
+          this.clientService.setClientId(newClientId);
+          this.clientId = newClientId;
+          this.selectedClientId = newClientId;
+          this.clientName = this.newClientName;
+          this.newClientName = '';
+          this.loadClients();
+          this.loadLibraryItems(); // Load library for new client
+
+          const toast = await this.toastController.create({
+            message: 'Client created successfully',
+            duration: 2000,
+            color: 'success',
+          });
+          toast.present();
+        },
+        error: async err => {
+          console.error('Failed to create client:', err);
+          const toast = await this.toastController.create({
+            message: 'Failed to create client',
+            duration: 2000,
+            color: 'danger',
+          });
+          toast.present();
+        },
+      });
   }
 
   loadLibraryItems() {
     // Load from server API
     const dataUrl = `${environment.apiUrl}/data`;
-    this.http.get<any[]>(dataUrl, {
-      params: { clientId: this.clientId }
-    }).subscribe({
-      next: (items) => {
-        this.libraryItems = items || [];
-        console.log('Loaded library items from server:', this.libraryItems.length);
-      },
-      error: (err) => {
-        console.error('Failed to load library items:', err);
-        this.libraryItems = [];
-      }
-    });
+    this.http
+      .get<any[]>(dataUrl, {
+        params: { clientId: this.clientId },
+      })
+      .subscribe({
+        next: items => {
+          this.libraryItems = items || [];
+          console.log('Loaded library items from server:', this.libraryItems.length);
+        },
+        error: err => {
+          console.error('Failed to load library items:', err);
+          this.libraryItems = [];
+        },
+      });
   }
-
-
-
-
-
-
 
   editLibraryItem(index: number) {
     const item = this.libraryItems[index];
@@ -522,32 +551,34 @@ export class ConfigPage implements OnInit {
 
   addToLibrary() {
     if (!this.libraryArtist || !this.libraryTitle) return;
-    
+
     const item = {
       artist: this.libraryArtist,
       title: this.libraryTitle,
       type: this.librarySource,
       category: this.libraryCategory,
       contentType: this.searchType,
-      clientId: this.clientId
+      clientId: this.clientId,
     };
-    
+
     if (this.editingIndex >= 0) {
       // Update existing item
       const updateUrl = `${environment.apiUrl}/update`;
-      this.http.post(updateUrl, {
-        index: this.editingIndex,
-        item: item
-      }).subscribe({
-        next: () => {
-          console.log('Item updated on server:', item);
-          this.loadLibraryItems();
-          this.clearForm();
-        },
-        error: (err) => {
-          console.error('Failed to update item on server:', err);
-        }
-      });
+      this.http
+        .post(updateUrl, {
+          index: this.editingIndex,
+          item: item,
+        })
+        .subscribe({
+          next: () => {
+            console.log('Item updated on server:', item);
+            this.loadLibraryItems();
+            this.clearForm();
+          },
+          error: err => {
+            console.error('Failed to update item on server:', err);
+          },
+        });
     } else {
       // Add new item
       const addUrl = `${environment.apiUrl}/add`;
@@ -557,9 +588,9 @@ export class ConfigPage implements OnInit {
           this.loadLibraryItems();
           this.clearForm();
         },
-        error: (err) => {
+        error: err => {
           console.error('Failed to add manual item to server:', err);
-        }
+        },
       });
     }
   }
@@ -572,18 +603,20 @@ export class ConfigPage implements OnInit {
 
   removeFromLibrary(index: number) {
     const deleteUrl = `${environment.apiUrl}/delete`;
-    this.http.post(deleteUrl, {
-      index: index,
-      clientId: this.clientId
-    }).subscribe({
-      next: () => {
-        console.log('Item deleted from server');
-        this.loadLibraryItems(); // Reload from server
-      },
-      error: (err) => {
-        console.error('Failed to delete item:', err);
-      }
-    });
+    this.http
+      .post(deleteUrl, {
+        index: index,
+        clientId: this.clientId,
+      })
+      .subscribe({
+        next: () => {
+          console.log('Item deleted from server');
+          this.loadLibraryItems(); // Reload from server
+        },
+        error: err => {
+          console.error('Failed to delete item:', err);
+        },
+      });
   }
 
   openAddPage() {
@@ -597,10 +630,10 @@ export class ConfigPage implements OnInit {
   async openAlbumSearch() {
     const modal = await this.modalController.create({
       component: AlbumSearchComponent,
-      cssClass: 'album-search-modal'
+      cssClass: 'album-search-modal',
     });
 
-    modal.onDidDismiss().then((result) => {
+    modal.onDidDismiss().then(result => {
       if (result.data) {
         this.addAlbumFromSearch(result.data);
       }
@@ -612,10 +645,10 @@ export class ConfigPage implements OnInit {
   async openArtistSearch() {
     const modal = await this.modalController.create({
       component: ArtistSearchComponent,
-      cssClass: 'artist-search-modal'
+      cssClass: 'artist-search-modal',
     });
 
-    modal.onDidDismiss().then((result) => {
+    modal.onDidDismiss().then(result => {
       if (result.data) {
         this.addArtistFromSearch(result.data);
       }
@@ -633,9 +666,9 @@ export class ConfigPage implements OnInit {
       cover: album.cover,
       id: album.id,
       contentType: 'album',
-      clientId: this.clientId
+      clientId: this.clientId,
     };
-    
+
     // Save to server via API
     const addUrl = `${environment.apiUrl}/add`;
     this.http.post(addUrl, item).subscribe({
@@ -643,9 +676,9 @@ export class ConfigPage implements OnInit {
         console.log('Album added to server:', item);
         this.loadLibraryItems(); // Reload from server
       },
-      error: (err) => {
+      error: err => {
         console.error('Failed to add album to server:', err);
-      }
+      },
     });
   }
 
@@ -658,9 +691,9 @@ export class ConfigPage implements OnInit {
       cover: artist.image,
       artistid: artist.id,
       contentType: 'artist',
-      clientId: this.clientId
+      clientId: this.clientId,
     };
-    
+
     // Save to server via API
     const addUrl = `${environment.apiUrl}/add`;
     this.http.post(addUrl, item).subscribe({
@@ -668,9 +701,9 @@ export class ConfigPage implements OnInit {
         console.log('Artist added to server:', item);
         this.loadLibraryItems(); // Reload from server
       },
-      error: (err) => {
+      error: err => {
         console.error('Failed to add artist to server:', err);
-      }
+      },
     });
   }
 
@@ -690,16 +723,23 @@ export class ConfigPage implements OnInit {
 
   getSearchTypeLabel(): string {
     switch (this.searchType) {
-      case 'album': return 'Albums';
-      case 'artist': return 'Artists';
-      case 'podcast': return 'Podcasts';
-      case 'audiobook': return 'Audiobooks';
-      default: return 'Content';
+      case 'album':
+        return 'Albums';
+      case 'artist':
+        return 'Artists';
+      case 'podcast':
+        return 'Podcasts';
+      case 'audiobook':
+        return 'Audiobooks';
+      default:
+        return 'Content';
     }
   }
 
   async openUnifiedSearch() {
-    if (this.searchType === 'album') {
+    if (this.librarySource === 'tunein') {
+      await this.openRadioSearch();
+    } else if (this.searchType === 'album') {
       await this.openAlbumSearch();
     } else if (this.searchType === 'artist') {
       await this.openArtistSearch();
@@ -714,13 +754,17 @@ export class ConfigPage implements OnInit {
       componentProps: {
         service: this.librarySource,
         category: this.libraryCategory,
-        searchType: this.searchType === 'podcast' ? 'show' : 
-                   this.searchType === 'audiobook' ? 'audiobook' : 'album'
+        searchType:
+          this.searchType === 'podcast'
+            ? 'show'
+            : this.searchType === 'audiobook'
+              ? 'audiobook'
+              : 'album',
       },
-      cssClass: 'service-search-modal'
+      cssClass: 'service-search-modal',
     });
 
-    modal.onDidDismiss().then((result) => {
+    modal.onDidDismiss().then(result => {
       if (result.data) {
         this.addServiceFromSearch(result.data);
       }
@@ -729,22 +773,68 @@ export class ConfigPage implements OnInit {
     return await modal.present();
   }
 
+  async openRadioSearch() {
+    const modal = await this.modalController.create({
+      component: RadioSearchComponent,
+      cssClass: 'radio-search-modal',
+    });
+
+    modal.onDidDismiss().then(result => {
+      if (result.data) {
+        this.addRadioStationFromSearch(result.data);
+      }
+    });
+
+    return await modal.present();
+  }
+
+  addRadioStationFromSearch(station: any) {
+    const item = {
+      artist: station.genre || 'Radio',
+      title: station.name,
+      type: 'tunein',
+      category: this.libraryCategory,
+      cover: station.image,
+      id: station.id,
+      contentType: 'radio',
+      clientId: this.clientId,
+      streamUrl: station.streamUrl,
+    };
+
+    // Save to server via API
+    const addUrl = `${environment.apiUrl}/add`;
+    this.http.post(addUrl, item).subscribe({
+      next: () => {
+        console.log('Radio station added to server:', item);
+        this.loadLibraryItems(); // Reload from server
+      },
+      error: err => {
+        console.error('Failed to add radio station to server:', err);
+      },
+    });
+  }
+
   addServiceFromSearch(content: any) {
     const item = {
       artist: content.artist || '',
       title: content.title,
       type: this.librarySource,
       category: this.libraryCategory,
-      cover: this.librarySource === 'tunein' && content.id ? 
-        content.cover || `https://cdn-profiles.tunein.com/${content.id}/images/logod.jpg` :
-        content.cover,
+      cover:
+        this.librarySource === 'tunein' && content.id
+          ? content.cover || `https://cdn-profiles.tunein.com/${content.id}/images/logod.jpg`
+          : content.cover,
       id: content.id,
-      contentType: this.searchType === 'podcast' ? 'show' : 
-                  this.searchType === 'audiobook' ? 'audiobook' : 'album',
+      contentType:
+        this.searchType === 'podcast'
+          ? 'show'
+          : this.searchType === 'audiobook'
+            ? 'audiobook'
+            : 'album',
       clientId: this.clientId,
-      ...(content.streamUrl && { streamUrl: content.streamUrl })
+      ...(content.streamUrl && { streamUrl: content.streamUrl }),
     };
-    
+
     // Save to server via API
     const addUrl = `${environment.apiUrl}/add`;
     this.http.post(addUrl, item).subscribe({
@@ -752,55 +842,67 @@ export class ConfigPage implements OnInit {
         console.log('Service content added to server:', item);
         this.loadLibraryItems(); // Reload from server
       },
-      error: (err) => {
+      error: err => {
         console.error('Failed to add service content to server:', err);
-      }
+      },
     });
   }
 
   getServiceName(): string {
     switch (this.librarySource) {
-      case 'amazonmusic': return 'Amazon Music';
-      case 'applemusic': return 'Apple Music';
-      case 'tunein': return 'TuneIn Radio';
-      default: return '';
+      case 'amazonmusic':
+        return 'Amazon Music';
+      case 'applemusic':
+        return 'Apple Music';
+      case 'tunein':
+        return 'TuneIn Radio';
+      default:
+        return '';
     }
   }
 
   loadSpeakerSelectionSetting() {
     const configUrl = `${environment.apiUrl}/config/client`;
-    this.http.get<any>(configUrl, { 
-      params: { clientId: this.clientId }
-    }).subscribe(config => {
-      this.enableSpeakerSelection = config.enableSpeakerSelection !== false;
-    });
+    this.http
+      .get<any>(configUrl, {
+        params: { clientId: this.clientId },
+      })
+      .subscribe(config => {
+        this.enableSpeakerSelection = config.enableSpeakerSelection !== false;
+      });
   }
 
   async saveSpeakerSelectionSetting() {
     const saveUrl = `${environment.apiUrl}/config/client`;
-    this.http.post(saveUrl, { 
-      clientId: this.clientId,
-      enableSpeakerSelection: this.enableSpeakerSelection
-    }, { responseType: 'text' }).subscribe({
-      next: async (response) => {
-        console.log('Speaker selection setting saved:', response);
-        const toast = await this.toastController.create({
-          message: 'Speaker selection setting saved',
-          duration: 2000,
-          color: 'success'
-        });
-        toast.present();
-      },
-      error: async (err) => {
-        console.error('Failed to save speaker selection setting:', err);
-        const toast = await this.toastController.create({
-          message: 'Failed to save speaker selection setting',
-          duration: 2000,
-          color: 'danger'
-        });
-        toast.present();
-      }
-    });
+    this.http
+      .post(
+        saveUrl,
+        {
+          clientId: this.clientId,
+          enableSpeakerSelection: this.enableSpeakerSelection,
+        },
+        { responseType: 'text' }
+      )
+      .subscribe({
+        next: async response => {
+          console.log('Speaker selection setting saved:', response);
+          const toast = await this.toastController.create({
+            message: 'Speaker selection setting saved',
+            duration: 2000,
+            color: 'success',
+          });
+          toast.present();
+        },
+        error: async err => {
+          console.error('Failed to save speaker selection setting:', err);
+          const toast = await this.toastController.create({
+            message: 'Failed to save speaker selection setting',
+            duration: 2000,
+            color: 'danger',
+          });
+          toast.present();
+        },
+      });
   }
 
   clientSelectionChanged(event: any) {
@@ -811,12 +913,25 @@ export class ConfigPage implements OnInit {
 
   nextInput() {
     const inputOrder = [
-      'clientName', 'newClientName', 'spotifyClientId', 'spotifyClientSecret',
-      'amazonAccessKey', 'amazonSecretKey', 'appleDeveloperToken', 'appleTeamId',
-      'tuneinApiKey', 'tuneinPartnerId', 'sonosServer', 'sonosPort',
-      'libraryArtist', 'libraryTitle', 'currentPin', 'newPin', 'confirmPin'
+      'clientName',
+      'newClientName',
+      'spotifyClientId',
+      'spotifyClientSecret',
+      'amazonAccessKey',
+      'amazonSecretKey',
+      'appleDeveloperToken',
+      'appleTeamId',
+      'tuneinApiKey',
+      'tuneinPartnerId',
+      'sonosServer',
+      'sonosPort',
+      'libraryArtist',
+      'libraryTitle',
+      'currentPin',
+      'newPin',
+      'confirmPin',
     ];
-    
+
     const currentIndex = inputOrder.indexOf(this.activeInput);
     if (currentIndex >= 0 && currentIndex < inputOrder.length - 1) {
       this.activeInput = inputOrder[currentIndex + 1];
@@ -827,6 +942,8 @@ export class ConfigPage implements OnInit {
 
   private getTuneInStationImage(stationId: string): string {
     const id = stationId?.replace('s', '');
-    return id ? `https://cdn-radiotime-logos.tunein.com/${id}q.png` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
+    return id
+      ? `https://cdn-radiotime-logos.tunein.com/${id}q.png`
+      : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
   }
 }
