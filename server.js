@@ -109,14 +109,27 @@ async function initializeDatabase() {
     // Check for and migrate legacy JSON files
     await migrateLegacyData();
 
-    // Clean up old Sonos config keys
+    // Clean up old Sonos config keys (must run AFTER legacy migration)
     await cleanupOldSonosConfigKeys();
 
     // Initialize configuration from environment variables (for Home Assistant addon)
     await initializeFromEnvironment();
 
+    // Clean up old Sonos config keys again (in case env vars added them)
+    await cleanupOldSonosConfigKeys();
+
     // Create default client if none exist
     await createDefaultClientIfNeeded();
+
+    // Log final Sonos configuration for debugging
+    const finalSonosConfig = await dbAll(
+      'SELECT key, value FROM config WHERE key LIKE "%sonos%" ORDER BY key'
+    );
+    console.log('=== Final Sonos Configuration ===');
+    finalSonosConfig.forEach(row => {
+      console.log(`  ${row.key} = ${row.value}`);
+    });
+    console.log('=================================');
   } catch (error) {
     console.error('Error initializing database:', error);
   }
@@ -382,36 +395,46 @@ async function cleanupOldSonosConfigKeys() {
     const oldHost = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_server']);
     const oldPort = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_port']);
 
-    // If old keys exist and new keys don't, migrate them
+    // If old keys exist, migrate them to new keys if new keys don't exist
     if (oldHost) {
       const newHost = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
-      if (!newHost) {
+      if (!newHost || !newHost.value) {
         await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
           'sonos_api_host',
           oldHost.value,
         ]);
-        console.log('Migrated sonos_server to sonos_api_host');
+        console.log(`Migrated sonos_server (${oldHost.value}) to sonos_api_host`);
+      } else {
+        console.log(
+          `Keeping existing sonos_api_host (${newHost.value}), discarding old sonos_server (${oldHost.value})`
+        );
       }
-      // Delete old key
+      // Always delete old key
       await dbRun('DELETE FROM config WHERE key = ?', ['sonos_server']);
+      console.log('Deleted old sonos_server key');
     }
 
     if (oldPort) {
       const newPort = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
-      if (!newPort) {
+      if (!newPort || !newPort.value) {
         await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
           'sonos_api_port',
           oldPort.value,
         ]);
-        console.log('Migrated sonos_port to sonos_api_port');
+        console.log(`Migrated sonos_port (${oldPort.value}) to sonos_api_port`);
+      } else {
+        console.log(
+          `Keeping existing sonos_api_port (${newPort.value}), discarding old sonos_port (${oldPort.value})`
+        );
       }
-      // Delete old key
+      // Always delete old key
       await dbRun('DELETE FROM config WHERE key = ?', ['sonos_port']);
+      console.log('Deleted old sonos_port key');
     }
 
     console.log('Sonos config keys cleanup completed');
   } catch (error) {
-    console.log('Sonos config keys cleanup not needed or already completed');
+    console.error('Error during Sonos config keys cleanup:', error);
   }
 }
 
