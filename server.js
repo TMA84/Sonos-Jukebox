@@ -109,6 +109,9 @@ async function initializeDatabase() {
     // Check for and migrate legacy JSON files
     await migrateLegacyData();
 
+    // Clean up old Sonos config keys
+    await cleanupOldSonosConfigKeys();
+
     // Initialize configuration from environment variables (for Home Assistant addon)
     await initializeFromEnvironment();
 
@@ -235,11 +238,11 @@ async function migrateLegacyData() {
       // Migrate Sonos config
       if (configData['node-sonos-http-api']) {
         await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
-          'sonos_server',
+          'sonos_api_host',
           configData['node-sonos-http-api'].server || '',
         ]);
         await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
-          'sonos_port',
+          'sonos_api_port',
           configData['node-sonos-http-api'].port || '5005',
         ]);
       }
@@ -372,6 +375,46 @@ async function createDefaultClientIfNeeded() {
   }
 }
 
+// Clean up old Sonos configuration keys (migrate from sonos_server/sonos_port to sonos_api_host/sonos_api_port)
+async function cleanupOldSonosConfigKeys() {
+  try {
+    // Check if old keys exist
+    const oldHost = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_server']);
+    const oldPort = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_port']);
+
+    // If old keys exist and new keys don't, migrate them
+    if (oldHost) {
+      const newHost = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+      if (!newHost) {
+        await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
+          'sonos_api_host',
+          oldHost.value,
+        ]);
+        console.log('Migrated sonos_server to sonos_api_host');
+      }
+      // Delete old key
+      await dbRun('DELETE FROM config WHERE key = ?', ['sonos_server']);
+    }
+
+    if (oldPort) {
+      const newPort = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+      if (!newPort) {
+        await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
+          'sonos_api_port',
+          oldPort.value,
+        ]);
+        console.log('Migrated sonos_port to sonos_api_port');
+      }
+      // Delete old key
+      await dbRun('DELETE FROM config WHERE key = ?', ['sonos_port']);
+    }
+
+    console.log('Sonos config keys cleanup completed');
+  } catch (error) {
+    console.log('Sonos config keys cleanup not needed or already completed');
+  }
+}
+
 // Initialize configuration from environment variables (for Home Assistant addon)
 async function initializeFromEnvironment() {
   try {
@@ -392,14 +435,14 @@ async function initializeFromEnvironment() {
 
     if (process.env.SONOS_SERVER) {
       await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
-        'sonos_server',
+        'sonos_api_host',
         process.env.SONOS_SERVER,
       ]);
     }
 
     if (process.env.SONOS_PORT) {
       await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [
-        'sonos_port',
+        'sonos_api_port',
         process.env.SONOS_PORT,
       ]);
     }
@@ -1049,8 +1092,11 @@ app.post('/api/alarms/stop', async (req, res) => {
       return res.status(404).json({ error: 'Client not found' });
     }
 
-    const sonosServer = process.env.SONOS_SERVER || '172.30.0.50';
-    const sonosPort = process.env.SONOS_PORT || '5005';
+    // Get Sonos API configuration from database
+    const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+    const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+    const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50';
+    const sonosPort = portConfig?.value || process.env.SONOS_PORT || '5005';
     const pauseUrl = `http://${sonosServer}:${sonosPort}/${encodeURIComponent(client.room)}/pause`;
 
     console.log(`[Alarm Stop] Stopping alarm for client ${clientId}, speaker: ${client.room}`);
@@ -1133,8 +1179,11 @@ app.post('/api/alarms/:id/snooze', async (req, res) => {
     // Pause current playback
     const client = await dbGet('SELECT * FROM clients WHERE id = ?', [alarm.clientId]);
     if (client && client.room) {
-      const sonosServer = process.env.SONOS_SERVER || '172.30.0.50';
-      const sonosPort = process.env.SONOS_PORT || '5005';
+      // Get Sonos API configuration from database
+      const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+      const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+      const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50';
+      const sonosPort = portConfig?.value || process.env.SONOS_PORT || '5005';
       const pauseUrl = `http://${sonosServer}:${sonosPort}/${encodeURIComponent(client.room)}/pause`;
       await fetch(pauseUrl);
     }
@@ -2101,9 +2150,15 @@ async function triggerAlarm(alarm) {
     // Prepare volume settings
     const targetVolume = alarm.volume || 30;
     const startVolume = alarm.fadeIn ? 5 : targetVolume; // Start at 5% if fade-in is enabled
-    const sonosServer = process.env.SONOS_SERVER || '172.30.0.50';
-    const sonosPort = process.env.SONOS_PORT || '5005';
+
+    // Get Sonos API configuration from database
+    const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+    const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+    const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50';
+    const sonosPort = portConfig?.value || process.env.SONOS_PORT || '5005';
     const sonosBaseUrl = `http://${sonosServer}:${sonosPort}`;
+
+    console.log(`[Trigger Alarm] Using Sonos server: ${sonosBaseUrl}`);
 
     // Set initial volume BEFORE playing
     try {
