@@ -27,7 +27,9 @@ if (!fs.existsSync(dbDir)) {
 }
 
 // Initialize SQLite database
-const db = new sqlite3.Database('./server/data/database.sqlite');
+const dbPath = process.env.DB_PATH || './server/data/database.sqlite';
+console.log(`[Database] Using database path: ${dbPath}`);
+const db = new sqlite3.Database(dbPath);
 
 // Initialize database tables
 async function initializeDatabase() {
@@ -2177,6 +2179,14 @@ async function triggerAlarm(alarm) {
     // Get Sonos API configuration from database
     const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
     const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+
+    console.log(
+      `[Trigger Alarm] Database query results - hostConfig:`,
+      hostConfig,
+      'portConfig:',
+      portConfig
+    );
+
     const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50';
     const sonosPort = portConfig?.value || process.env.SONOS_PORT || '5005';
     const sonosBaseUrl = `http://${sonosServer}:${sonosPort}`;
@@ -2369,6 +2379,31 @@ process.on('SIGINT', () => {
     }
     process.exit(0);
   });
+});
+
+// Debug endpoint to check Sonos configuration
+app.get('/api/debug/sonos-config', async (req, res) => {
+  try {
+    const allSonosConfig = await dbAll(
+      'SELECT key, value FROM config WHERE key LIKE "%sonos%" ORDER BY key'
+    );
+    const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
+    const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
+
+    res.json({
+      allConfig: allSonosConfig,
+      hostConfig: hostConfig,
+      portConfig: portConfig,
+      resolvedHost: hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50',
+      resolvedPort: portConfig?.value || process.env.SONOS_PORT || '5005',
+      envVars: {
+        SONOS_SERVER: process.env.SONOS_SERVER || 'not set',
+        SONOS_PORT: process.env.SONOS_PORT || 'not set',
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 startServer();
