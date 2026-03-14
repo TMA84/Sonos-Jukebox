@@ -405,13 +405,6 @@
                 </div>
                 <div
                   class="selector-button"
-                  [class.active]="libraryCategory === 'radio'"
-                  (click)="setLibraryCategory('radio')"
-                >
-                  <ion-icon name="radio"></ion-icon><span>Radio</span>
-                </div>
-                <div
-                  class="selector-button"
                   [class.active]="libraryCategory === 'podcast'"
                   (click)="setLibraryCategory('podcast')"
                 >
@@ -424,6 +417,13 @@
                 >
                   <ion-icon name="play-circle"></ion-icon><span>Radio Play</span>
                 </div>
+                <div
+                  class="selector-button"
+                  [class.active]="libraryCategory === 'radio'"
+                  (click)="setLibraryCategory('radio')"
+                >
+                  <ion-icon name="radio"></ion-icon><span>Radio</span>
+                </div>
               </div>
             </div>
             <div class="touch-selector">
@@ -433,14 +433,14 @@
                   class="selector-button"
                   [class.active]="librarySource === 'spotify'"
                   [class.disabled]="!serviceConfigured.spotify"
-                  (click)="serviceConfigured.spotify && (librarySource = 'spotify')"
+                  (click)="serviceConfigured.spotify && setLibrarySource('spotify')"
                 >
                   <ion-icon name="musical-notes"></ion-icon><span>Spotify</span>
                 </div>
                 <div
                   class="selector-button"
                   [class.active]="librarySource === 'library'"
-                  (click)="librarySource = 'library'"
+                  (click)="setLibrarySource('library')"
                 >
                   <ion-icon name="folder"></ion-icon><span>Local</span>
                 </div>
@@ -448,7 +448,7 @@
                   class="selector-button"
                   [class.active]="librarySource === 'tunein'"
                   [class.disabled]="!serviceConfigured.tunein"
-                  (click)="serviceConfigured.tunein && (librarySource = 'tunein')"
+                  (click)="serviceConfigured.tunein && setLibrarySource('tunein')"
                 >
                   <ion-icon name="radio"></ion-icon><span>TuneIn</span>
                 </div>
@@ -563,7 +563,7 @@
         <div class="cfg-list">
           <div class="cfg-list-item" *ngFor="let item of filteredLibraryItems; let i = index">
             <img
-              [src]="item.cover || 'assets/images/nocover.png'"
+              [src]="libCovers[item.id || item.title] || item.cover || 'assets/images/nocover.png'"
               class="lib-thumb"
               onerror="this.src = 'assets/images/nocover.png'"
             />

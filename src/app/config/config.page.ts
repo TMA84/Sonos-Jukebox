@@ -11,6 +11,7 @@ import { RadioSearchComponent } from '../radio-search/radio-search.component';
 import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
 import { AlarmService, Alarm } from '../alarm.service';
 import { UnifiedSearchComponent, SearchMode } from '../unified-search/unified-search.component';
+import { ArtworkService } from '../artwork.service';
 
 @Component({
   selector: 'app-config',
@@ -54,6 +55,7 @@ export class ConfigPage implements OnInit {
   alarms: Alarm[] = [];
   showManualAdd = false;
   libraryFilter = 'all';
+  libCovers: { [key: string]: string } = {};
 
   constructor(
     private http: HttpClient,
@@ -61,7 +63,8 @@ export class ConfigPage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private modalController: ModalController,
-    private alarmService: AlarmService
+    private alarmService: AlarmService,
+    private artworkService: ArtworkService
   ) {}
 
   ngOnInit() {
@@ -538,14 +541,43 @@ export class ConfigPage implements OnInit {
       })
       .subscribe({
         next: items => {
-          this.libraryItems = items || [];
+          this.libraryItems = (items || []).map(item => {
+            // For radio items, extract real cover from metadata (same logic as MediaService)
+            if (item.category === 'radio' && item.metadata) {
+              const realCover = this.getRadioCover(item.metadata);
+              if (realCover) {
+                item.cover = realCover;
+              }
+            }
+            return item;
+          });
           console.log('Loaded library items from server:', this.libraryItems.length);
+          // Resolve covers via ArtworkService for items without cover
+          this.libraryItems.forEach(item => {
+            this.artworkService.getArtwork(item).subscribe(url => {
+              this.libCovers[item.id || item.title] = url;
+            });
+          });
         },
         error: err => {
           console.error('Failed to load library items:', err);
           this.libraryItems = [];
         },
       });
+  }
+
+  private getRadioCover(metadata: string): string | null {
+    try {
+      const meta = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
+      if (meta.image && !meta.image.startsWith('data:')) return meta.image;
+      if (meta.logo) return meta.logo;
+      if (meta.cover && !meta.cover.startsWith('data:')) return meta.cover;
+      const stationId = meta.id?.replace('s', '');
+      if (stationId) return `https://cdn-profiles.tunein.com/s${stationId}/images/logod.jpg`;
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   editLibraryItem(index: number) {
@@ -718,11 +750,23 @@ export class ConfigPage implements OnInit {
 
   setLibraryCategory(category: string) {
     this.libraryCategory = category;
-    // Auto-set search type for podcast category
-    if (category === 'podcast') {
+    // Smart defaults — user can still override source/searchType afterwards
+    if (category === 'radio') {
+      this.librarySource = 'tunein';
+    } else if (category === 'audiobook') {
+      this.librarySource = 'spotify';
+      this.searchType = 'audiobook';
+    } else if (category === 'podcast') {
+      this.librarySource = 'spotify';
       this.searchType = 'podcast';
-    } else if (this.searchType === 'podcast' && category !== 'podcast') {
-      this.searchType = 'album'; // Reset to album if switching away from podcast
+    }
+  }
+
+  setLibrarySource(source: string) {
+    this.librarySource = source;
+    // Smart default — tunein implies radio
+    if (source === 'tunein') {
+      this.libraryCategory = 'radio';
     }
   }
 

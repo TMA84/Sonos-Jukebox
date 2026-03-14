@@ -1758,16 +1758,19 @@ app.get('/api/tunein/search/stations', async (req, res) => {
         const defaultImage =
           'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
 
-        // Use the real TuneIn station image, fall back to guide_id-based logo URL, then default icon
-        const stationImage =
-          imageMatch[1] ||
-          (guideIdMatch[1]
-            ? `https://cdn-radiotime-logos.tunein.com/${guideIdMatch[1]}q.png`
-            : '') ||
-          defaultImage;
+        // Build station image URL from guide_id (most reliable), then XML image attr, then fallback
+        const stationId = guideIdMatch[1] || `s${Date.now()}_${i}`;
+        let stationImage = '';
+        if (guideIdMatch[1]) {
+          // TuneIn CDN logo - guide_id already has 's' prefix like 's12345'
+          stationImage = `https://cdn-radiotime-logos.tunein.com/${guideIdMatch[1]}q.png`;
+        } else if (imageMatch[1]) {
+          stationImage = imageMatch[1];
+        } else {
+          stationImage = defaultImage;
+        }
 
         // For TuneIn, use Sonos-compatible URI format
-        const stationId = guideIdMatch[1] || `s${Date.now()}_${i}`;
         const sonosUri = `x-sonosapi-radio:${stationId}?sid=254&flags=8300&sn=1`;
 
         stations.push({
