@@ -1,339 +1,305 @@
-.modern-toolbar {
-  --background: rgba(255, 255, 255, 0.95);
-  --color: var(--text-primary);
-  backdrop-filter: var(--blur-background);
-  -webkit-backdrop-filter: var(--blur-background);
-}
+// ─── Config Page – compact for 800×480 ──────────────────────────
 
-.modern-title {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 18px;
+.modern-toolbar {
+  --background: rgba(15, 15, 26, 0.95);
+  --color: var(--text-primary);
+  --min-height: 38px;
 }
 
 .modern-select {
   --background: var(--surface);
   --color: var(--text-primary);
-  --border-radius: var(--radius-md);
-  --padding-start: var(--spacing-md);
-  --padding-end: var(--spacing-md);
+  --border-radius: 8px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  font-size: 13px;
 }
 
 .modern-button-icon {
   --background: transparent;
-  --color: var(--primary);
-  --border-radius: var(--radius-md);
-  --padding-start: 12px;
-  --padding-end: 12px;
-  
-  &:hover {
-    --background: rgba(0, 122, 255, 0.1);
-  }
+  --color: var(--text-secondary);
+  --padding-start: 6px;
+  --padding-end: 6px;
 }
 
 ion-segment {
-  --background: var(--surface-elevated);
-  border-radius: var(--radius-md);
-  margin: var(--spacing-sm);
-  box-shadow: var(--shadow-small);
-  
+  --background: var(--surface);
+  border-radius: 8px;
+  margin: 2px 4px;
+  border: 1px solid var(--border-color);
+  min-height: 32px;
+
   ion-segment-button {
-    --color: var(--text-secondary);
-    --color-checked: var(--primary);
-    --background-checked: rgba(0, 122, 255, 0.1);
-    --border-radius: var(--radius-sm);
+    --color: var(--text-tertiary);
+    --color-checked: var(--primary-light);
+    --background-checked: rgba(108, 92, 231, 0.15);
+    --indicator-color: transparent;
+    --border-radius: 6px;
     margin: 2px;
-    
+    min-height: 28px;
+
     ion-icon {
-      font-size: 20px;
+      font-size: 16px;
     }
   }
 }
 
+// ─── Cards ───────────────────────────────────────────────────────
+
 .modern-card {
-  margin: var(--spacing-md);
-  --background: var(--surface-elevated);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-medium);
+  margin: 6px;
+  --background: transparent;
+  background: var(--gradient-card), var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow-small);
   border: 1px solid var(--border-color);
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-large);
-    transition: all 0.3s ease;
+
+  ion-card-header {
+    padding: 8px 10px 4px;
+  }
+
+  ion-card-content {
+    padding: 6px 10px 10px;
   }
 }
 
 .modern-card-title {
-  color: var(--text-primary);
-  font-weight: 600;
-  font-size: 20px;
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  font-size: 14px;
 }
 
-.timer-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+ion-card-subtitle {
+  color: var(--text-secondary) !important;
+  font-size: 12px;
+  margin-top: 2px;
 }
 
-.timer-value {
-  min-width: 40px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--ion-color-primary);
-}
+// ─── Buttons ─────────────────────────────────────────────────────
 
 .modern-button {
-  --border-radius: var(--radius-md);
+  --border-radius: 10px;
   font-weight: 600;
-  transition: all 0.2s ease;
-  
+  font-size: 13px;
+  height: 34px;
+  margin: 4px 0;
+
   &.primary {
     --background: var(--primary);
     --color: white;
-    
-    &:hover {
-      --background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
   }
-  
+
   &.secondary {
     --background: var(--surface-elevated);
     --color: var(--text-primary);
     --border-color: var(--border-color);
     --border-width: 1px;
     --border-style: solid;
-    
-    &:hover {
-      --background: var(--background);
-    }
   }
 }
 
-ion-app {
-  padding-bottom: 240px;
-}
+// ─── Items & Lists ───────────────────────────────────────────────
 
 ion-content {
   --background: var(--background);
-  height: calc(100vh - 240px);
-  overflow-y: auto;
 }
 
 ion-item {
   --background: transparent;
   --color: var(--text-primary);
   --border-color: var(--border-color);
-  
-  ion-input, ion-select, ion-toggle {
-    --color: var(--text-primary);
+  --min-height: 34px;
+  --padding-start: 10px;
+  --padding-end: 8px;
+  font-size: 13px;
+
+  ion-label {
+    color: var(--text-primary) !important;
+    margin: 4px 0;
+
+    p {
+      color: var(--text-secondary) !important;
+      font-size: 12px;
+    }
+    h2 {
+      color: var(--text-primary) !important;
+      font-weight: 600;
+      font-size: 13px;
+    }
   }
 }
 
 ion-list {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
+  background: transparent;
+  border-radius: 10px;
   overflow: hidden;
-  margin: var(--spacing-md);
-  
+  margin-top: 4px;
+
   ion-item {
     --border-color: var(--border-color);
-    
-    &:hover {
-      --background: var(--background);
-    }
   }
 }
 
-.service-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-}
+// ─── Timer Controls ──────────────────────────────────────────────
 
-.service-card {
-  background: var(--surface-elevated);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  box-shadow: var(--shadow-small);
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
-    background: var(--background);
-  }
-  
-  &.active {
-    border-color: var(--primary);
-    background: rgba(0, 122, 255, 0.1);
-    transform: translateY(-1px);
-    
-    .service-icon {
-      color: var(--primary);
-    }
-    
-    h3 {
-      color: var(--primary);
-    }
-  }
-  
-  .service-icon {
-    font-size: 24px;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xs);
-    transition: color 0.3s ease;
-  }
-  
-  h3 {
-    margin: var(--spacing-xs) 0 var(--spacing-xs) 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    transition: color 0.3s ease;
-  }
-  
-  p {
-    margin: 0;
-    font-size: 11px;
-    color: var(--text-tertiary);
-  }
-}
-
-
-
-.client-selector, .service-selector {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border-color);
-  padding: var(--spacing-sm) var(--spacing-md);
-}
-
-.client-dropdown, .service-dropdown {
+.timer-controls {
   display: flex;
   align-items: center;
-  background: var(--surface-elevated);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  box-shadow: var(--shadow-small);
-  
-  ion-icon {
-    font-size: 20px;
-    color: var(--primary);
-    margin-right: var(--spacing-sm);
-  }
-  
-  ion-select {
-    --color: var(--text-primary);
-    --placeholder-color: var(--text-secondary);
-    flex: 1;
-    
-    &::part(text) {
-      font-weight: 500;
-    }
-  }
+  gap: 4px;
 }
 
+.timer-value {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary-light);
+}
+
+.select-spacer {
+  width: 6px;
+  min-width: 6px;
+}
+
+.speaker-name {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+// ─── Touch Selector ──────────────────────────────────────────────
+
 .touch-selector {
-  margin: var(--spacing-md) 0;
-  
+  margin-bottom: 8px;
+
   label {
     display: block;
+    font-size: 11px;
     font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
-    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+    padding-left: 2px;
   }
 }
 
 .selector-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: var(--spacing-sm);
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 3px;
 }
 
 .selector-button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-md);
+  justify-content: center;
+  flex: 1;
+  gap: 1px;
+  padding: 4px 2px;
   background: var(--surface-elevated);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  min-height: 70px;
-  
-  &:hover:not(.disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 14px;
+    color: var(--text-secondary);
   }
-  
+  span {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
   &.active {
+    background: rgba(108, 92, 231, 0.15);
     border-color: var(--primary);
-    background: rgba(0, 122, 255, 0.1);
-    
     ion-icon {
-      color: var(--primary);
+      color: var(--primary-light);
     }
-    
     span {
-      color: var(--primary);
+      color: var(--primary-light);
       font-weight: 600;
     }
   }
-  
+
   &.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background: var(--surface);
-    
-    ion-icon {
-      color: var(--text-tertiary);
-    }
-    
-    span {
-      color: var(--text-tertiary);
-    }
+    opacity: 0.35;
+    pointer-events: none;
   }
-  
-  ion-icon {
-    font-size: 20px;
-    margin-bottom: var(--spacing-xs);
+}
+
+// ─── Service Dropdown ────────────────────────────────────────────
+
+.service-selector {
+  padding: 6px 8px;
+}
+
+.service-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px 10px;
+
+  > ion-icon {
+    font-size: 16px;
+    color: var(--primary-light);
+  }
+
+  ion-select {
+    flex: 1;
+    --color: var(--text-primary);
+    --placeholder-color: var(--text-tertiary);
+    font-weight: 500;
+    font-size: 13px;
+  }
+}
+
+// ─── Loading ─────────────────────────────────────────────────────
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+
+  ion-spinner {
+    margin-bottom: 6px;
+    color: var(--primary-light);
+  }
+  p {
     color: var(--text-secondary);
-  }
-  
-  span {
-    font-size: 12px;
-    color: var(--text-primary);
-    text-align: center;
+    font-size: 13px;
   }
 }
 
-.select-spacer {
-  width: 10px;
-  min-width: 10px;
-}
+// ─── Input Labels ────────────────────────────────────────────────
 
-@media (prefers-color-scheme: dark) {
-  .modern-toolbar {
-    --background: rgba(28, 28, 30, 0.95);
+ion-item {
+  ion-label[position='stacked'] {
+    color: var(--text-tertiary) !important;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
   }
-  
-  .service-card, .tab-button, .client-button, .selector-button {
-    background: var(--surface-elevated-dark);
-    
-    &:hover {
-      background: var(--surface-dark);
-    }
-    
-    &.active {
-      background: rgba(0, 122, 255, 0.15);
-    }
+
+  ion-input {
+    --color: var(--text-primary);
+    --placeholder-color: var(--text-tertiary);
+    font-size: 13px;
   }
 }

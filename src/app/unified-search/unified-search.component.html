@@ -1,0 +1,78 @@
+<div class="search-modal">
+  <!-- Header -->
+  <div class="search-header">
+    <div class="header-left">
+      <ion-icon [name]="icon" class="header-icon"></ion-icon>
+      <h2>{{ title }}</h2>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" (click)="toggleKeyboard()">
+        <ion-icon [name]="showKeyboard ? 'keypad' : 'keypad-outline'"></ion-icon>
+      </button>
+      <button class="icon-btn" (click)="closeModal()">
+        <ion-icon name="close"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Input -->
+  <div class="search-input-row">
+    <ion-icon name="search-outline" class="search-icon"></ion-icon>
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="onSearchInput()"
+      [placeholder]="placeholder"
+      class="search-input"
+    />
+    <button class="clear-btn" *ngIf="searchTerm" (click)="clearSearch()">
+      <ion-icon name="close-circle"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div class="results-area">
+    <!-- Loading -->
+    <div class="search-status" *ngIf="isSearching">
+      <ion-spinner></ion-spinner>
+      <span>Searching...</span>
+    </div>
+
+    <!-- Results List -->
+    <div class="result-list" *ngIf="results.length > 0 && !isSearching">
+      <div class="result-item" *ngFor="let item of results" (click)="selectResult(item)">
+        <img
+          [src]="item.image || 'assets/images/nocover.png'"
+          [alt]="item.title"
+          class="result-thumb"
+          onerror="this.src = 'assets/images/nocover.png'"
+        />
+        <div class="result-info">
+          <span class="result-title">{{ item.title }}</span>
+          <span class="result-subtitle" *ngIf="item.subtitle">{{ item.subtitle }}</span>
+        </div>
+        <ion-icon name="add-circle" class="result-add"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="search-status" *ngIf="searchTerm && !isSearching && results.length === 0">
+      <ion-icon name="search-outline" class="empty-icon"></ion-icon>
+      <span>No results for "{{ searchTerm }}"</span>
+    </div>
+
+    <!-- Initial State -->
+    <div class="search-status" *ngIf="!searchTerm && !isSearching">
+      <ion-icon [name]="icon" class="empty-icon"></ion-icon>
+      <span>Type to search</span>
+    </div>
+  </div>
+
+  <!-- Virtual Keyboard -->
+  <app-virtual-keyboard
+    [isVisible]="showKeyboard"
+    (keyPress)="addKey($event)"
+    (backspace)="backspace()"
+    (hide)="hideKeyboard()"
+  ></app-virtual-keyboard>
+</div>

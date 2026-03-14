@@ -13,7 +13,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [class.keyboard-visible]="showKeyboard">
   <ion-card class="modern-card">
     <ion-card-header>
       <ion-card-title class="modern-card-title">Add Content</ion-card-title>
@@ -155,5 +155,10 @@
     </ion-card-content>
   </ion-card>
 
-  <app-virtual-keyboard [isVisible]="showKeyboard"></app-virtual-keyboard>
+  <app-virtual-keyboard
+    [isVisible]="showKeyboard"
+    (keyPress)="addKey($event)"
+    (backspace)="backspace()"
+    (hide)="hideKeyboard()"
+  ></app-virtual-keyboard>
 </ion-content>

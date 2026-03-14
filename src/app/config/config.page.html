@@ -481,20 +481,6 @@
               </div>
             </div>
           </div>
-          <ion-item>
-            <ion-label position="stacked">Artist</ion-label>
-            <ion-input
-              [(ngModel)]="libraryArtist"
-              (ionFocus)="setActiveInput('libraryArtist')"
-            ></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Title</ion-label>
-            <ion-input
-              [(ngModel)]="libraryTitle"
-              (ionFocus)="setActiveInput('libraryTitle')"
-            ></ion-input>
-          </ion-item>
           <!-- Search Type Selector - Only show for Spotify/Library -->
           <div class="touch-selector" *ngIf="librarySource !== 'tunein'">
             <label>Search Type</label>
@@ -535,6 +521,20 @@
               </div>
             </div>
           </div>
+          <ion-item>
+            <ion-label position="stacked">Artist</ion-label>
+            <ion-input
+              [(ngModel)]="libraryArtist"
+              (ionFocus)="setActiveInput('libraryArtist')"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Title</ion-label>
+            <ion-input
+              [(ngModel)]="libraryTitle"
+              (ionFocus)="setActiveInput('libraryTitle')"
+            ></ion-input>
+          </ion-item>
 
           <!-- Search Button - Changes based on source -->
           <ion-button

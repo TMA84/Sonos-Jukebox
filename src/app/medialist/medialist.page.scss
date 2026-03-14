@@ -1,32 +1,45 @@
 .load-more-button {
-    margin: 16px;
-    --border-radius: 8px;
+  margin: 16px;
+  --border-radius: var(--radius-md);
+  --background: var(--surface-elevated);
+  --color: var(--primary-light);
 }
 
-.virtual-keyboard {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--ion-color-light);
-  border-top: 1px solid var(--ion-color-medium);
-  padding: 5px;
-  z-index: 1000;
-  height: 50vh;
-  
-  ion-button {
-    margin: 1px;
-    --border-radius: 4px;
-    font-size: 10px;
-    height: 28px;
-    min-height: 28px;
+.modern-card {
+  --background: transparent;
+  background: var(--gradient-card), var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-small);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
   }
-  
-  ion-grid {
-    --ion-grid-padding: 2px;
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
-  
-  ion-col {
-    --ion-grid-column-padding: 1px;
-  }
+}
+
+.modern-card-header {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.modern-card-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.2px;
+}
+
+.media-card {
+  cursor: pointer;
 }

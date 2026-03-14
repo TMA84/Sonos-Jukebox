@@ -3,52 +3,102 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--ion-color-light);
-  padding: 10px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  background: var(--surface);
+  padding: 6px 8px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  border-top: 1px solid var(--border-color);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .keyboard-row {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .key {
-  min-width: 50px;
-  height: 50px;
-  font-size: 18px;
-  font-weight: bold;
-  border: 1px solid var(--ion-color-medium);
-  border-radius: 8px;
-  background: var(--ion-color-light-shade);
-  color: var(--ion-color-dark);
+  min-width: 44px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.1s;
+  transition: all 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 
   &:active {
-    background: var(--ion-color-primary);
+    background: var(--primary);
     color: white;
-    transform: scale(0.95);
+    transform: scale(0.92);
+    box-shadow: var(--shadow-glow);
+  }
+
+  &:hover {
+    background: var(--surface-hover);
   }
 }
 
 .key-space {
   flex: 1;
-  max-width: 300px;
+  max-width: 280px;
 }
 
 .key-backspace {
-  min-width: 70px;
-  font-size: 24px;
+  min-width: 60px;
+  font-size: 20px;
 }
 
 .key-hide {
-  min-width: 100px;
-  background: var(--ion-color-medium);
+  min-width: 80px;
+  background: var(--primary);
   color: white;
+  border-color: var(--primary);
+
+  &:hover {
+    background: var(--primary-dark);
+  }
+
+  &:active {
+    background: var(--primary-dark);
+    transform: scale(0.95);
+  }
+}
+
+// 800x480 touch display optimization
+@media (max-width: 800px) and (max-height: 480px) {
+  .virtual-keyboard {
+    padding: 4px 6px;
+    gap: 3px;
+  }
+
+  .keyboard-row {
+    gap: 3px;
+  }
+
+  .key {
+    min-width: 36px;
+    height: 32px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  .key-backspace {
+    min-width: 50px;
+    font-size: 16px;
+  }
+
+  .key-hide {
+    min-width: 64px;
+    font-size: 12px;
+  }
+
+  .key-space {
+    max-width: 220px;
+  }
 }

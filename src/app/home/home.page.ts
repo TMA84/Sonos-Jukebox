@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { MediaService } from '../media.service';
@@ -10,6 +10,8 @@ import { ActivityIndicatorService } from '../activity-indicator.service';
 import { ClientService } from '../client.service';
 import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { AlarmManagerComponent } from '../alarm-manager/alarm-manager.component';
+import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
+import { AlarmService } from '../alarm.service';
 import { Artist } from '../artist';
 import { Media } from '../media';
 
@@ -48,6 +50,8 @@ export class HomePage implements OnInit, AfterViewInit {
     private clientService: ClientService,
     private router: Router,
     private modalController: ModalController,
+    private toastController: ToastController,
+    private alarmService: AlarmService,
     private http: HttpClient
   ) {}
 
@@ -246,7 +250,51 @@ export class HomePage implements OnInit, AfterViewInit {
       cssClass: 'alarm-manager-modal',
     });
 
+    modal.onDidDismiss().then(async result => {
+      if (result.role === 'open-edit' && result.data) {
+        await this.openAlarmEdit(result.data.alarm, result.data.libraryItems, result.data.isNew);
+      }
+    });
+
     return await modal.present();
+  }
+
+  private async openAlarmEdit(alarm: any, libraryItems: any[], isNew: boolean) {
+    const editModal = await this.modalController.create({
+      component: AlarmEditComponent,
+      componentProps: { alarm, libraryItems },
+      cssClass: 'alarm-edit-modal',
+    });
+
+    editModal.onDidDismiss().then(async result => {
+      if (result.data) {
+        const obs = isNew
+          ? this.alarmService.createAlarm(result.data)
+          : this.alarmService.updateAlarm(result.data);
+        obs.subscribe({
+          next: async () => {
+            const toast = await this.toastController.create({
+              message: isNew ? 'Alarm created successfully' : 'Alarm updated successfully',
+              duration: 2000,
+              color: 'success',
+            });
+            toast.present();
+          },
+          error: async () => {
+            const toast = await this.toastController.create({
+              message: isNew ? 'Failed to create alarm' : 'Failed to update alarm',
+              duration: 2000,
+              color: 'danger',
+            });
+            toast.present();
+          },
+        });
+      }
+      // Re-open the manager
+      this.openAlarmManager();
+    });
+
+    return await editModal.present();
   }
 
   configButtonPressed() {

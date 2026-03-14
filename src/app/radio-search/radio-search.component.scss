@@ -1,71 +1,87 @@
 .search-container {
-  padding: 16px;
+  padding: var(--spacing-md, 16px);
 }
 
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px;
-  
+  padding: var(--spacing-xl, 32px);
+
   ion-spinner {
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-md, 16px);
+    color: var(--primary-light);
+  }
+
+  p {
+    color: var(--text-secondary);
   }
 }
 
 .results-container {
-  margin-top: 16px;
+  margin-top: var(--spacing-md, 16px);
 }
 
 .station-card {
   display: flex;
   align-items: center;
   padding: 12px;
-  margin-bottom: 8px;
-  background: var(--ion-color-light);
-  border-radius: 12px;
+  margin-bottom: var(--spacing-sm, 8px);
+  background: var(--surface, #1a1a2e);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
-    background: var(--ion-color-light-shade);
+    background: var(--surface-elevated, #252540);
     transform: translateY(-1px);
+    box-shadow: var(--shadow-small);
   }
-  
+
+  &:active {
+    transform: scale(0.98);
+  }
+
   img {
     width: 60px;
     height: 60px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm, 8px);
     object-fit: cover;
     margin-right: 12px;
+    background: var(--surface-elevated);
   }
-  
+
   .station-info {
     flex: 1;
-    
+    overflow: hidden;
+
     h3 {
       margin: 0 0 4px 0;
       font-size: 16px;
       font-weight: 600;
-      color: var(--ion-color-dark);
+      color: var(--text-primary, #ffffff);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    
+
     .genre {
       margin: 0 0 2px 0;
       font-size: 14px;
-      color: var(--ion-color-medium);
+      color: var(--text-secondary, rgba(255, 255, 255, 0.65));
     }
-    
+
     .bitrate {
       margin: 0;
       font-size: 12px;
-      color: var(--ion-color-medium-shade);
+      color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
     }
   }
 }
 
 .no-results {
   text-align: center;
-  padding: 32px;
-  color: var(--ion-color-medium);
+  padding: var(--spacing-xl, 32px);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.65));
 }

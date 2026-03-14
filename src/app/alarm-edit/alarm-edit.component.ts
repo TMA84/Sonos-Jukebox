@@ -20,7 +20,10 @@ export class AlarmEditComponent implements OnInit {
   };
   @Input() libraryItems: any[] = [];
 
-  alarmTime: string = '';
+  selectedHour = '07';
+  selectedMinute = '00';
+  hours: string[] = [];
+  minutes: string[] = [];
 
   weekDays = [
     { label: 'Sun', value: 0 },
@@ -35,18 +38,24 @@ export class AlarmEditComponent implements OnInit {
   constructor(private modalController: ModalController) {}
 
   ngOnInit() {
-    // Convert time to ISO format for ion-datetime
-    const today = new Date().toISOString().split('T')[0];
-    this.alarmTime = `${today}T${this.alarm.time}:00`;
+    // Build hours 00-23 and minutes in 5-min steps
+    this.hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+    this.minutes = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
 
-    // Auto-generate name if empty
+    // Parse existing time
+    if (this.alarm.time) {
+      const parts = this.alarm.time.split(':');
+      this.selectedHour = parts[0] || '07';
+      this.selectedMinute = parts[1] || '00';
+      // Snap minute to nearest 5
+      const m = parseInt(this.selectedMinute, 10);
+      this.selectedMinute = String(Math.round(m / 5) * 5).padStart(2, '0');
+      if (this.selectedMinute === '60') this.selectedMinute = '55';
+    }
+
     if (!this.alarm.name) {
       this.alarm.name = this.generateAlarmName();
     }
-
-    console.log('AlarmEditComponent initialized');
-    console.log('Library items:', this.libraryItems);
-    console.log('Alarm:', this.alarm);
   }
 
   generateAlarmName(): string {
@@ -69,22 +78,8 @@ export class AlarmEditComponent implements OnInit {
   }
 
   onTimeChange() {
-    // Extract HH:mm from ISO datetime
-    if (this.alarmTime) {
-      const time = new Date(this.alarmTime);
-      this.alarm.time = `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`;
-      // Update name if it was auto-generated
-      if (
-        !this.alarm.name ||
-        this.alarm.name.includes(this.alarm.time) ||
-        this.alarm.name.startsWith('Alarm') ||
-        this.alarm.name.startsWith('Daily') ||
-        this.alarm.name.startsWith('Weekdays') ||
-        this.alarm.name.startsWith('Weekend')
-      ) {
-        this.alarm.name = this.generateAlarmName();
-      }
-    }
+    this.alarm.time = `${this.selectedHour}:${this.selectedMinute}`;
+    this.alarm.name = this.generateAlarmName();
   }
 
   isDaySelected(day: number): boolean {
@@ -112,11 +107,45 @@ export class AlarmEditComponent implements OnInit {
     }
   }
 
+  selectMedia(item: any) {
+    this.alarm.mediaId = item.id || item.title;
+    this.alarm.mediaTitle = `${item.title} - ${item.artist}`;
+  }
+
+  getContentIcon(item: any): string {
+    const cat = (item.category || '').toLowerCase();
+    const type = (item.type || '').toLowerCase();
+    if (cat === 'radio' || type === 'tunein') return 'radio-outline';
+    if (cat === 'podcast') return 'mic-outline';
+    if (cat === 'audiobook' || cat === 'radioplay') return 'book-outline';
+    if (cat === 'playlist') return 'list-outline';
+    return 'musical-notes-outline';
+  }
+
+  setDayPreset(preset: string) {
+    if (preset === 'weekdays') {
+      this.alarm.days = [1, 2, 3, 4, 5];
+    } else if (preset === 'weekend') {
+      this.alarm.days = [0, 6];
+    } else if (preset === 'daily') {
+      this.alarm.days = [0, 1, 2, 3, 4, 5, 6];
+    }
+    this.alarm.name = this.generateAlarmName();
+  }
+
+  isDayPreset(preset: string): boolean {
+    const d = this.alarm.days;
+    if (preset === 'weekdays') return d.length === 5 && d.every(v => v >= 1 && v <= 5);
+    if (preset === 'weekend') return d.length === 2 && d.includes(0) && d.includes(6);
+    if (preset === 'daily') return d.length === 7;
+    return false;
+  }
+
   saveAlarm() {
-    // Ensure name is set
     if (!this.alarm.name) {
       this.alarm.name = this.generateAlarmName();
     }
+    this.alarm.enabled = true;
     this.modalController.dismiss(this.alarm);
   }
 

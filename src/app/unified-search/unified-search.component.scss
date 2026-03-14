@@ -1,0 +1,291 @@
+:host {
+  display: block;
+  height: 100%;
+  background: var(--surface, #1a1a2e);
+  color: var(--text-primary, #fff);
+}
+
+.search-modal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px 14px;
+  box-sizing: border-box;
+}
+
+// ─── Header ──────────────────────────────────────────────────────
+.search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .header-icon {
+    font-size: 18px;
+    color: var(--primary-light, #a29bfe);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--surface-elevated, #252540);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 16px;
+  }
+
+  &:active {
+    background: rgba(108, 92, 231, 0.2);
+    border-color: var(--primary, #6c5ce7);
+    color: var(--primary-light, #a29bfe);
+  }
+}
+
+// ─── Search Input ────────────────────────────────────────────────
+.search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-elevated, #252540);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  padding: 0 10px;
+  height: 38px;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--primary, #6c5ce7);
+  }
+}
+
+.search-icon {
+  font-size: 16px;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary, #fff);
+  font-size: 14px;
+  height: 100%;
+
+  &::placeholder {
+    color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  }
+}
+
+.clear-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  cursor: pointer;
+  padding: 0;
+
+  ion-icon {
+    font-size: 18px;
+  }
+
+  &:active {
+    color: var(--text-secondary);
+  }
+}
+
+// ─── Results Area ────────────────────────────────────────────────
+.results-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease;
+
+  &:active {
+    background: rgba(108, 92, 231, 0.15);
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.result-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface-elevated, #252540);
+}
+
+.result-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.result-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-subtitle {
+  font-size: 11px;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-add {
+  font-size: 20px;
+  color: var(--primary, #6c5ce7);
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.result-item:hover .result-add,
+.result-item:active .result-add {
+  opacity: 1;
+}
+
+// ─── Status / Empty ──────────────────────────────────────────────
+.search-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  gap: 8px;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+
+  ion-spinner {
+    --color: var(--primary-light, #a29bfe);
+  }
+
+  span {
+    font-size: 13px;
+  }
+
+  .empty-icon {
+    font-size: 28px;
+    opacity: 0.5;
+  }
+}
+
+// ─── 800×480 tweaks ──────────────────────────────────────────────
+@media (max-height: 480px) {
+  .search-modal {
+    padding: 6px 10px;
+  }
+
+  .search-header {
+    margin-bottom: 6px;
+  }
+
+  .header-left h2 {
+    font-size: 13px;
+  }
+
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+
+  .search-input-row {
+    height: 34px;
+    margin-bottom: 6px;
+  }
+
+  .search-input {
+    font-size: 13px;
+  }
+
+  .result-item {
+    padding: 5px 6px;
+    gap: 8px;
+  }
+
+  .result-thumb {
+    width: 34px;
+    height: 34px;
+  }
+
+  .result-title {
+    font-size: 12px;
+  }
+
+  .result-subtitle {
+    font-size: 10px;
+  }
+
+  .result-add {
+    font-size: 18px;
+  }
+
+  .search-status {
+    padding: 16px 12px;
+  }
+}

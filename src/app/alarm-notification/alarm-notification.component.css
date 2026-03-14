@@ -1,44 +1,165 @@
+ion-content {
+  --background: var(--surface, #1a1a2e);
+}
+
+.notification-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px;
+  gap: 8px;
+}
+
+/* Snooze Options - top (quick grab in half-sleep) */
+.snooze-options {
+  display: flex;
+  gap: 8px;
+}
+
+.snooze-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--primary, #6c5ce7);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md, 12px);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.snooze-btn:active {
+  transform: scale(0.96);
+  background: #5a4bd6;
+}
+
+.snooze-btn ion-icon {
+  font-size: 18px;
+}
+
+/* Alarm Info Center */
 .alarm-info {
+  flex: 1;
   text-align: center;
-  padding: 2rem 0;
-  height: 420px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(145deg, rgba(108, 92, 231, 0.08) 0%, rgba(162, 155, 254, 0.04) 100%);
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  padding: 16px 0;
 }
 
 .alarm-icon {
-  font-size: 80px;
-  color: var(--ion-color-primary);
-  margin-bottom: 1rem;
+  font-size: 56px;
+  color: var(--primary-light, #a29bfe);
+  margin-bottom: 8px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 
 .alarm-info h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 4px 0;
+  color: var(--text-primary, #ffffff);
 }
 
 .alarm-time {
   font-size: 2rem;
-  font-weight: bold;
-  color: var(--ion-color-primary);
-  margin: 0.5rem 0;
+  font-weight: 700;
+  color: var(--primary-light, #a29bfe);
+  margin: 4px 0;
+  letter-spacing: 2px;
 }
 
 .alarm-media {
-  font-size: 1rem;
-  color: var(--ion-color-medium);
-  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  margin: 4px 0;
 }
 
-.snooze-button {
-  height: 80px;
-  font-size: 1.2rem;
-  margin-bottom: 0;
+/* Stop Button - bottom (deliberate action) */
+.stop-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: var(--danger, #ff7675);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md, 12px);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
 }
 
-ion-content {
-  --padding-bottom: 0;
+.stop-btn:active {
+  transform: scale(0.98);
+  background: #e66767;
+}
+
+.stop-btn ion-icon {
+  font-size: 22px;
+}
+
+/* 800x480 optimization */
+@media (max-height: 480px) {
+  .notification-layout {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .snooze-btn {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+
+  .alarm-info {
+    padding: 10px 0;
+  }
+
+  .alarm-icon {
+    font-size: 40px;
+    margin-bottom: 4px;
+  }
+
+  .alarm-info h2 {
+    font-size: 1rem;
+  }
+
+  .alarm-time {
+    font-size: 1.6rem;
+  }
+
+  .alarm-media {
+    font-size: 0.8rem;
+  }
+
+  .stop-btn {
+    padding: 12px;
+    font-size: 1rem;
+  }
 }

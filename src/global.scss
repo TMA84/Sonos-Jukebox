@@ -1,88 +1,70 @@
 /*
  * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
 /* Core CSS required for Ionic components to work properly */
-@import "~@ionic/angular/css/core.css";
+@import '~@ionic/angular/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
-@import "~@ionic/angular/css/normalize.css";
-@import "~@ionic/angular/css/structure.css";
-@import "~@ionic/angular/css/typography.css";
+@import '~@ionic/angular/css/normalize.css';
+@import '~@ionic/angular/css/structure.css';
+@import '~@ionic/angular/css/typography.css';
 @import '~@ionic/angular/css/display.css';
 
-/* Optional CSS utils that can be commented out */
-@import "~@ionic/angular/css/padding.css";
-@import "~@ionic/angular/css/float-elements.css";
-@import "~@ionic/angular/css/text-alignment.css";
-@import "~@ionic/angular/css/text-transformation.css";
-@import "~@ionic/angular/css/flex-utils.css";
+/* Optional CSS utils */
+@import '~@ionic/angular/css/padding.css';
+@import '~@ionic/angular/css/float-elements.css';
+@import '~@ionic/angular/css/text-alignment.css';
+@import '~@ionic/angular/css/text-transformation.css';
+@import '~@ionic/angular/css/flex-utils.css';
 
 /* Modern Design System */
-@import "./theme/modern.scss";
+@import './theme/modern.scss';
 
-/* Responsive Design for 800x480 and other displays */
+/* ─── Keyboard-visible content padding ─────────────────────────── */
+ion-content.keyboard-visible {
+  --padding-bottom: 220px;
+}
+
+@media (max-width: 800px) and (max-height: 480px) {
+  ion-content.keyboard-visible {
+    --padding-bottom: 170px;
+  }
+}
+
+/* ─── Responsive: 800x480 displays ─────────────────────────────── */
 @media (max-width: 800px) {
   ion-toolbar {
-    --min-height: 44px;
-    
+    --min-height: 40px;
     ion-title {
-      font-size: 16px;
+      font-size: 15px;
     }
-    
     ion-button {
       --padding-start: 8px;
       --padding-end: 8px;
     }
   }
-  
   ion-card {
-    margin: 8px;
-    
+    margin: 6px;
     ion-card-header {
-      padding: 12px;
-      
+      padding: 10px;
       ion-card-title {
-        font-size: 18px;
+        font-size: 15px;
       }
     }
-    
     ion-card-content {
-      padding: 12px;
+      padding: 10px;
     }
   }
-  
   ion-item {
-    --min-height: 40px;
-    --padding-start: 12px;
-    --padding-end: 12px;
-    
-    ion-label {
-      font-size: 14px;
-    }
+    --min-height: 36px;
+    --padding-start: 10px;
+    --padding-end: 10px;
   }
-  
-  ion-button {
-    --padding-top: 8px;
-    --padding-bottom: 8px;
-    font-size: 14px;
-  }
-  
-  ion-segment {
-    --background: var(--ion-color-light);
-    
-    ion-segment-button {
-      --padding-start: 8px;
-      --padding-end: 8px;
-      font-size: 12px;
-    }
+  ion-segment ion-segment-button {
+    --padding-start: 6px;
+    --padding-end: 6px;
+    font-size: 12px;
   }
 }
 
@@ -91,88 +73,60 @@
     --padding-top: 8px;
     --padding-bottom: 8px;
   }
-  
   ion-card {
     margin: 4px;
-    
     ion-card-header {
       padding: 8px;
     }
-    
     ion-card-content {
       padding: 8px;
     }
   }
-  
   ion-item {
     --min-height: 36px;
   }
-  
-  .virtual-keyboard {
-    padding: 5px;
-    
-    ion-button {
-      height: 32px;
-      font-size: 12px;
-      margin: 1px;
-    }
-  }
 }
 
-/* Specific optimizations for 800x480 displays */
 @media (max-width: 800px) and (max-height: 480px) {
-  ion-header {
-    ion-toolbar {
-      --min-height: 40px;
-      
-      ion-title {
-        font-size: 14px;
-      }
-      
-      ion-segment {
-        ion-segment-button {
-          font-size: 10px;
-          --padding-start: 4px;
-          --padding-end: 4px;
-          
-          ion-icon {
-            font-size: 16px;
-          }
-        }
+  ion-header ion-toolbar {
+    --min-height: 40px;
+    ion-title {
+      font-size: 14px;
+    }
+    ion-segment ion-segment-button {
+      font-size: 10px;
+      --padding-start: 4px;
+      --padding-end: 4px;
+      ion-icon {
+        font-size: 16px;
       }
     }
   }
-  
   ion-grid {
     --ion-grid-padding: 8px;
-    
-    ion-row {
-      ion-col {
-        --ion-grid-column-padding: 4px;
-      }
+    ion-row ion-col {
+      --ion-grid-column-padding: 4px;
     }
   }
 }
 
-/* Touch-friendly sizing */
-@media (pointer: coarse) {
+/* Touch-friendly sizing — only for screens tall enough */
+@media (pointer: coarse) and (min-height: 600px) {
   ion-button {
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    min-height: 44px;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    min-height: 38px;
   }
-  
   ion-item {
-    --min-height: 44px;
-  }
-  
-  .virtual-keyboard ion-button {
-    min-height: 40px;
-    min-width: 40px;
+    --min-height: 38px;
   }
 }
+.virtual-keyboard ion-button {
+  min-height: 36px;
+  min-width: 36px;
+}
 
-/* Modern Dropdown Styling */
+/* ─── Select Popover ───────────────────────────────────────────── */
 .select-popover {
   --background: var(--surface-elevated);
   --border-radius: var(--radius-lg);
@@ -180,11 +134,11 @@
   border: 1px solid var(--border-color);
   backdrop-filter: var(--blur-background);
   -webkit-backdrop-filter: var(--blur-background);
-  
+
   .popover-content {
     --background: transparent;
   }
-  
+
   ion-radio-group {
     ion-item {
       --background: transparent;
@@ -194,214 +148,294 @@
       --padding-end: var(--spacing-md);
       --min-height: 48px;
       transition: all 0.2s ease;
-      
       &:hover {
-        --background: rgba(0, 122, 255, 0.1);
+        --background: rgba(108, 92, 231, 0.1);
       }
-      
       ion-radio {
-        --color: var(--primary);
+        --color: var(--text-tertiary);
         --color-checked: var(--primary);
         margin-right: var(--spacing-sm);
       }
-      
       ion-label {
         font-weight: 500;
         color: var(--text-primary);
       }
     }
-    
     ion-item.item-radio-checked {
-      --background: rgba(0, 122, 255, 0.15);
-      
+      --background: rgba(108, 92, 231, 0.15);
       ion-label {
-        color: var(--primary);
+        color: var(--primary-light);
         font-weight: 600;
       }
     }
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .select-popover {
-    --background: rgba(28, 28, 30, 0.95);
+/* ─── PIN Dialog Modal Wrapper ─────────────────────────────────── */
+.pin-dialog-modal {
+  --width: 300px;
+  --max-width: 85vw;
+  --height: auto;
+  --max-height: 90vh;
+  --border-radius: var(--radius-lg, 16px);
+  --backdrop-opacity: 0.7;
+
+  .modal-wrapper {
+    background: var(--surface, #1a1a2e);
+    box-shadow: var(--shadow-large);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  }
+
+  ion-content,
+  .ion-page {
+    --background: var(--surface, #1a1a2e);
+    background: var(--surface, #1a1a2e);
   }
 }
-/* PIN Dialog Styles */
-.pin-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 8px;
+
+/* ─── Alarm Modal Wrappers ─────────────────────────────────────── */
+.alarm-manager-modal {
+  --width: 420px;
+  --max-width: 95vw;
+  --height: 55vh;
+  --max-height: 70vh;
+  --border-radius: var(--radius-lg, 16px);
+  --backdrop-opacity: 0.6;
+
+  .modal-wrapper {
+    background: var(--surface, #1a1a2e);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    box-shadow: var(--shadow-large);
+    border-radius: var(--radius-lg, 16px);
+  }
 }
 
-.pin-container {
-  text-align: center;
-  max-width: 300px;
-  width: 100%;
-  margin: 0 auto;
+.alarm-edit-modal {
+  --width: 440px;
+  --max-width: 95vw;
+  --height: 70vh;
+  --max-height: 85vh;
+  --border-radius: var(--radius-lg, 16px);
+  --backdrop-opacity: 0.6;
+
+  .modal-wrapper {
+    background: var(--surface, #1a1a2e);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    box-shadow: var(--shadow-large);
+    border-radius: var(--radius-lg, 16px);
+  }
 }
 
-/* New PIN Modal Styles */
-app-pin-dialog {
-  background: none !important;
-  background-color: transparent !important;
-  --background: transparent !important;
-  --box-shadow: none !important;
-  --ion-background-color: transparent !important;
-  --ion-background-color-rgb: 0, 0, 0, 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  color: transparent !important;
+.alarm-notification-modal {
+  --width: 420px;
+  --max-width: 95vw;
+  --height: 55vh;
+  --max-height: 70vh;
+  --border-radius: var(--radius-lg, 16px);
+  --backdrop-opacity: 0.7;
+
+  .modal-wrapper {
+    background: var(--surface, #1a1a2e);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    box-shadow: var(--shadow-large);
+    border-radius: var(--radius-lg, 16px);
+  }
 }
 
-app-pin-dialog * {
-  --ion-background-color: transparent !important;
-  --ion-background-color-rgb: 0, 0, 0, 0 !important;
+@media (max-height: 480px) {
+  .alarm-manager-modal {
+    --height: 80vh;
+    --max-height: 90vh;
+  }
+  .alarm-edit-modal {
+    --height: 90vh;
+    --max-height: 95vh;
+    --width: 400px;
+  }
+  .alarm-notification-modal {
+    --height: 80vh;
+    --max-height: 90vh;
+  }
 }
 
-app-pin-dialog.ion-page {
-  background: none !important;
-  background-color: transparent !important;
-  --background: transparent !important;
-  --ion-background-color: transparent !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.ion-page app-pin-dialog {
-  background: none !important;
-  background-color: transparent !important;
-}
-
-/* Force override any Ionic background */
-app-pin-dialog::before,
-app-pin-dialog::after {
-  display: none !important;
-}
-
+/* ─── PIN Dialog ───────────────────────────────────────────────── */
 .pin-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #1a1a1a;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 320px;
-  width: 90%;
-  z-index: 10000;
+  padding: 12px;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
 }
 
 .pin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-}
+  margin-bottom: 10px;
 
-.pin-header h2 {
-  color: #ffffff;
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
 }
 
 .pin-close {
-  background: none;
-  border: none;
-  color: #ffffff;
-  font-size: 24px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-round);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-}
+  transition: all 0.2s ease;
 
-.pin-close:hover {
-  background: rgba(255, 255, 255, 0.1);
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
 }
 
 .pin-display {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
+  padding: 8px;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .pin-dots {
-  font-size: 32px;
-  color: #ffffff;
-  letter-spacing: 12px;
-  margin-bottom: 8px;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 24px;
+  letter-spacing: 5px;
+  color: var(--primary-light);
+  min-height: 30px;
+  font-weight: 700;
 }
 
 .pin-counter {
-  color: #888888;
-  font-size: 14px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
 }
 
 .pin-keypad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  max-width: 240px;
-  margin: 0 auto;
+  gap: 6px;
 }
 
 .pin-key {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: none;
-  background: #333333;
-  color: #ffffff;
-  font-size: 20px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 18px;
   font-weight: 600;
+  padding: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+
+  &:active {
+    background: rgba(108, 92, 231, 0.2);
+    border-color: var(--primary);
+    transform: scale(0.95);
+  }
+
+  &.pin-action {
+    background: rgba(108, 92, 231, 0.1);
+    color: var(--primary-light);
+    border-color: rgba(108, 92, 231, 0.2);
+
+    &:hover {
+      background: rgba(108, 92, 231, 0.2);
+    }
+
+    &:active {
+      background: rgba(108, 92, 231, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
 }
 
-.pin-key:hover {
-  background: #444444;
-  transform: scale(1.05);
+/* ─── Unified Search Modal ─────────────────────────────────────── */
+.unified-search-modal {
+  --width: 480px;
+  --max-width: 95vw;
+  --height: 75vh;
+  --max-height: 85vh;
+  --border-radius: var(--radius-lg, 16px);
+  --backdrop-opacity: 0.6;
+
+  .modal-wrapper {
+    background: var(--surface, #1a1a2e);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    box-shadow: var(--shadow-large);
+    border-radius: var(--radius-lg, 16px);
+  }
+
+  ion-content,
+  .ion-page {
+    --background: var(--surface, #1a1a2e);
+    background: var(--surface, #1a1a2e);
+  }
 }
 
-.pin-key:active {
-  transform: scale(0.95);
+@media (max-height: 480px) {
+  .unified-search-modal {
+    --height: 90vh;
+    --max-height: 95vh;
+    --width: 460px;
+  }
 }
 
-.pin-key.pin-action {
-  background: #007AFF;
-}
+/* ─── Dark Alert Dialog ────────────────────────────────────────── */
+.dark-alert {
+  --background: var(--surface, #1a1a2e);
+  --color: var(--text-primary, #ffffff);
 
-.pin-key.pin-action:hover {
-  background: #0056CC;
-}
+  .alert-wrapper {
+    background: var(--surface, #1a1a2e) !important;
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-lg, 16px);
+    box-shadow: var(--shadow-large);
+  }
 
-.pin-key:disabled {
-  background: #222222;
-  color: #666666;
-  cursor: not-allowed;
-  transform: none;
-}
+  .alert-head {
+    h2 {
+      color: var(--text-primary, #ffffff) !important;
+      font-weight: 700;
+    }
+  }
 
-.pin-key:disabled:hover {
-  background: #222222;
-  transform: none;
+  .alert-message {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.65)) !important;
+  }
+
+  .alert-button-group {
+    .alert-button {
+      color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+
+      &.alert-button-role-destructive {
+        color: var(--danger, #ff7675);
+      }
+
+      &.alert-button-role-cancel {
+        color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+      }
+    }
+  }
 }

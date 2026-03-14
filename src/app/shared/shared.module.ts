@@ -9,6 +9,8 @@ import { SearchFilterComponent } from '../search-filter/search-filter.component'
 import { AlbumSearchComponent } from '../album-search/album-search.component';
 import { ArtistSearchComponent } from '../artist-search/artist-search.component';
 import { ServiceSearchComponent } from '../service-search/service-search.component';
+import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
+import { UnifiedSearchComponent } from '../unified-search/unified-search.component';
 
 @NgModule({
   declarations: [
@@ -17,20 +19,20 @@ import { ServiceSearchComponent } from '../service-search/service-search.compone
     SearchFilterComponent,
     AlbumSearchComponent,
     ArtistSearchComponent,
-    ServiceSearchComponent
+    ServiceSearchComponent,
+    AlarmEditComponent,
+    UnifiedSearchComponent,
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule
-  ],
+  imports: [CommonModule, FormsModule, IonicModule],
   exports: [
     VirtualKeyboardComponent,
     VirtualGridComponent,
     SearchFilterComponent,
     AlbumSearchComponent,
     ArtistSearchComponent,
-    ServiceSearchComponent
-  ]
+    ServiceSearchComponent,
+    AlarmEditComponent,
+    UnifiedSearchComponent,
+  ],
 })
-export class SharedModule { }
+export class SharedModule {}

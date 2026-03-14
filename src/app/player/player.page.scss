@@ -1,5 +1,5 @@
 .modern-toolbar {
-  --background: rgba(255, 255, 255, 0.95);
+  --background: rgba(15, 15, 26, 0.9);
   --color: var(--text-primary);
   backdrop-filter: var(--blur-background);
   -webkit-backdrop-filter: var(--blur-background);
@@ -11,22 +11,26 @@
   --border-radius: var(--radius-md);
   --padding-start: var(--spacing-md);
   --padding-end: var(--spacing-md);
+  font-size: 14px;
 }
 
 .modern-card {
-  --background: var(--surface-elevated);
-  border-radius: var(--radius-lg);
+  --background: transparent;
+  background: var(--gradient-card), var(--surface);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-medium);
   border: 1px solid var(--border-color);
-  margin: var(--spacing-sm);
 
   &.cover-card {
     overflow: hidden;
+    border: none;
+    box-shadow: var(--shadow-large);
 
     img {
       width: 100%;
       height: auto;
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-xl);
+      display: block;
     }
   }
 
@@ -47,19 +51,21 @@
 }
 
 .modern-button {
-  --border-radius: var(--radius-md);
+  --border-radius: var(--radius-round);
   font-weight: 600;
   transition: all 0.2s ease;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
 
   &.primary {
-    --background: var(--primary);
+    --background: var(--gradient-primary);
     --color: white;
+    width: 60px;
+    height: 60px;
+    box-shadow: var(--shadow-glow);
 
     &:hover {
-      --background: var(--primary-dark);
-      transform: translateY(-1px);
+      transform: scale(1.05);
     }
   }
 
@@ -71,7 +77,7 @@
     --border-style: solid;
 
     &:hover {
-      --background: var(--background);
+      --background: var(--surface-hover);
     }
   }
 }
@@ -88,6 +94,26 @@
   }
 }
 
+.volume-controls {
+  ion-button {
+    --border-radius: var(--radius-round);
+    --background: var(--surface-elevated);
+    --color: var(--text-secondary);
+    width: 44px;
+    height: 44px;
+
+    &:hover {
+      --color: var(--primary-light);
+    }
+  }
+
+  .indicator-button {
+    --background: transparent;
+    --color: var(--primary-light);
+    cursor: default;
+  }
+}
+
 .autoplay-controls {
   margin-top: var(--spacing-lg);
 
@@ -96,6 +122,43 @@
     font-size: 12px;
     font-weight: 600;
     text-transform: none;
+    letter-spacing: 0.2px;
+  }
+}
+
+.now-playing {
+  ion-card {
+    --background: transparent;
+    background: var(--gradient-card), var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+
+    ion-card-header {
+      padding-bottom: var(--spacing-xs);
+    }
+
+    ion-card-title {
+      color: var(--primary-light) !important;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    ion-card-content {
+      h2 {
+        color: var(--text-primary);
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: var(--spacing-xs);
+      }
+
+      p {
+        color: var(--text-secondary);
+        margin: 2px 0;
+        font-size: 13px;
+      }
+    }
   }
 }
 
@@ -106,6 +169,7 @@
 .speaker-name {
   font-size: 14px;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 ion-content {
@@ -114,7 +178,7 @@ ion-content {
 
 ion-card-title {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 ion-card-content {
@@ -128,11 +192,5 @@ ion-card-content {
 
   p {
     margin: var(--spacing-xs) 0;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .modern-toolbar {
-    --background: rgba(28, 28, 30, 0.95);
   }
 }

@@ -10,49 +10,46 @@
 </ion-header>
 
 <ion-content>
-  <ion-card class="modern-card">
-    <ion-card-header>
-      <ion-card-title class="modern-card-title">Alarm Clock</ion-card-title>
-      <ion-card-subtitle>Set alarms to automatically play your favorite content</ion-card-subtitle>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-button class="modern-button primary" expand="block" (click)="createNewAlarm()">
-        <ion-icon name="add-outline" slot="start"></ion-icon>
-        Create New Alarm
-      </ion-button>
+  <div class="alarm-content">
+    <!-- Next Alarm Info -->
+    <div class="next-alarm" *ngIf="nextAlarmText">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>{{ nextAlarmText }}</span>
+    </div>
 
-      <ion-list *ngIf="alarms.length > 0">
-        <ion-item *ngFor="let alarm of alarms">
-          <ion-label>
+    <button class="create-btn" (click)="createNewAlarm()">
+      <ion-icon name="add-outline"></ion-icon>
+      Create New Alarm
+    </button>
+
+    <div class="alarm-list" *ngIf="alarms.length > 0">
+      <div class="alarm-item" *ngFor="let alarm of alarms" [class.disabled]="!alarm.enabled">
+        <div class="alarm-info" (click)="editAlarm(alarm)">
+          <div class="alarm-time-badge">{{ alarm.time }}</div>
+          <div class="alarm-details">
             <h2>{{ alarm.name }}</h2>
-            <p>{{ alarm.time }} - {{ getAlarmDaysText(alarm) }}</p>
-            <p *ngIf="alarm.mediaTitle">
-              <small>Plays: {{ alarm.mediaTitle }}</small>
-            </p>
-          </ion-label>
+            <p>{{ getAlarmDaysText(alarm) }}</p>
+            <p class="media-info" *ngIf="alarm.mediaTitle">{{ alarm.mediaTitle }}</p>
+          </div>
+        </div>
+        <div class="alarm-actions">
           <ion-toggle
             [(ngModel)]="alarm.enabled"
             (ionChange)="toggleAlarmEnabled(alarm)"
-            slot="end"
           ></ion-toggle>
-          <ion-button fill="clear" color="secondary" (click)="testAlarm(alarm)" slot="end">
+          <button class="action-btn" (click)="testAlarm(alarm)" title="Test">
             <ion-icon name="play-outline"></ion-icon>
-          </ion-button>
-          <ion-button fill="clear" color="primary" (click)="editAlarm(alarm)" slot="end">
-            <ion-icon name="create-outline"></ion-icon>
-          </ion-button>
-          <ion-button fill="clear" color="danger" (click)="deleteAlarm(alarm)" slot="end">
+          </button>
+          <button class="action-btn danger" (click)="confirmDelete(alarm)" title="Delete">
             <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
-      </ion-list>
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <ion-item *ngIf="alarms.length === 0">
-        <ion-label color="medium">
-          <p>No alarms configured yet</p>
-          <p><small>Tap "Create New Alarm" to get started</small></p>
-        </ion-label>
-      </ion-item>
-    </ion-card-content>
-  </ion-card>
+    <div class="empty-state" *ngIf="alarms.length === 0">
+      <ion-icon name="alarm-outline"></ion-icon>
+      <p>No alarms configured yet</p>
+    </div>
+  </div>
 </ion-content>

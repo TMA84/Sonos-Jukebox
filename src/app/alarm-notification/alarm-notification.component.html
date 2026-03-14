@@ -1,18 +1,33 @@
-<ion-content class="ion-padding">
-  <ion-button expand="block" color="danger" size="large" (click)="stopAlarm()">
-    <ion-icon slot="start" name="stop-circle-outline"></ion-icon>
-    Stop Alarm
-  </ion-button>
+<ion-content>
+  <div class="notification-layout">
+    <!-- Snooze at top (quick grab) -->
+    <div class="snooze-options">
+      <button class="snooze-btn" (click)="snooze(5)">
+        <ion-icon name="time-outline"></ion-icon>
+        5 min
+      </button>
+      <button class="snooze-btn" (click)="snooze(10)">
+        <ion-icon name="time-outline"></ion-icon>
+        10 min
+      </button>
+      <button class="snooze-btn" (click)="snooze(15)">
+        <ion-icon name="time-outline"></ion-icon>
+        15 min
+      </button>
+    </div>
 
-  <div class="alarm-info">
-    <ion-icon name="alarm-outline" class="alarm-icon"></ion-icon>
-    <h2>{{ alarm?.name }}</h2>
-    <p class="alarm-time">{{ alarm?.time }}</p>
-    <p class="alarm-media" *ngIf="alarm?.mediaTitle">{{ alarm?.mediaTitle }}</p>
+    <!-- Alarm Info Center -->
+    <div class="alarm-info">
+      <ion-icon name="alarm-outline" class="alarm-icon"></ion-icon>
+      <h2>{{ alarm?.name }}</h2>
+      <p class="alarm-time">{{ alarm?.time }}</p>
+      <p class="alarm-media" *ngIf="alarm?.mediaTitle">{{ alarm?.mediaTitle }}</p>
+    </div>
+
+    <!-- Stop at bottom (deliberate action) -->
+    <button class="stop-btn" (click)="stopAlarm()">
+      <ion-icon name="stop-circle-outline"></ion-icon>
+      Stop Alarm
+    </button>
   </div>
-
-  <ion-button expand="block" color="primary" size="large" class="snooze-button" (click)="snooze(5)">
-    <ion-icon slot="start" name="time-outline"></ion-icon>
-    Snooze (5 Minutes)
-  </ion-button>
 </ion-content>

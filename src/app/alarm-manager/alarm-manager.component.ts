@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController, AlertController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { AlarmService, Alarm } from '../alarm.service';
-import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
 import { ClientService } from '../client.service';
 
 @Component({
@@ -13,12 +12,14 @@ import { ClientService } from '../client.service';
 })
 export class AlarmManagerComponent implements OnInit {
   alarms: Alarm[] = [];
-  clientId: string = '';
+  clientId = '';
   libraryItems: any[] = [];
+  nextAlarmText = '';
 
   constructor(
     private modalController: ModalController,
     private toastController: ToastController,
+    private alertController: AlertController,
     private alarmService: AlarmService,
     private http: HttpClient,
     private clientService: ClientService
@@ -26,7 +27,6 @@ export class AlarmManagerComponent implements OnInit {
 
   ngOnInit() {
     this.clientId = this.clientService.getClientId();
-    console.log('AlarmManagerComponent - Client ID:', this.clientId);
     this.loadAlarms();
     this.loadLibraryItems();
   }
@@ -35,71 +35,92 @@ export class AlarmManagerComponent implements OnInit {
     this.alarmService.getAlarms(this.clientId).subscribe({
       next: alarms => {
         this.alarms = alarms;
+        this.computeNextAlarm();
       },
-      error: err => {
-        console.error('Failed to load alarms:', err);
+      error: () => {
         this.alarms = [];
+        this.nextAlarmText = '';
       },
     });
+  }
+
+  computeNextAlarm() {
+    const enabled = this.alarms.filter(a => a.enabled && a.time);
+    if (enabled.length === 0) {
+      this.nextAlarmText = '';
+      return;
+    }
+
+    const now = new Date();
+    const nowDay = now.getDay();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    let closest = Infinity;
+    let closestLabel = '';
+
+    for (const alarm of enabled) {
+      const [h, m] = alarm.time.split(':').map(Number);
+      const alarmMinutes = h * 60 + m;
+      const days = alarm.days.length > 0 ? alarm.days : [nowDay];
+
+      for (const day of days) {
+        let diff = (day - nowDay) * 1440 + (alarmMinutes - nowMinutes);
+        if (diff <= 0) diff += 7 * 1440;
+        if (diff < closest) {
+          closest = diff;
+          closestLabel = alarm.time;
+        }
+      }
+    }
+
+    if (closest < Infinity) {
+      const hours = Math.floor(closest / 60);
+      const mins = closest % 60;
+      if (hours < 1) {
+        this.nextAlarmText = `Next: ${closestLabel} (in ${mins}min)`;
+      } else if (hours < 24) {
+        this.nextAlarmText = `Next: ${closestLabel} (in ${hours}h ${mins}min)`;
+      } else {
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const targetDay = new Date(now.getTime() + closest * 60000);
+        this.nextAlarmText = `Next: ${dayNames[targetDay.getDay()]} ${closestLabel}`;
+      }
+    }
   }
 
   loadLibraryItems() {
     const dataUrl = `${environment.apiUrl}/data`;
-    console.log('Loading library items for client:', this.clientId);
-    this.http
-      .get<any[]>(dataUrl, {
-        params: { clientId: this.clientId },
-      })
-      .subscribe({
-        next: items => {
-          this.libraryItems = items;
-          console.log('Library items loaded:', items.length, items);
-        },
-        error: err => {
-          console.error('Failed to load library items:', err);
-          this.libraryItems = [];
-        },
-      });
+    this.http.get<any[]>(dataUrl, { params: { clientId: this.clientId } }).subscribe({
+      next: items => {
+        this.libraryItems = items;
+      },
+      error: () => {
+        this.libraryItems = [];
+      },
+    });
   }
 
   loadLibraryItemsAsync(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const dataUrl = `${environment.apiUrl}/data`;
-      console.log('Loading library items for client (async):', this.clientId);
-      this.http
-        .get<any[]>(dataUrl, {
-          params: { clientId: this.clientId },
-        })
-        .subscribe({
-          next: items => {
-            this.libraryItems = items;
-            console.log('Library items loaded (async):', items.length, items);
-            resolve();
-          },
-          error: err => {
-            console.error('Failed to load library items:', err);
-            this.libraryItems = [];
-            resolve(); // Resolve anyway to not block the modal
-          },
-        });
+      this.http.get<any[]>(dataUrl, { params: { clientId: this.clientId } }).subscribe({
+        next: items => {
+          this.libraryItems = items;
+          resolve();
+        },
+        error: () => {
+          this.libraryItems = [];
+          resolve();
+        },
+      });
     });
   }
 
   async createNewAlarm() {
-    // Ensure library items are loaded
-    console.log('Current library items count:', this.libraryItems.length);
     if (this.libraryItems.length === 0) {
-      console.log('Library items not loaded yet, loading now...');
       await this.loadLibraryItemsAsync();
-      // Small delay to ensure data is processed
-      await new Promise(resolve => setTimeout(resolve, 100));
     }
-
-    console.log('Creating alarm with library items:', this.libraryItems.length, this.libraryItems);
-
-    const modal = await this.modalController.create({
-      component: AlarmEditComponent,
-      componentProps: {
+    this.modalController.dismiss(
+      {
         alarm: {
           clientId: this.clientId,
           name: '',
@@ -111,99 +132,56 @@ export class AlarmManagerComponent implements OnInit {
           fadeDuration: 30,
         },
         libraryItems: this.libraryItems,
+        isNew: true,
       },
-      cssClass: 'alarm-edit-modal',
-    });
-
-    modal.onDidDismiss().then(result => {
-      if (result.data) {
-        this.alarmService.createAlarm(result.data).subscribe({
-          next: async () => {
-            this.loadAlarms();
-            const toast = await this.toastController.create({
-              message: 'Alarm created successfully',
-              duration: 2000,
-              color: 'success',
-            });
-            toast.present();
-          },
-          error: async err => {
-            console.error('Failed to create alarm:', err);
-            const toast = await this.toastController.create({
-              message: 'Failed to create alarm',
-              duration: 2000,
-              color: 'danger',
-            });
-            toast.present();
-          },
-        });
-      }
-    });
-
-    return await modal.present();
+      'open-edit'
+    );
   }
 
   async editAlarm(alarm: Alarm) {
-    // Ensure library items are loaded
     if (this.libraryItems.length === 0) {
-      console.log('Library items not loaded yet, loading now...');
       await this.loadLibraryItemsAsync();
     }
-
-    console.log('Editing alarm with library items:', this.libraryItems.length);
-
-    const modal = await this.modalController.create({
-      component: AlarmEditComponent,
-      componentProps: {
+    this.modalController.dismiss(
+      {
         alarm: { ...alarm },
         libraryItems: this.libraryItems,
+        isNew: false,
       },
-      cssClass: 'alarm-edit-modal',
-    });
-
-    modal.onDidDismiss().then(result => {
-      if (result.data) {
-        this.alarmService.updateAlarm(result.data).subscribe({
-          next: async () => {
-            this.loadAlarms();
-            const toast = await this.toastController.create({
-              message: 'Alarm updated successfully',
-              duration: 2000,
-              color: 'success',
-            });
-            toast.present();
-          },
-          error: async err => {
-            console.error('Failed to update alarm:', err);
-            const toast = await this.toastController.create({
-              message: 'Failed to update alarm',
-              duration: 2000,
-              color: 'danger',
-            });
-            toast.present();
-          },
-        });
-      }
-    });
-
-    return await modal.present();
+      'open-edit'
+    );
   }
 
-  async deleteAlarm(alarm: Alarm) {
-    if (!alarm.id) return;
+  async confirmDelete(alarm: Alarm) {
+    const alert = await this.alertController.create({
+      header: 'Delete Alarm',
+      message: `Delete "${alarm.name}"?`,
+      cssClass: 'dark-alert',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => this.deleteAlarm(alarm),
+        },
+      ],
+    });
+    await alert.present();
+  }
 
+  deleteAlarm(alarm: Alarm) {
+    if (!alarm.id) return;
     this.alarmService.deleteAlarm(alarm.id).subscribe({
       next: async () => {
         this.loadAlarms();
         const toast = await this.toastController.create({
-          message: 'Alarm deleted successfully',
+          message: 'Alarm deleted',
           duration: 2000,
           color: 'success',
         });
         toast.present();
       },
-      error: async err => {
-        console.error('Failed to delete alarm:', err);
+      error: async () => {
         const toast = await this.toastController.create({
           message: 'Failed to delete alarm',
           duration: 2000,
@@ -216,34 +194,26 @@ export class AlarmManagerComponent implements OnInit {
 
   toggleAlarmEnabled(alarm: Alarm) {
     if (!alarm.id) return;
-
     this.alarmService.toggleAlarm(alarm.id, alarm.enabled).subscribe({
-      next: () => {
-        console.log('Alarm toggled:', alarm.enabled);
-      },
-      error: err => {
-        console.error('Failed to toggle alarm:', err);
-        alarm.enabled = !alarm.enabled; // Revert on error
+      next: () => this.computeNextAlarm(),
+      error: () => {
+        alarm.enabled = !alarm.enabled;
       },
     });
   }
 
   async testAlarm(alarm: Alarm) {
     if (!alarm.id) return;
-
-    console.log('Testing alarm:', alarm.name);
     this.http.post(`${environment.apiUrl}/alarms/${alarm.id}/test`, {}).subscribe({
-      next: async (response: any) => {
-        console.log('Alarm test response:', response);
+      next: async () => {
         const toast = await this.toastController.create({
-          message: `Testing alarm: ${alarm.name}`,
+          message: `Testing: ${alarm.name}`,
           duration: 2000,
           color: 'success',
         });
         toast.present();
       },
-      error: async err => {
-        console.error('Failed to test alarm:', err);
+      error: async () => {
         const toast = await this.toastController.create({
           message: 'Failed to test alarm',
           duration: 2000,
@@ -255,14 +225,14 @@ export class AlarmManagerComponent implements OnInit {
   }
 
   getAlarmDaysText(alarm: Alarm): string {
-    if (alarm.days.length === 0) {
-      return 'One time';
-    }
-    if (alarm.days.length === 7) {
-      return 'Every day';
-    }
+    if (alarm.days.length === 0) return 'One time';
+    if (alarm.days.length === 7) return 'Every day';
+    if (alarm.days.length === 5 && alarm.days.every((d: number) => d >= 1 && d <= 5))
+      return 'Weekdays';
+    if (alarm.days.length === 2 && alarm.days.includes(0) && alarm.days.includes(6))
+      return 'Weekend';
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return alarm.days.map(d => dayNames[d]).join(', ');
+    return alarm.days.map((d: number) => dayNames[d]).join(', ');
   }
 
   closeModal() {

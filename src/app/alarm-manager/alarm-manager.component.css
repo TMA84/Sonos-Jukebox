@@ -1,0 +1,240 @@
+ion-toolbar {
+  --background: var(--surface, #1a1a2e);
+  --color: var(--text-primary, #ffffff);
+  --border-width: 0;
+}
+
+ion-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+ion-content {
+  --background: var(--surface, #1a1a2e);
+}
+
+.alarm-content {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Next Alarm Banner */
+.next-alarm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(108, 92, 231, 0.1);
+  border: 1px solid rgba(108, 92, 231, 0.2);
+  border-radius: var(--radius-md, 12px);
+  color: var(--primary-light, #a29bfe);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.next-alarm ion-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Create Button */
+.create-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: var(--primary, #6c5ce7);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md, 12px);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.create-btn:active {
+  transform: scale(0.98);
+  background: #5a4bd6;
+}
+
+.create-btn ion-icon {
+  font-size: 20px;
+}
+
+/* Alarm List */
+.alarm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alarm-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-elevated, #252540);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-md, 12px);
+  padding: 10px 10px 10px 0;
+  transition: opacity 0.2s ease;
+}
+
+.alarm-item.disabled {
+  opacity: 0.5;
+}
+
+.alarm-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding-left: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.alarm-time-badge {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-light, #a29bfe);
+  white-space: nowrap;
+  min-width: 50px;
+}
+
+.alarm-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.alarm-details h2 {
+  font-weight: 600;
+  color: var(--text-primary, #ffffff);
+  font-size: 14px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alarm-details p {
+  color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+  font-size: 12px;
+  margin: 2px 0 0 0;
+}
+
+.alarm-details .media-info {
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+  font-size: 11px;
+}
+
+/* Actions */
+.alarm-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.action-btn.danger:active {
+  background: rgba(255, 118, 117, 0.15);
+  color: var(--danger, #ff7675);
+}
+
+.action-btn ion-icon {
+  font-size: 18px;
+}
+
+/* Toggle */
+ion-toggle {
+  --background: var(--surface, #1a1a2e);
+  --background-checked: var(--primary, #6c5ce7);
+  --handle-background: var(--text-primary, #ffffff);
+  --handle-background-checked: #ffffff;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-tertiary, rgba(255, 255, 255, 0.4));
+}
+
+.empty-state ion-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.empty-state p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* 800x480 optimization */
+@media (max-height: 480px) {
+  ion-toolbar {
+    --min-height: 38px;
+  }
+
+  ion-title {
+    font-size: 13px;
+  }
+
+  .alarm-content {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .next-alarm {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .create-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .alarm-item {
+    padding: 8px 8px 8px 0;
+  }
+
+  .alarm-time-badge {
+    font-size: 16px;
+  }
+
+  .alarm-details h2 {
+    font-size: 13px;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+  }
+}

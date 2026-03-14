@@ -10,6 +10,7 @@ import { ServiceSearchComponent } from '../service-search/service-search.compone
 import { RadioSearchComponent } from '../radio-search/radio-search.component';
 import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
 import { AlarmService, Alarm } from '../alarm.service';
+import { UnifiedSearchComponent, SearchMode } from '../unified-search/unified-search.component';
 
 @Component({
   selector: 'app-config',
@@ -743,15 +744,34 @@ export class ConfigPage implements OnInit {
   }
 
   async openUnifiedSearch() {
-    if (this.librarySource === 'tunein') {
-      await this.openRadioSearch();
-    } else if (this.searchType === 'album') {
-      await this.openAlbumSearch();
-    } else if (this.searchType === 'artist') {
-      await this.openArtistSearch();
-    } else if (this.searchType === 'podcast' || this.searchType === 'audiobook') {
-      await this.openServiceSearch();
-    }
+    const mode: SearchMode =
+      this.librarySource === 'tunein' ? 'radio' : (this.searchType as SearchMode);
+
+    const modal = await this.modalController.create({
+      component: UnifiedSearchComponent,
+      componentProps: {
+        mode,
+        source: this.librarySource,
+        category: this.libraryCategory,
+      },
+      cssClass: 'unified-search-modal',
+    });
+
+    modal.onDidDismiss().then(result => {
+      if (result.data) {
+        if (mode === 'radio') {
+          this.addRadioStationFromSearch(result.data);
+        } else if (mode === 'artist') {
+          this.addArtistFromSearch(result.data);
+        } else if (mode === 'podcast' || mode === 'audiobook') {
+          this.addServiceFromSearch(result.data);
+        } else {
+          this.addAlbumFromSearch(result.data);
+        }
+      }
+    });
+
+    return await modal.present();
   }
 
   async openServiceSearch() {

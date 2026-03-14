@@ -1,41 +1,49 @@
 .modern-toolbar {
-  --background: rgba(255, 255, 255, 0.95);
+  --background: rgba(15, 15, 26, 0.9);
   --color: var(--text-primary);
   backdrop-filter: var(--blur-background);
   -webkit-backdrop-filter: var(--blur-background);
 }
 
 .modern-title {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   font-size: 18px;
 }
 
 .modern-button-icon {
   --background: transparent;
-  --color: var(--primary);
+  --color: var(--text-secondary);
   --border-radius: var(--radius-md);
-  --padding-start: 12px;
-  --padding-end: 12px;
-  
+  --padding-start: 10px;
+  --padding-end: 10px;
+
   &:hover {
-    --background: rgba(0, 122, 255, 0.1);
+    --color: var(--primary-light);
+    --background: rgba(108, 92, 231, 0.1);
   }
 }
 
+.client-name {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
 ion-segment {
-  --background: var(--surface-elevated);
+  --background: var(--surface);
   border-radius: var(--radius-md);
   margin: var(--spacing-sm);
-  box-shadow: var(--shadow-small);
-  
+  border: 1px solid var(--border-color);
+
   ion-segment-button {
-    --color: var(--text-secondary);
-    --color-checked: var(--primary);
-    --background-checked: rgba(0, 122, 255, 0.1);
+    --color: var(--text-tertiary);
+    --color-checked: var(--primary-light);
+    --background-checked: rgba(108, 92, 231, 0.15);
+    --indicator-color: transparent;
     --border-radius: var(--radius-sm);
-    margin: 2px;
-    
+    margin: 3px;
+
     ion-icon {
       font-size: 20px;
     }
@@ -45,9 +53,13 @@ ion-segment {
 ion-searchbar {
   --background: var(--surface);
   --border-radius: var(--radius-md);
-  --box-shadow: var(--shadow-small);
+  --box-shadow: none;
   --color: var(--text-primary);
+  --placeholder-color: var(--text-tertiary);
+  --icon-color: var(--text-tertiary);
   margin: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
 }
 
 ion-app {
@@ -58,18 +70,8 @@ ion-content {
   --background: var(--background);
   height: calc(100vh - 240px);
   overflow-y: auto;
-  
-  .modern-grid {
-    padding: var(--spacing-md);
-  }
 }
 
 ion-infinite-scroll-content {
   --color: var(--text-secondary);
-}
-
-@media (prefers-color-scheme: dark) {
-  .modern-toolbar {
-    --background: rgba(28, 28, 30, 0.95);
-  }
 }
