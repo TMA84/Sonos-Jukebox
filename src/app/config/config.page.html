@@ -56,338 +56,302 @@
   <div [ngSwitch]="selectedTab">
     <!-- Clients Tab -->
     <div *ngSwitchCase="'clients'">
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Client Configuration</ion-card-title>
-          <ion-card-subtitle>Client ID: {{clientId}}</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Client Name</ion-label>
-            <ion-input
-              [(ngModel)]="clientName"
-              placeholder="Enter friendly name"
-              (ionFocus)="setActiveInput('clientName')"
-            ></ion-input>
-          </ion-item>
-          <ion-button
-            class="modern-button primary"
-            expand="block"
-            (click)="saveClientName()"
-            [disabled]="!clientName"
-          >
-            Save Client Name
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Current Client</span>
+          <span class="section-badge">{{ clientId }}</span>
+        </div>
+        <div class="cfg-row">
+          <input
+            type="text"
+            [(ngModel)]="clientName"
+            placeholder="Client name"
+            class="cfg-input"
+            (focus)="setActiveInput('clientName')"
+          />
+          <button class="cfg-btn primary" (click)="saveClientName()" [disabled]="!clientName">
+            Save
+          </button>
+        </div>
+      </div>
 
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">All Clients</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list *ngIf="availableClients.length > 0">
-            <ion-item *ngFor="let client of availableClients">
-              <ion-label>
-                <h2>{{client.name}}</h2>
-                <p>{{client.id}}</p>
-              </ion-label>
-              <ion-button
-                fill="clear"
-                color="danger"
-                slot="end"
-                (click)="deleteClient(client.id)"
-                [disabled]="client.id === clientId"
-              >
-                <ion-icon name="trash-outline"></ion-icon>
-              </ion-button>
-            </ion-item>
-          </ion-list>
-          <ion-item *ngIf="availableClients.length === 0">
-            <ion-label color="medium">No clients configured</ion-label>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Create New Client</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">New Client Name</ion-label>
-            <ion-input
-              [(ngModel)]="newClientName"
-              placeholder="Enter client name"
-              (ionFocus)="setActiveInput('newClientName')"
-            ></ion-input>
-          </ion-item>
-          <ion-button
-            class="modern-button primary"
-            expand="block"
-            (click)="createNewClient()"
-            [disabled]="!newClientName"
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">All Clients</span>
+          <span class="section-badge">{{ availableClients.length }}</span>
+        </div>
+        <div class="cfg-list">
+          <div
+            class="cfg-list-item"
+            *ngFor="let client of availableClients"
+            [class.active]="client.id === clientId"
           >
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Create New Client
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+            <div class="cfg-list-info">
+              <span class="cfg-list-title">{{ client.name }}</span>
+              <span class="cfg-list-meta">{{ client.id }}</span>
+            </div>
+            <button
+              class="lib-action-btn danger"
+              (click)="deleteClient(client.id)"
+              [disabled]="client.id === clientId"
+            >
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+          <div class="cfg-empty" *ngIf="availableClients.length === 0">No clients configured</div>
+        </div>
+      </div>
+
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Create New Client</span>
+        </div>
+        <div class="cfg-row">
+          <input
+            type="text"
+            [(ngModel)]="newClientName"
+            placeholder="New client name"
+            class="cfg-input"
+            (focus)="setActiveInput('newClientName')"
+          />
+          <button class="cfg-btn primary" (click)="createNewClient()" [disabled]="!newClientName">
+            <ion-icon name="add"></ion-icon> Create
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Speakers Tab -->
     <div *ngSwitchCase="'speakers'">
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Player Settings</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label>Enable Speaker Selection</ion-label>
-            <ion-toggle
-              [(ngModel)]="enableSpeakerSelection"
-              (ionChange)="saveSpeakerSelectionSetting()"
-            ></ion-toggle>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Player Settings</span>
+        </div>
+        <div class="cfg-toggle-row">
+          <span>Enable Speaker Selection</span>
+          <ion-toggle
+            [(ngModel)]="enableSpeakerSelection"
+            (ionChange)="saveSpeakerSelectionSetting()"
+          ></ion-toggle>
+        </div>
+      </div>
 
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Sonos Speakers</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-button
-            class="modern-button primary"
-            expand="block"
-            (click)="findSpeakers()"
-            [disabled]="isLoading"
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Sonos Speakers</span>
+          <button class="cfg-btn primary compact" (click)="findSpeakers()" [disabled]="isLoading">
+            <ion-icon name="search-outline"></ion-icon> Find
+          </button>
+        </div>
+
+        <div class="cfg-loading" *ngIf="isLoading">
+          <ion-spinner></ion-spinner>
+          <span>Searching...</span>
+        </div>
+
+        <div class="cfg-list" *ngIf="speakers.length > 0 && !isLoading">
+          <div
+            class="cfg-list-item"
+            *ngFor="let speaker of speakers"
+            [class.active]="selectedSpeaker === getSpeakerName(speaker)"
+            (click)="selectSpeaker(getSpeakerName(speaker))"
           >
-            <ion-icon name="search-outline" slot="start"></ion-icon>
-            Find Speakers
-          </ion-button>
-
-          <div *ngIf="isLoading" class="loading-container">
-            <ion-spinner></ion-spinner>
-            <p>Searching for speakers...</p>
-          </div>
-
-          <ion-list *ngIf="speakers.length > 0">
-            <ion-radio-group
-              [(ngModel)]="selectedSpeaker"
-              (ionChange)="selectSpeaker($event.detail.value)"
-            >
-              <ion-item *ngFor="let speaker of speakers">
-                <ion-radio slot="start" [value]="getSpeakerName(speaker)"></ion-radio>
-                <ion-label>
-                  <h2>{{getSpeakerName(speaker)}}</h2>
-                  <p>{{getSpeakerDetails(speaker)}}</p>
-                </ion-label>
-              </ion-item>
-            </ion-radio-group>
-          </ion-list>
-
-          <ion-item *ngIf="speakers.length === 0 && !isLoading">
-            <ion-label color="medium">
-              No speakers found. Make sure node-sonos-http-api is running.
-            </ion-label>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Sleep Timer Card -->
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Sleep Timer</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label>Default Sleep Timer (minutes)</ion-label>
-            <div slot="end" class="timer-controls">
-              <ion-button
-                fill="clear"
-                size="small"
-                (click)="decrementTimer()"
-                [disabled]="sleepTimer <= 0"
-              >
-                <ion-icon name="remove-outline"></ion-icon>
-              </ion-button>
-              <span class="timer-value">{{sleepTimer}}</span>
-              <ion-button
-                fill="clear"
-                size="small"
-                (click)="incrementTimer()"
-                [disabled]="sleepTimer >= 180"
-              >
-                <ion-icon name="add-outline"></ion-icon>
-              </ion-button>
+            <div class="speaker-radio">
+              <div
+                class="radio-dot"
+                [class.selected]="selectedSpeaker === getSpeakerName(speaker)"
+              ></div>
             </div>
-          </ion-item>
-          <ion-item *ngIf="sleepTimer > 0">
-            <ion-label color="medium">
-              <p>Playback will automatically pause after {{sleepTimer}} minutes</p>
-            </ion-label>
-          </ion-item>
-          <ion-item *ngIf="sleepTimer === 0">
-            <ion-label color="medium">
-              <p>Sleep timer is disabled</p>
-            </ion-label>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
+            <div class="cfg-list-info">
+              <span class="cfg-list-title">{{ getSpeakerName(speaker) }}</span>
+              <span class="cfg-list-meta">{{ getSpeakerDetails(speaker) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cfg-empty" *ngIf="speakers.length === 0 && !isLoading">
+          No speakers found. Make sure node-sonos-http-api is running.
+        </div>
+      </div>
+
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Sleep Timer</span>
+          <span class="section-badge highlight">{{ sleepTimer }} min</span>
+        </div>
+        <div class="timer-row">
+          <button class="timer-btn" (click)="decrementTimer()" [disabled]="sleepTimer <= 0">
+            <ion-icon name="remove"></ion-icon>
+          </button>
+          <div class="timer-bar">
+            <div class="timer-fill" [style.width.%]="(sleepTimer / 180) * 100"></div>
+          </div>
+          <button class="timer-btn" (click)="incrementTimer()" [disabled]="sleepTimer >= 180">
+            <ion-icon name="add"></ion-icon>
+          </button>
+        </div>
+        <span class="cfg-hint" *ngIf="sleepTimer > 0">Pauses after {{ sleepTimer }} minutes</span>
+        <span class="cfg-hint" *ngIf="sleepTimer === 0">Sleep timer disabled</span>
+      </div>
     </div>
 
     <!-- Alarms Tab -->
     <div *ngSwitchCase="'alarms'">
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Alarm Clock</ion-card-title>
-          <ion-card-subtitle>Set alarms to automatically play content</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label>Enable Alarm Clock</ion-label>
-            <ion-toggle
-              [(ngModel)]="enableAlarmClock"
-              (ionChange)="saveAlarmClockSetting()"
-            ></ion-toggle>
-          </ion-item>
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Alarm Clock</span>
+          <ion-toggle
+            [(ngModel)]="enableAlarmClock"
+            (ionChange)="saveAlarmClockSetting()"
+          ></ion-toggle>
+        </div>
 
-          <ion-button class="modern-button primary" expand="block" (click)="createNewAlarm()">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Create New Alarm
-          </ion-button>
+        <button
+          class="lib-search-btn"
+          style="width: 100%; margin-bottom: 6px"
+          (click)="createNewAlarm()"
+        >
+          <ion-icon name="add-outline"></ion-icon>
+          Create New Alarm
+        </button>
 
-          <ion-list *ngIf="alarms.length > 0">
-            <ion-item *ngFor="let alarm of alarms">
-              <ion-label>
-                <h2>{{alarm.name}}</h2>
-                <p>{{alarm.time}} - {{getAlarmDaysText(alarm)}}</p>
-                <p *ngIf="alarm.mediaTitle"><small>Plays: {{alarm.mediaTitle}}</small></p>
-              </ion-label>
+        <div class="cfg-list" *ngIf="alarms.length > 0">
+          <div class="cfg-list-item" *ngFor="let alarm of alarms" [class.disabled]="!alarm.enabled">
+            <div class="alarm-time-col">
+              <span class="alarm-time">{{ alarm.time }}</span>
+            </div>
+            <div class="cfg-list-info" (click)="editAlarm(alarm)">
+              <span class="cfg-list-title">{{ alarm.name }}</span>
+              <span class="cfg-list-meta"
+                >{{ getAlarmDaysText(alarm) }}<span *ngIf="alarm.mediaTitle">
+                  · {{ alarm.mediaTitle }}</span
+                ></span
+              >
+            </div>
+            <div class="alarm-actions">
               <ion-toggle
                 [(ngModel)]="alarm.enabled"
                 (ionChange)="toggleAlarmEnabled(alarm)"
-                slot="end"
               ></ion-toggle>
-              <ion-button fill="clear" color="primary" (click)="editAlarm(alarm)" slot="end">
+              <button class="lib-action-btn" (click)="editAlarm(alarm)">
                 <ion-icon name="create-outline"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" color="danger" (click)="deleteAlarm(alarm)" slot="end">
+              </button>
+              <button class="lib-action-btn danger" (click)="deleteAlarm(alarm)">
                 <ion-icon name="trash-outline"></ion-icon>
-              </ion-button>
-            </ion-item>
-          </ion-list>
+              </button>
+            </div>
+          </div>
+        </div>
 
-          <ion-item *ngIf="alarms.length === 0">
-            <ion-label color="medium">No alarms configured</ion-label>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
+        <div class="cfg-empty" *ngIf="alarms.length === 0">No alarms configured</div>
+      </div>
     </div>
 
     <!-- Services Tab -->
     <div *ngSwitchCase="'services'">
-      <!-- Service Selection -->
-      <div class="service-selector">
-        <div class="service-dropdown">
-          <ion-icon name="settings"></ion-icon>
-          <ion-select
-            [(ngModel)]="selectedService"
-            interface="popover"
-            placeholder="Select Service"
-            [interfaceOptions]="{cssClass: 'select-popover'}"
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Service</span>
+        </div>
+        <div class="service-tabs">
+          <button
+            class="service-tab"
+            [class.active]="selectedService === 'spotify'"
+            (click)="selectedService = 'spotify'"
           >
-            <ion-select-option value="spotify">Spotify</ion-select-option>
-            <ion-select-option value="tunein">TuneIn Radio</ion-select-option>
-            <ion-select-option value="sonos">Sonos API</ion-select-option>
-          </ion-select>
+            <ion-icon name="musical-notes"></ion-icon> Spotify
+          </button>
+          <button
+            class="service-tab"
+            [class.active]="selectedService === 'tunein'"
+            (click)="selectedService = 'tunein'"
+          >
+            <ion-icon name="radio"></ion-icon> TuneIn
+          </button>
+          <button
+            class="service-tab"
+            [class.active]="selectedService === 'sonos'"
+            (click)="selectedService = 'sonos'"
+          >
+            <ion-icon name="volume-high"></ion-icon> Sonos
+          </button>
         </div>
       </div>
 
-      <!-- Spotify Configuration -->
-      <ion-card class="modern-card" *ngIf="selectedService === 'spotify'">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Spotify Configuration</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Client ID</ion-label>
-            <ion-input
-              [(ngModel)]="spotifyConfig.clientId"
-              placeholder="Enter Spotify Client ID"
-              (ionFocus)="setActiveInput('spotifyClientId')"
-            ></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Client Secret</ion-label>
-            <ion-input
-              type="password"
-              [(ngModel)]="spotifyConfig.clientSecret"
-              placeholder="Enter Spotify Client Secret"
-              (ionFocus)="setActiveInput('spotifyClientSecret')"
-            ></ion-input>
-          </ion-item>
-          <ion-button
-            class="modern-button primary"
-            expand="block"
+      <!-- Spotify -->
+      <div class="tab-section" *ngIf="selectedService === 'spotify'">
+        <div class="section-header">
+          <span class="section-label">Spotify Configuration</span>
+        </div>
+        <div class="cfg-form">
+          <label class="cfg-label">Client ID</label>
+          <input
+            type="text"
+            [(ngModel)]="spotifyConfig.clientId"
+            placeholder="Enter Spotify Client ID"
+            class="cfg-input"
+            (focus)="setActiveInput('spotifyClientId')"
+          />
+          <label class="cfg-label">Client Secret</label>
+          <input
+            type="password"
+            [(ngModel)]="spotifyConfig.clientSecret"
+            placeholder="Enter Spotify Client Secret"
+            class="cfg-input"
+            (focus)="setActiveInput('spotifyClientSecret')"
+          />
+          <button
+            class="cfg-btn primary full"
             (click)="saveSpotifyConfig()"
             [disabled]="!spotifyConfig.clientId || !spotifyConfig.clientSecret"
           >
             Save Spotify Configuration
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+          </button>
+        </div>
+      </div>
 
-      <!-- TuneIn Radio Configuration -->
-      <ion-card class="modern-card" *ngIf="selectedService === 'tunein'">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">TuneIn Radio</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label>
-              <h2>TuneIn Radio Integration</h2>
-              <p>TuneIn Radio is ready to use - no configuration required!</p>
-              <p>Search for radio stations directly in the Library tab.</p>
-            </ion-label>
-            <ion-icon name="checkmark-circle" color="success" slot="end"></ion-icon>
-          </ion-item>
-        </ion-card-content>
-      </ion-card>
+      <!-- TuneIn -->
+      <div class="tab-section" *ngIf="selectedService === 'tunein'">
+        <div class="cfg-status-row success">
+          <ion-icon name="checkmark-circle"></ion-icon>
+          <div>
+            <span class="cfg-list-title">TuneIn Radio</span>
+            <span class="cfg-list-meta">Ready to use — no configuration required</span>
+          </div>
+        </div>
+      </div>
 
-      <!-- Sonos API Configuration -->
-      <ion-card class="modern-card" *ngIf="selectedService === 'sonos'">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Sonos API Configuration</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Server IP</ion-label>
-            <ion-input
-              [(ngModel)]="sonosConfig.server"
-              placeholder="127.0.0.1"
-              (ionFocus)="setActiveInput('sonosServer')"
-            ></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Port</ion-label>
-            <ion-input
-              [(ngModel)]="sonosConfig.port"
-              placeholder="5005"
-              (ionFocus)="setActiveInput('sonosPort')"
-            ></ion-input>
-          </ion-item>
-          <ion-button
-            class="modern-button primary"
-            expand="block"
+      <!-- Sonos -->
+      <div class="tab-section" *ngIf="selectedService === 'sonos'">
+        <div class="section-header">
+          <span class="section-label">Sonos API Configuration</span>
+        </div>
+        <div class="cfg-form">
+          <label class="cfg-label">Server IP</label>
+          <input
+            type="text"
+            [(ngModel)]="sonosConfig.server"
+            placeholder="127.0.0.1"
+            class="cfg-input"
+            (focus)="setActiveInput('sonosServer')"
+          />
+          <label class="cfg-label">Port</label>
+          <input
+            type="text"
+            [(ngModel)]="sonosConfig.port"
+            placeholder="5005"
+            class="cfg-input"
+            (focus)="setActiveInput('sonosPort')"
+          />
+          <button
+            class="cfg-btn primary full"
             (click)="saveSonosConfig()"
             [disabled]="!sonosConfig.server || !sonosConfig.port"
           >
             Save Sonos Configuration
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Library Tab -->
@@ -595,18 +559,18 @@
       </div>
 
       <!-- Library Items -->
-      <div class="lib-list">
-        <div class="lib-item" *ngFor="let item of filteredLibraryItems; let i = index">
-          <img
-            [src]="item.cover || 'assets/images/nocover.png'"
-            class="lib-thumb"
-            onerror="this.src = 'assets/images/nocover.png'"
-          />
-          <div class="lib-info" (click)="editLibraryItem(getOriginalIndex(item))">
-            <span class="lib-title">{{ item.title }}</span>
-            <span class="lib-meta">{{ item.artist }} · {{ item.category }}</span>
-          </div>
-          <div class="lib-item-actions">
+      <div class="tab-section" style="margin-top: 0">
+        <div class="cfg-list">
+          <div class="cfg-list-item" *ngFor="let item of filteredLibraryItems; let i = index">
+            <img
+              [src]="item.cover || 'assets/images/nocover.png'"
+              class="lib-thumb"
+              onerror="this.src = 'assets/images/nocover.png'"
+            />
+            <div class="cfg-list-info" (click)="editLibraryItem(getOriginalIndex(item))">
+              <span class="cfg-list-title">{{ item.title }}</span>
+              <span class="cfg-list-meta">{{ item.artist }} · {{ item.category }}</span>
+            </div>
             <button class="lib-action-btn" (click)="editLibraryItem(getOriginalIndex(item))">
               <ion-icon name="create-outline"></ion-icon>
             </button>
@@ -617,66 +581,60 @@
               <ion-icon name="trash-outline"></ion-icon>
             </button>
           </div>
-        </div>
-        <div class="lib-empty" *ngIf="filteredLibraryItems.length === 0">
-          <ion-icon name="library-outline"></ion-icon>
-          <span
-            >{{ libraryItems.length === 0 ? 'Library is empty — search to add content' : 'No items
-            in this category' }}</span
-          >
+          <div class="cfg-empty" *ngIf="filteredLibraryItems.length === 0">
+            {{ libraryItems.length === 0 ? 'Library is empty — search to add content' : 'No items in
+            this category' }}
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Security Tab -->
     <div *ngSwitchCase="'security'">
-      <ion-card class="modern-card">
-        <ion-card-header>
-          <ion-card-title class="modern-card-title">Security PIN</ion-card-title>
-          <ion-buttons slot="end">
-            <ion-button fill="clear" (click)="toggleKeyboard()">
-              <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="stacked">Current PIN</ion-label>
-            <ion-input
-              type="password"
-              [(ngModel)]="currentPin"
-              maxlength="12"
-              (ionFocus)="setActiveInput('currentPin')"
-            ></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">New PIN (4-12 digits)</ion-label>
-            <ion-input
-              type="password"
-              [(ngModel)]="newPin"
-              maxlength="12"
-              (ionFocus)="setActiveInput('newPin')"
-            ></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Confirm New PIN</ion-label>
-            <ion-input
-              type="password"
-              [(ngModel)]="confirmPin"
-              maxlength="12"
-              (ionFocus)="setActiveInput('confirmPin')"
-            ></ion-input>
-          </ion-item>
-          <ion-button
-            class="modern-button primary"
-            expand="block"
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Change PIN</span>
+          <button class="lib-toggle-btn" (click)="toggleKeyboard()">
+            <ion-icon [name]="showKeyboard ? 'keypad' : 'keypad-outline'"></ion-icon>
+          </button>
+        </div>
+        <div class="cfg-form">
+          <label class="cfg-label">Current PIN</label>
+          <input
+            type="password"
+            [(ngModel)]="currentPin"
+            maxlength="12"
+            placeholder="Enter current PIN"
+            class="cfg-input"
+            (focus)="setActiveInput('currentPin')"
+          />
+          <label class="cfg-label">New PIN (4-12 digits)</label>
+          <input
+            type="password"
+            [(ngModel)]="newPin"
+            maxlength="12"
+            placeholder="Enter new PIN"
+            class="cfg-input"
+            (focus)="setActiveInput('newPin')"
+          />
+          <label class="cfg-label">Confirm New PIN</label>
+          <input
+            type="password"
+            [(ngModel)]="confirmPin"
+            maxlength="12"
+            placeholder="Confirm new PIN"
+            class="cfg-input"
+            (focus)="setActiveInput('confirmPin')"
+          />
+          <button
+            class="cfg-btn primary full"
             (click)="changePin()"
             [disabled]="!currentPin || !newPin || !confirmPin || newPin.length < 4 || newPin.length > 12 || newPin !== confirmPin"
           >
             Change PIN
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

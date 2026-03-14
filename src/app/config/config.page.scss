@@ -615,3 +615,398 @@ ion-item {
     font-size: 12px;
   }
 }
+
+// ─── Shared Tab Styles ───────────────────────────────────────────
+
+.tab-section {
+  margin: 4px 6px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.section-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  &.highlight {
+    color: var(--primary-light);
+    background: rgba(108, 92, 231, 0.15);
+  }
+}
+
+// ─── Config Row / Form ───────────────────────────────────────────
+
+.cfg-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.cfg-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+  &:focus {
+    border-color: var(--primary);
+  }
+}
+
+.cfg-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 14px;
+  }
+
+  &.primary {
+    background: var(--primary);
+    color: #fff;
+    &:active {
+      background: #5a4bd6;
+    }
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &.compact {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  &.full {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+  }
+}
+
+.cfg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cfg-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+// ─── Config List ─────────────────────────────────────────────────
+
+.cfg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cfg-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+
+  &:active {
+    background: rgba(108, 92, 231, 0.08);
+  }
+
+  &.active {
+    background: rgba(108, 92, 231, 0.08);
+    .cfg-list-title {
+      color: var(--primary-light);
+    }
+  }
+
+  &.disabled {
+    opacity: 0.45;
+  }
+}
+
+.cfg-list-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cfg-list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cfg-list-meta {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cfg-empty {
+  text-align: center;
+  padding: 12px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.cfg-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+
+  ion-spinner {
+    --color: var(--primary-light);
+  }
+}
+
+// ─── Toggle Row ──────────────────────────────────────────────────
+
+.cfg-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-primary);
+
+  ion-toggle {
+    --background: rgba(255, 255, 255, 0.1);
+    --background-checked: var(--primary);
+    --handle-background: var(--text-primary);
+    --handle-background-checked: #fff;
+  }
+}
+
+.cfg-hint {
+  display: block;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  text-align: center;
+}
+
+// ─── Speaker Radio ───────────────────────────────────────────────
+
+.speaker-radio {
+  flex-shrink: 0;
+}
+
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  transition: all 0.15s ease;
+
+  &.selected {
+    border-color: var(--primary);
+    background: var(--primary);
+    box-shadow: inset 0 0 0 3px var(--surface-elevated);
+  }
+}
+
+// ─── Timer Row ───────────────────────────────────────────────────
+
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  ion-icon {
+    font-size: 14px;
+  }
+
+  &:active {
+    background: rgba(108, 92, 231, 0.15);
+    color: var(--primary-light);
+  }
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.timer-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+// ─── Alarm Time Column ───────────────────────────────────────────
+
+.alarm-time-col {
+  flex-shrink: 0;
+}
+
+.alarm-time {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-light);
+  min-width: 44px;
+  display: inline-block;
+}
+
+.alarm-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+
+  ion-toggle {
+    --background: rgba(255, 255, 255, 0.1);
+    --background-checked: var(--primary);
+    --handle-background: var(--text-primary);
+    --handle-background-checked: #fff;
+  }
+}
+
+// ─── Service Tabs ────────────────────────────────────────────────
+
+.service-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.service-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 14px;
+  }
+
+  &.active {
+    background: rgba(108, 92, 231, 0.15);
+    border-color: var(--primary);
+    color: var(--primary-light);
+    font-weight: 600;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.cfg-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+
+  ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &.success {
+    ion-icon {
+      color: #00b894;
+    }
+  }
+
+  .cfg-list-title {
+    font-size: 13px;
+  }
+  .cfg-list-meta {
+    font-size: 11px;
+    display: block;
+  }
+}
