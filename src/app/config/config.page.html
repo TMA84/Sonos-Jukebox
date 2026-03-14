@@ -26,28 +26,26 @@
     </ion-segment>
 
     <ion-buttons slot="end">
-      <div class="select-spacer"></div>
-      <ion-select
-        class="modern-select"
-        [(ngModel)]="selectedClientId"
-        (ionChange)="clientSelectionChanged($event)"
-        interface="popover"
-        placeholder="Select Client"
-        *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library' || selectedTab === 'alarms')"
-        [interfaceOptions]="{cssClass: 'select-popover'}"
-      >
-        <ion-select-option *ngFor="let client of availableClients" [value]="client.id"
-          >{{client.name}}</ion-select-option
+      <div class="header-end">
+        <select
+          class="client-dropdown"
+          [(ngModel)]="selectedClientId"
+          (ngModelChange)="clientSelectionChanged({detail: {value: selectedClientId}})"
+          *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library' || selectedTab === 'alarms')"
         >
-      </ion-select>
-      <ion-title
-        *ngIf="clientName && (selectedTab === 'services' || selectedTab === 'security')"
-        class="speaker-name"
-        >{{clientName}}</ion-title
-      >
-      <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
-        <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
-      </ion-button>
+          <option *ngFor="let client of availableClients" [value]="client.id">
+            {{client.name}}
+          </option>
+        </select>
+        <span
+          class="header-client-name"
+          *ngIf="clientName && (selectedTab === 'services' || selectedTab === 'security')"
+          >{{clientName}}</span
+        >
+        <button class="header-icon-btn" (click)="toggleKeyboard()">
+          <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+        </button>
+      </div>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
