@@ -27,25 +27,14 @@
 
     <ion-buttons slot="end">
       <div class="header-end">
-        <div
-          class="client-dropdown"
+        <button
+          class="client-dropdown-btn"
           *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library' || selectedTab === 'alarms')"
+          (click)="openClientPicker()"
         >
-          <button class="client-dropdown-btn" (click)="showClientDropdown = !showClientDropdown">
-            <span>{{ getClientName(selectedClientId) }}</span>
-            <ion-icon [name]="showClientDropdown ? 'chevron-up' : 'chevron-down'"></ion-icon>
-          </button>
-          <div class="client-dropdown-menu" *ngIf="showClientDropdown">
-            <div
-              class="client-dropdown-item"
-              *ngFor="let client of availableClients"
-              [class.active]="client.id === selectedClientId"
-              (click)="selectClient(client.id)"
-            >
-              {{ client.name }}
-            </div>
-          </div>
-        </div>
+          <span>{{ getClientName(selectedClientId) }}</span>
+          <ion-icon name="chevron-down"></ion-icon>
+        </button>
         <span
           class="header-client-name"
           *ngIf="clientName && (selectedTab === 'services' || selectedTab === 'security')"

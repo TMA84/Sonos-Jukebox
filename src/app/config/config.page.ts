@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { ToastController, ModalController } from '@ionic/angular';
+import { ToastController, ModalController, AlertController } from '@ionic/angular';
 import { environment } from '../../environments/environment';
 import { ClientService } from '../client.service';
 import { AlbumSearchComponent } from '../album-search/album-search.component';
@@ -54,7 +54,6 @@ export class ConfigPage implements OnInit {
   };
   alarms: Alarm[] = [];
   showManualAdd = false;
-  showClientDropdown = false;
   libraryFilter = 'all';
   libCovers: { [key: string]: string } = {};
 
@@ -64,6 +63,7 @@ export class ConfigPage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private modalController: ModalController,
+    private alertController: AlertController,
     private alarmService: AlarmService,
     private artworkService: ArtworkService
   ) {}
@@ -1031,10 +1031,30 @@ export class ConfigPage implements OnInit {
     return client ? client.name : id;
   }
 
-  selectClient(id: string) {
-    this.showClientDropdown = false;
-    this.selectedClientId = id;
-    this.switchToClient(id);
+  async openClientPicker() {
+    const alert = await this.alertController.create({
+      header: 'Select Client',
+      cssClass: 'client-picker-alert',
+      inputs: this.availableClients.map(client => ({
+        type: 'radio' as const,
+        label: client.name,
+        value: client.id,
+        checked: client.id === this.selectedClientId,
+      })),
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'OK',
+          handler: (selectedId: string) => {
+            if (selectedId && selectedId !== this.selectedClientId) {
+              this.selectedClientId = selectedId;
+              this.switchToClient(selectedId);
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   nextInput() {

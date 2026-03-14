@@ -171,6 +171,64 @@ ion-content.keyboard-visible {
   }
 }
 
+/* ─── Client Picker Alert ──────────────────────────────────────── */
+.client-picker-alert {
+  --background: var(--surface, #1a1a2e);
+  --max-width: 300px;
+
+  .alert-wrapper {
+    background: var(--surface, #1a1a2e) !important;
+    border: 1px solid var(--border-color, #2a2a4a);
+    border-radius: 12px;
+  }
+
+  .alert-head {
+    padding: 12px 16px 8px;
+
+    .alert-title {
+      color: var(--text-primary, #e8e8f0);
+      font-size: 15px;
+      font-weight: 600;
+    }
+  }
+
+  .alert-radio-group {
+    border-top: 1px solid var(--border-color, #2a2a4a);
+    border-bottom: 1px solid var(--border-color, #2a2a4a);
+  }
+
+  .alert-radio-label {
+    color: var(--text-primary, #e8e8f0) !important;
+    font-size: 14px;
+  }
+
+  [aria-checked='true'] .alert-radio-label {
+    color: var(--primary-light, #a29bfe) !important;
+    font-weight: 600;
+  }
+
+  .alert-radio-icon {
+    border-color: var(--text-tertiary, #555) !important;
+  }
+
+  [aria-checked='true'] .alert-radio-icon {
+    border-color: var(--primary, #6c5ce7) !important;
+  }
+
+  .alert-radio-inner {
+    background: var(--primary, #6c5ce7) !important;
+  }
+
+  .alert-button-group {
+    padding: 8px;
+
+    .alert-button {
+      color: var(--primary-light, #a29bfe);
+      font-size: 13px;
+    }
+  }
+}
+
 /* ─── PIN Dialog Modal Wrapper ─────────────────────────────────── */
 .pin-dialog-modal {
   --width: 300px;
