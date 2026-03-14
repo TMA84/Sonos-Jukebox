@@ -54,6 +54,7 @@ export class ConfigPage implements OnInit {
   };
   alarms: Alarm[] = [];
   showManualAdd = false;
+  showClientDropdown = false;
   libraryFilter = 'all';
   libCovers: { [key: string]: string } = {};
 
@@ -1023,6 +1024,17 @@ export class ConfigPage implements OnInit {
     const newClientId = event.detail.value;
     this.switchToClient(newClientId);
     this.selectedClientId = newClientId;
+  }
+
+  getClientName(id: string): string {
+    const client = this.availableClients.find(c => c.id === id);
+    return client ? client.name : id;
+  }
+
+  selectClient(id: string) {
+    this.showClientDropdown = false;
+    this.selectedClientId = id;
+    this.switchToClient(id);
   }
 
   nextInput() {
