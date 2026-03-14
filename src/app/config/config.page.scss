@@ -303,3 +303,315 @@ ion-item {
     font-size: 13px;
   }
 }
+
+// ─── Library Redesign ────────────────────────────────────────────
+
+.lib-controls {
+  margin: 4px 6px;
+}
+
+.lib-actions-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.lib-search-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--primary, #6c5ce7);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 16px;
+  }
+  &:active {
+    transform: scale(0.98);
+    background: #5a4bd6;
+  }
+}
+
+.lib-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 16px;
+  }
+
+  &.active {
+    background: rgba(108, 92, 231, 0.15);
+    border-color: var(--primary);
+    color: var(--primary-light);
+  }
+
+  &:active {
+    background: rgba(108, 92, 231, 0.2);
+  }
+}
+
+.lib-add-panel {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px;
+  margin-bottom: 4px;
+}
+
+.lib-selectors {
+  .touch-selector {
+    margin-bottom: 4px;
+  }
+}
+
+.lib-manual-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.lib-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 6px 8px;
+  outline: none;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+  &:focus {
+    border-color: var(--primary);
+  }
+}
+
+.lib-add-btn,
+.lib-cancel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+.lib-add-btn {
+  background: var(--primary);
+  color: #fff;
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  &:active:not(:disabled) {
+    background: #5a4bd6;
+  }
+}
+
+.lib-cancel-btn {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  &:active {
+    background: rgba(255, 118, 117, 0.15);
+    color: var(--danger);
+  }
+}
+
+// ─── Filter Chips ────────────────────────────────────────────────
+
+.lib-filters {
+  display: flex;
+  gap: 4px;
+  padding: 2px 6px 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 12px;
+  }
+
+  .chip-count {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0 4px;
+    border-radius: 8px;
+    font-size: 10px;
+  }
+
+  &.active {
+    background: rgba(108, 92, 231, 0.15);
+    border-color: var(--primary);
+    color: var(--primary-light);
+
+    .chip-count {
+      background: rgba(108, 92, 231, 0.3);
+    }
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+// ─── Library List ────────────────────────────────────────────────
+
+.lib-list {
+  padding: 0 6px;
+}
+
+.lib-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  }
+
+  &:active {
+    background: rgba(108, 92, 231, 0.08);
+  }
+}
+
+.lib-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface-elevated);
+}
+
+.lib-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lib-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lib-meta {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lib-item-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.lib-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  ion-icon {
+    font-size: 14px;
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+  }
+
+  &.danger:active {
+    background: rgba(255, 118, 117, 0.15);
+    color: var(--danger);
+  }
+}
+
+.lib-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 12px;
+  color: var(--text-tertiary);
+
+  ion-icon {
+    font-size: 24px;
+    opacity: 0.5;
+  }
+  span {
+    font-size: 12px;
+  }
+}

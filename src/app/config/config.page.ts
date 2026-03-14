@@ -52,6 +52,8 @@ export class ConfigPage implements OnInit {
     tunein: true, // TuneIn doesn't need configuration
   };
   alarms: Alarm[] = [];
+  showManualAdd = false;
+  libraryFilter = 'all';
 
   constructor(
     private http: HttpClient,
@@ -741,6 +743,15 @@ export class ConfigPage implements OnInit {
       default:
         return 'Content';
     }
+  }
+
+  get filteredLibraryItems(): any[] {
+    if (this.libraryFilter === 'all') return this.libraryItems;
+    return this.libraryItems.filter(item => item.category === this.libraryFilter);
+  }
+
+  getOriginalIndex(item: any): number {
+    return this.libraryItems.indexOf(item);
   }
 
   async openUnifiedSearch() {
