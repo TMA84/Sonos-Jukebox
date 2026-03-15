@@ -7,7 +7,10 @@
     "ng": "ng",
     "start": "node server.js",
     "build": "ng build --configuration production",
-    "deploy": "ng build --configuration production"
+    "deploy": "ng build --configuration production",
+    "lint": "ng lint",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "test:cov": "ng test --watch=false --browsers=ChromeHeadless --code-coverage"
   },
   "private": true,
   "dependencies": {
