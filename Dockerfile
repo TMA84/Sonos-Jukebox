@@ -15,13 +15,8 @@ RUN apk del python3 make g++
 # Copy built application
 COPY www ./www
 COPY server.js ./
-COPY server ./server
 
-# Ensure default config files exist
-COPY server/config/pin-default.json ./server/config/
-COPY server/config/config-example.json ./server/config/
-
-# Create config directory and set permissions
+# Create directories for runtime data and config
 RUN mkdir -p server/config server/data && \
     chown -R node:node /app
 
