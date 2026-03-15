@@ -4,7 +4,8 @@ FROM node:18-alpine AS deps
 WORKDIR /app
 
 # Install build tools for native modules (sqlite3 on ARM)
-RUN apk add --no-cache python3 make g++ linux-headers
+# py3-setuptools provides distutils (removed in Python 3.12+, needed by node-gyp)
+RUN apk add --no-cache python3 py3-setuptools make g++ linux-headers
 
 # Only install the packages the server actually needs
 RUN npm init -y && \
