@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { SearchFilterComponent } from './search-filter.component';
@@ -7,15 +8,16 @@ describe('SearchFilterComponent', () => {
   let component: SearchFilterComponent;
   let fixture: ComponentFixture<SearchFilterComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       declarations: [SearchFilterComponent],
-      imports: [IonicModule.forRoot(), FormsModule]
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [IonicModule.forRoot(), FormsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SearchFilterComponent);
     component = fixture.componentInstance;
-  });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
