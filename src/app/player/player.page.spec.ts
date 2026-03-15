@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
 import { PlayerPage } from './player.page';
 
 describe('PlayerPage', () => {
@@ -16,9 +17,18 @@ describe('PlayerPage', () => {
       imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
     }).compileComponents();
 
+    const router = TestBed.inject(Router);
+    spyOn(router, 'getCurrentNavigation').and.returnValue({
+      extras: {
+        state: {
+          media: { title: 'Test', artist: 'Test Artist', type: 'spotify', category: 'music' },
+          fromShortcut: false,
+        },
+      },
+    } as any);
+
     fixture = TestBed.createComponent(PlayerPage);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   }));
 
   it('should create', () => {

@@ -19,7 +19,7 @@ describe('AddPage', () => {
 
     fixture = TestBed.createComponent(AddPage);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    // Don't call detectChanges() — ngAfterViewInit tries to init simple-keyboard on missing DOM
   }));
 
   it('should create', () => {

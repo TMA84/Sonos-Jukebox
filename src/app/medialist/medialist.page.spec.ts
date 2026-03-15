@@ -4,6 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MedialistPage } from './medialist.page';
 
 describe('MedialistPage', () => {
@@ -17,6 +18,15 @@ describe('MedialistPage', () => {
       imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule, FormsModule],
     }).compileComponents();
 
+    const router = TestBed.inject(Router);
+    spyOn(router, 'getCurrentNavigation').and.returnValue({
+      extras: {
+        state: {
+          artist: { name: 'Test Artist', albumCount: '1', cover: 'test.jpg', coverMedia: null },
+        },
+      },
+    } as any);
+
     fixture = TestBed.createComponent(MedialistPage);
     component = fixture.componentInstance;
     component.artist = {
@@ -25,7 +35,6 @@ describe('MedialistPage', () => {
       cover: 'test.jpg',
       coverMedia: null,
     };
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
