@@ -354,6 +354,7 @@ export class MedialistPage implements OnInit, AfterViewInit {
     this.showSearch = !this.showSearch;
     if (!this.showSearch) {
       this.searchTerm = '';
+      this.showKeyboard = false;
       this.onSearch();
     }
   }
