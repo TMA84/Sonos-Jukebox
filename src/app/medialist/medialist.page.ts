@@ -7,6 +7,7 @@ import { PlayerService } from '../player.service';
 import { Media } from '../media';
 import { Artist } from '../artist';
 import { environment } from '../../environments/environment';
+import { KioskService } from '../kiosk.service';
 
 @Component({
   selector: 'app-medialist',
@@ -45,7 +46,8 @@ export class MedialistPage implements OnInit, AfterViewInit {
     private http: HttpClient,
     private mediaService: MediaService,
     private artworkService: ArtworkService,
-    private playerService: PlayerService
+    private playerService: PlayerService,
+    public kioskService: KioskService
   ) {
     this.route.queryParams.subscribe(params => {
       if (this.router.getCurrentNavigation().extras.state) {

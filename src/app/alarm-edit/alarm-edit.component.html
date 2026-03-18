@@ -30,7 +30,7 @@
           [(ngModel)]="alarm.name"
           placeholder="Alarm name"
           class="text-input"
-          inputmode="none"
+          [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
         />
       </div>
     </div>

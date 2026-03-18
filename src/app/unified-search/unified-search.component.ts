@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { SpotifyService } from '../spotify.service';
 import { TuneInService, TuneInStation } from '../tunein.service';
 import { environment } from '../../environments/environment';
+import { KioskService } from '../kiosk.service';
 
 export type SearchMode = 'album' | 'artist' | 'podcast' | 'audiobook' | 'radio';
 
@@ -61,7 +62,8 @@ export class UnifiedSearchComponent implements OnInit {
     private modalController: ModalController,
     private spotifyService: SpotifyService,
     private tuneInService: TuneInService,
-    private http: HttpClient
+    private http: HttpClient,
+    public kioskService: KioskService
   ) {}
 
   ngOnInit() {}

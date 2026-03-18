@@ -56,6 +56,7 @@ async function initializeDatabase() {
             room TEXT,
             enableSpeakerSelection INTEGER DEFAULT 1,
             enableAlarmClock INTEGER DEFAULT 1,
+            kioskMode INTEGER DEFAULT 0,
             sleepTimer INTEGER DEFAULT 0,
             isActive INTEGER DEFAULT 1,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -147,6 +148,7 @@ async function migrateClientsSchema() {
     const hasEnableAlarmClock = tableInfo.some(col => col.name === 'enableAlarmClock');
     const hasSleepTimer = tableInfo.some(col => col.name === 'sleepTimer');
     const hasUpdatedAt = tableInfo.some(col => col.name === 'updatedAt');
+    const hasKioskMode = tableInfo.some(col => col.name === 'kioskMode');
 
     if (!hasEnableSpeakerSelection) {
       console.log('Adding enableSpeakerSelection column to clients table...');
@@ -166,6 +168,11 @@ async function migrateClientsSchema() {
     if (!hasUpdatedAt) {
       console.log('Adding updatedAt column to clients table...');
       await dbRun('ALTER TABLE clients ADD COLUMN updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP');
+    }
+
+    if (!hasKioskMode) {
+      console.log('Adding kioskMode column to clients table...');
+      await dbRun('ALTER TABLE clients ADD COLUMN kioskMode INTEGER DEFAULT 0');
     }
 
     console.log('Clients table migration completed successfully');
@@ -1445,6 +1452,7 @@ app.get('/api/config/client', async (req, res) => {
       sleepTimer: client.sleepTimer || 0,
       enableSpeakerSelection: !!client.enableSpeakerSelection,
       enableAlarmClock: client.enableAlarmClock !== 0,
+      kioskMode: !!client.kioskMode,
     });
   } catch (error) {
     console.error('Error getting client config:', error);
@@ -1454,7 +1462,7 @@ app.get('/api/config/client', async (req, res) => {
 
 app.post('/api/config/client', async (req, res) => {
   try {
-    const { clientId, name, room, enableSpeakerSelection, enableAlarmClock } = req.body;
+    const { clientId, name, room, enableSpeakerSelection, enableAlarmClock, kioskMode } = req.body;
 
     if (!clientId) {
       return res.status(400).json({ error: 'Client ID required' });
@@ -1488,6 +1496,11 @@ app.post('/api/config/client', async (req, res) => {
     if (enableAlarmClock !== undefined) {
       updates.push('enableAlarmClock = ?');
       values.push(enableAlarmClock ? 1 : 0);
+    }
+
+    if (kioskMode !== undefined) {
+      updates.push('kioskMode = ?');
+      values.push(kioskMode ? 1 : 0);
     }
 
     if (updates.length === 0) {

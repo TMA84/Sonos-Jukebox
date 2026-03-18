@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Alarm } from '../alarm.service';
+import { KioskService } from '../kiosk.service';
 
 @Component({
   selector: 'app-alarm-edit',
@@ -35,7 +36,10 @@ export class AlarmEditComponent implements OnInit {
     { label: 'Sat', value: 6 },
   ];
 
-  constructor(private modalController: ModalController) {}
+  constructor(
+    private modalController: ModalController,
+    public kioskService: KioskService
+  ) {}
 
   ngOnInit() {
     // Build hours 00-23 and minutes in 5-min steps

@@ -11,6 +11,7 @@ import { RadioSearchComponent } from '../radio-search/radio-search.component';
 import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
 import { AlarmService, Alarm } from '../alarm.service';
 import { UnifiedSearchComponent, SearchMode } from '../unified-search/unified-search.component';
+import { KioskService } from '../kiosk.service';
 import { ArtworkService } from '../artwork.service';
 
 @Component({
@@ -47,6 +48,7 @@ export class ConfigPage implements OnInit {
   editingIndex: number = -1;
   enableSpeakerSelection = true;
   enableAlarmClock = true;
+  kioskMode = false;
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
@@ -65,7 +67,8 @@ export class ConfigPage implements OnInit {
     private modalController: ModalController,
     private alertController: AlertController,
     private alarmService: AlarmService,
-    private artworkService: ArtworkService
+    private artworkService: ArtworkService,
+    public kioskService: KioskService
   ) {}
 
   ngOnInit() {
@@ -952,6 +955,8 @@ export class ConfigPage implements OnInit {
       .subscribe(config => {
         this.enableSpeakerSelection = config.enableSpeakerSelection !== false;
         this.enableAlarmClock = config.enableAlarmClock !== false;
+        this.kioskMode = !!config.kioskMode;
+        this.kioskService.setKioskMode(this.kioskMode);
       });
   }
   async saveSpeakerSelectionSetting() {
@@ -1012,6 +1017,40 @@ export class ConfigPage implements OnInit {
           console.error('Failed to save speaker selection setting:', err);
           const toast = await this.toastController.create({
             message: 'Failed to save speaker selection setting',
+            duration: 2000,
+            color: 'danger',
+          });
+          toast.present();
+        },
+      });
+  }
+
+  async saveKioskModeSetting() {
+    this.kioskService.setKioskMode(this.kioskMode);
+    const saveUrl = `${environment.apiUrl}/config/client`;
+    this.http
+      .post(
+        saveUrl,
+        {
+          clientId: this.clientId,
+          kioskMode: this.kioskMode,
+        },
+        { responseType: 'text' }
+      )
+      .subscribe({
+        next: async response => {
+          console.log('Kiosk mode setting saved:', response);
+          const toast = await this.toastController.create({
+            message: this.kioskMode ? 'Kiosk mode enabled' : 'Kiosk mode disabled',
+            duration: 2000,
+            color: 'success',
+          });
+          toast.present();
+        },
+        error: async err => {
+          console.error('Failed to save kiosk mode setting:', err);
+          const toast = await this.toastController.create({
+            message: 'Failed to save kiosk mode setting',
             duration: 2000,
             color: 'danger',
           });

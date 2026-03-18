@@ -10,16 +10,13 @@ import { ServiceSearchComponent } from '../service-search/service-search.compone
 import { ArtistSearchComponent } from '../artist-search/artist-search.component';
 import { RadioSearchComponent } from '../radio-search/radio-search.component';
 import { ConfigService } from '../config.service';
-
+import { KioskService } from '../kiosk.service';
 
 @Component({
   selector: 'app-add',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './add.page.html',
-  styleUrls: [
-    './add.page.scss',
-    '../../../node_modules/simple-keyboard/build/css/index.css'
-  ]
+  styleUrls: ['./add.page.scss', '../../../node_modules/simple-keyboard/build/css/index.css'],
 })
 export class AddPage implements OnInit, AfterViewInit {
   @ViewChild('select', { static: false }) select: IonSelect;
@@ -42,14 +39,14 @@ export class AddPage implements OnInit, AfterViewInit {
   keyboardRows = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
   ];
 
   categoryIcons = {
     audiobook: 'book-outline',
     music: 'musical-notes-outline',
     playlist: 'document-text-outline',
-    radio: 'radio-outline'
+    radio: 'radio-outline',
   };
 
   constructor(
@@ -57,18 +54,19 @@ export class AddPage implements OnInit, AfterViewInit {
     private navController: NavController,
     private modalController: ModalController,
     private configService: ConfigService,
-    private router: Router
-  ) { }
+    private router: Router,
+    public kioskService: KioskService
+  ) {}
 
   ngOnInit() {
     console.log('AddPage ngOnInit - Initial tuneinConfigured:', this.tuneinConfigured);
     this.configService.getConfig().subscribe(config => {
       this.spotifyConfigured = config.spotify?.configured || false;
       this.tuneinConfigured = true; // TuneIn uses public API, always available
-      
+
       console.log('AddPage config loaded - tuneinConfigured:', this.tuneinConfigured);
       console.log('AddPage config loaded - spotifyConfigured:', this.spotifyConfigured);
-      
+
       if (this.spotifyConfigured && this.source === 'library') {
         this.source = 'spotify';
       }
@@ -76,7 +74,6 @@ export class AddPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-
     this.keyboard = new Keyboard({
       onChange: input => {
         this.selectedInputElem.value = input;
@@ -91,20 +88,20 @@ export class AddPage implements OnInit, AfterViewInit {
           'q w e r t z u i o p ü',
           'a s d f g h j k l ö ä',
           '{shift} y x c v b n m {shift}',
-          '{alt} {space} . {bksp}'
+          '{alt} {space} . {bksp}',
         ],
         shift: [
           'Q W E R T Z U I O P Ü',
           'A S D F G H J K L Ö Ä',
           '{shiftactivated} Y X C V B N M {shift}',
-          '{alt} {space} . {bksp}'
+          '{alt} {space} . {bksp}',
         ],
         alt: [
           '1 2 3 4 5 6 7 8 9 0 =',
           `% @ # $ & * / ( ) ' "`,
           '{shift} , - + ; : ! ? {shift}',
-          '{default} {space} . {bksp}'
-        ]
+          '{default} {space} . {bksp}',
+        ],
       },
       display: {
         '{alt}': '123',
@@ -117,8 +114,8 @@ export class AddPage implements OnInit, AfterViewInit {
         '{downkeyboard}': '🞃',
         '{space}': ' ',
         '{default}': 'ABC',
-        '{back}': '⇦'
-      }
+        '{back}': '⇦',
+      },
     });
 
     this.selectedInputElem = document.querySelector('ion-input:first-child');
@@ -162,7 +159,7 @@ export class AddPage implements OnInit, AfterViewInit {
 
     if (this.keyboard) {
       this.keyboard.setOptions({
-        inputName: event.target.name
+        inputName: event.target.name,
       });
     }
   }
@@ -195,14 +192,15 @@ export class AddPage implements OnInit, AfterViewInit {
 
     if (layout) {
       this.keyboard.setOptions({
-        layoutName: layout
+        layoutName: layout,
       });
     }
   }
 
   segmentChanged(event: any) {
     this.source = event.detail.value;
-    window.setTimeout(() => { // wait for new elements to be visible before altering them
+    window.setTimeout(() => {
+      // wait for new elements to be visible before altering them
       this.validate();
     }, 10);
   }
@@ -217,37 +215,71 @@ export class AddPage implements OnInit, AfterViewInit {
   submit(form: NgForm) {
     const media: Media = {
       type: this.source,
-      category: this.category
+      category: this.category,
     };
 
     if (this.source === 'spotify') {
-      if (form.form.value.spotify_artist?.length) { media.artist = form.form.value.spotify_artist; }
-      if (form.form.value.spotify_title?.length) { media.title = form.form.value.spotify_title; }
-      if (form.form.value.spotify_query?.length) { media.query = form.form.value.spotify_query; }
-      if (form.form.value.spotify_id?.length) { media.id = form.form.value.spotify_id; }
-      if (form.form.value.spotify_artistid?.length) { media.artistid = form.form.value.spotify_artistid; }
-
+      if (form.form.value.spotify_artist?.length) {
+        media.artist = form.form.value.spotify_artist;
+      }
+      if (form.form.value.spotify_title?.length) {
+        media.title = form.form.value.spotify_title;
+      }
+      if (form.form.value.spotify_query?.length) {
+        media.query = form.form.value.spotify_query;
+      }
+      if (form.form.value.spotify_id?.length) {
+        media.id = form.form.value.spotify_id;
+      }
+      if (form.form.value.spotify_artistid?.length) {
+        media.artistid = form.form.value.spotify_artistid;
+      }
     } else if (this.source === 'library') {
-      if (form.form.value.library_artist?.length) { media.artist = form.form.value.library_artist; }
-      if (form.form.value.library_title?.length) { media.title = form.form.value.library_title; }
-      if (form.form.value.library_cover?.length) { media.cover = form.form.value.library_cover; }
-
+      if (form.form.value.library_artist?.length) {
+        media.artist = form.form.value.library_artist;
+      }
+      if (form.form.value.library_title?.length) {
+        media.title = form.form.value.library_title;
+      }
+      if (form.form.value.library_cover?.length) {
+        media.cover = form.form.value.library_cover;
+      }
     } else if (this.source === 'amazonmusic') {
-      if (form.form.value.amazonmusic_artist?.length) { media.artist = form.form.value.amazonmusic_artist; }
-      if (form.form.value.amazonmusic_title?.length) { media.title = form.form.value.amazonmusic_title; }
-      if (form.form.value.amazonmusic_cover?.length) { media.cover = form.form.value.amazonmusic_cover; }
-      if (form.form.value.amazonmusic_id?.length) { media.id = form.form.value.amazonmusic_id; }
-
+      if (form.form.value.amazonmusic_artist?.length) {
+        media.artist = form.form.value.amazonmusic_artist;
+      }
+      if (form.form.value.amazonmusic_title?.length) {
+        media.title = form.form.value.amazonmusic_title;
+      }
+      if (form.form.value.amazonmusic_cover?.length) {
+        media.cover = form.form.value.amazonmusic_cover;
+      }
+      if (form.form.value.amazonmusic_id?.length) {
+        media.id = form.form.value.amazonmusic_id;
+      }
     } else if (this.source === 'applemusic') {
-      if (form.form.value.applemusic_artist?.length) { media.artist = form.form.value.applemusic_artist; }
-      if (form.form.value.applemusic_title?.length) { media.title = form.form.value.applemusic_title; }
-      if (form.form.value.applemusic_cover?.length) { media.cover = form.form.value.applemusic_cover; }
-      if (form.form.value.applemusic_id?.length) { media.id = form.form.value.applemusic_id; }
-
+      if (form.form.value.applemusic_artist?.length) {
+        media.artist = form.form.value.applemusic_artist;
+      }
+      if (form.form.value.applemusic_title?.length) {
+        media.title = form.form.value.applemusic_title;
+      }
+      if (form.form.value.applemusic_cover?.length) {
+        media.cover = form.form.value.applemusic_cover;
+      }
+      if (form.form.value.applemusic_id?.length) {
+        media.id = form.form.value.applemusic_id;
+      }
     } else if (this.source === 'tunein') {
-      if (form.form.value.tunein_title?.length) { media.title = form.form.value.tunein_title; }
-      if (form.form.value.tunein_cover?.length) { media.cover = form.form.value.tunein_cover; }
-      if (form.form.value.tunein_id?.length) { media.id = form.form.value.tunein_id; }
+      if (form.form.value.tunein_title?.length) {
+        media.title = form.form.value.tunein_title;
+      }
+      if (form.form.value.tunein_cover?.length) {
+        media.cover = form.form.value.tunein_cover;
+      }
+      if (form.form.value.tunein_id?.length) {
+        media.id = form.form.value.tunein_id;
+      }
     }
 
     this.mediaService.addRawMedia(media);
@@ -292,10 +324,10 @@ export class AddPage implements OnInit, AfterViewInit {
   async openAlbumSearch() {
     const modal = await this.modalController.create({
       component: AlbumSearchComponent,
-      cssClass: 'album-search-modal'
+      cssClass: 'album-search-modal',
     });
 
-    modal.onDidDismiss().then((result) => {
+    modal.onDidDismiss().then(result => {
       if (result.data) {
         this.addAlbumFromSearch(result.data);
       }
@@ -308,17 +340,17 @@ export class AddPage implements OnInit, AfterViewInit {
     if (service === 'tunein') {
       return this.openRadioSearch();
     }
-    
+
     const modal = await this.modalController.create({
       component: ServiceSearchComponent,
       componentProps: {
         service: service,
-        category: this.category
+        category: this.category,
       },
-      cssClass: 'service-search-modal'
+      cssClass: 'service-search-modal',
     });
 
-    modal.onDidDismiss().then((result) => {
+    modal.onDidDismiss().then(result => {
       if (result.data) {
         this.addAlbumFromSearch(result.data);
       }
@@ -330,10 +362,10 @@ export class AddPage implements OnInit, AfterViewInit {
   async openRadioSearch() {
     const modal = await this.modalController.create({
       component: RadioSearchComponent,
-      cssClass: 'radio-search-modal'
+      cssClass: 'radio-search-modal',
     });
 
-    modal.onDidDismiss().then((result) => {
+    modal.onDidDismiss().then(result => {
       if (result.data) {
         this.addStationFromSearch(result.data);
       }
@@ -350,7 +382,7 @@ export class AddPage implements OnInit, AfterViewInit {
       title: station.name,
       cover: station.image,
       id: station.id,
-      streamUrl: station.streamUrl // Include the Sonos-compatible stream URL
+      streamUrl: station.streamUrl, // Include the Sonos-compatible stream URL
     };
 
     this.mediaService.addRawMedia(media);
@@ -361,10 +393,10 @@ export class AddPage implements OnInit, AfterViewInit {
   async openArtistSearch() {
     const modal = await this.modalController.create({
       component: ArtistSearchComponent,
-      cssClass: 'artist-search-modal'
+      cssClass: 'artist-search-modal',
     });
 
-    modal.onDidDismiss().then((result) => {
+    modal.onDidDismiss().then(result => {
       if (result.data) {
         this.addArtistFromSearch(result.data);
       }
@@ -386,7 +418,7 @@ export class AddPage implements OnInit, AfterViewInit {
       title: `All ${artist.name} Albums`,
       cover: artist.image,
       type: 'spotify',
-      category: this.category
+      category: this.category,
     };
     this.mediaService.addRawMedia(media);
     this.reloadHome();
@@ -429,21 +461,27 @@ export class AddPage implements OnInit, AfterViewInit {
       this.searchType = 'media_id';
     }
 
-    const inputs = this.keyboard ? {
-      spotify_artist: this.keyboard.getInput('spotify_artist'),
-      spotify_title: this.keyboard.getInput('spotify_title'),
-      spotify_id: this.keyboard.getInput('spotify_id'),
-      spotify_artistid: this.keyboard.getInput('spotify_artistid'),
-      spotify_query: this.keyboard.getInput('spotify_query'),
-      library_artist: this.keyboard.getInput('library_artist'),
-      library_title: this.keyboard.getInput('library_title')
-    } : {};
+    const inputs = this.keyboard
+      ? {
+          spotify_artist: this.keyboard.getInput('spotify_artist'),
+          spotify_title: this.keyboard.getInput('spotify_title'),
+          spotify_id: this.keyboard.getInput('spotify_id'),
+          spotify_artistid: this.keyboard.getInput('spotify_artistid'),
+          spotify_query: this.keyboard.getInput('spotify_query'),
+          library_artist: this.keyboard.getInput('library_artist'),
+          library_title: this.keyboard.getInput('library_title'),
+        }
+      : {};
 
     switch (this.source) {
       case 'spotify':
-        this.valid = this.category === 'playlist' ? 
-          !!inputs.spotify_id :
-          !!(inputs.spotify_artist && inputs.spotify_title) || !!inputs.spotify_query || !!inputs.spotify_id || !!inputs.spotify_artistid;
+        this.valid =
+          this.category === 'playlist'
+            ? !!inputs.spotify_id
+            : !!(inputs.spotify_artist && inputs.spotify_title) ||
+              !!inputs.spotify_query ||
+              !!inputs.spotify_id ||
+              !!inputs.spotify_artistid;
         break;
       case 'library':
         this.valid = !!(inputs.library_artist && inputs.library_title);

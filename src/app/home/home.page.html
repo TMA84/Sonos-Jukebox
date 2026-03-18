@@ -29,10 +29,10 @@
       *ngIf="showSearch"
       [(ngModel)]="searchTerm"
       (ionInput)="onSearch()"
-      (ionFocus)="setActiveInput('search'); showKeyboard = true"
+      (ionFocus)="setActiveInput('search'); kioskService.isKioskMode && (showKeyboard = true)"
       placeholder="Search library..."
       debounce="300"
-      inputmode="none"
+      [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
     >
     </ion-searchbar>
     <ion-buttons slot="end">

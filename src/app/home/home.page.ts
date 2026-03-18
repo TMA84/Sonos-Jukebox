@@ -12,6 +12,7 @@ import { PinDialogComponent } from '../pin-dialog/pin-dialog.component';
 import { AlarmManagerComponent } from '../alarm-manager/alarm-manager.component';
 import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
 import { AlarmService } from '../alarm.service';
+import { KioskService } from '../kiosk.service';
 import { Artist } from '../artist';
 import { Media } from '../media';
 
@@ -52,7 +53,8 @@ export class HomePage implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private toastController: ToastController,
     private alarmService: AlarmService,
-    private http: HttpClient
+    private http: HttpClient,
+    public kioskService: KioskService
   ) {}
 
   ngOnInit() {
@@ -401,6 +403,7 @@ export class HomePage implements OnInit, AfterViewInit {
       })
       .subscribe(config => {
         this.enableAlarmClock = config.enableAlarmClock !== false;
+        this.kioskService.setKioskMode(!!config.kioskMode);
       });
   }
 
