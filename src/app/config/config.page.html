@@ -117,6 +117,19 @@
           </button>
         </div>
       </div>
+
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Display</span>
+        </div>
+        <div class="cfg-toggle-row">
+          <span>Kiosk Mode</span>
+          <ion-toggle [(ngModel)]="kioskMode" (ionChange)="saveKioskModeSetting()"></ion-toggle>
+        </div>
+        <span class="cfg-hint"
+          >Blocks system keyboard and auto-opens virtual keyboard on focus</span
+        >
+      </div>
     </div>
 
     <!-- Speakers Tab -->
@@ -132,19 +145,6 @@
             (ionChange)="saveSpeakerSelectionSetting()"
           ></ion-toggle>
         </div>
-      </div>
-
-      <div class="tab-section">
-        <div class="section-header">
-          <span class="section-label">Display</span>
-        </div>
-        <div class="cfg-toggle-row">
-          <span>Kiosk Mode</span>
-          <ion-toggle [(ngModel)]="kioskMode" (ionChange)="saveKioskModeSetting()"></ion-toggle>
-        </div>
-        <span class="cfg-hint"
-          >Blocks system keyboard and auto-opens virtual keyboard on focus</span
-        >
       </div>
 
       <div class="tab-section">
