@@ -17,9 +17,10 @@
     <ion-searchbar
       [(ngModel)]="searchTerm"
       (ionInput)="onSearch()"
-      (ionFocus)="setActiveInput('search')"
+      (ionFocus)="setActiveInput('search'); showKeyboard = true"
       placeholder="Search albums..."
       debounce="300"
+      inputmode="none"
     >
     </ion-searchbar>
   </ion-toolbar>

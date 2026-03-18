@@ -29,11 +29,11 @@
       *ngIf="showSearch"
       [(ngModel)]="searchTerm"
       (ionInput)="onSearch()"
-      (ionFocus)="setActiveInput('search')"
+      (ionFocus)="setActiveInput('search'); showKeyboard = true"
       placeholder="Search library..."
       debounce="300"
+      inputmode="none"
     >
-    </ion-searchbar>
     <ion-buttons slot="end">
       <ion-title *ngIf="clientName" class="client-name modern-title">{{clientName}}</ion-title>
       <ion-button *ngIf="enableAlarmClock" class="modern-button-icon" (click)="openAlarmManager()">

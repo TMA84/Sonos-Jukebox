@@ -64,6 +64,7 @@
             placeholder="Client name"
             class="cfg-input"
             (focus)="setActiveInput('clientName')"
+            inputmode="none"
           />
           <button class="cfg-btn primary" (click)="saveClientName()" [disabled]="!clientName">
             Save
@@ -109,6 +110,7 @@
             placeholder="New client name"
             class="cfg-input"
             (focus)="setActiveInput('newClientName')"
+            inputmode="none"
           />
           <button class="cfg-btn primary" (click)="createNewClient()" [disabled]="!newClientName">
             <ion-icon name="add"></ion-icon> Create
@@ -287,6 +289,7 @@
             placeholder="Enter Spotify Client ID"
             class="cfg-input"
             (focus)="setActiveInput('spotifyClientId')"
+            inputmode="none"
           />
           <label class="cfg-label">Client Secret</label>
           <input
@@ -295,6 +298,7 @@
             placeholder="Enter Spotify Client Secret"
             class="cfg-input"
             (focus)="setActiveInput('spotifyClientSecret')"
+            inputmode="none"
           />
           <button
             class="cfg-btn primary full"
@@ -330,6 +334,7 @@
             placeholder="127.0.0.1"
             class="cfg-input"
             (focus)="setActiveInput('sonosServer')"
+            inputmode="none"
           />
           <label class="cfg-label">Port</label>
           <input
@@ -338,6 +343,7 @@
             placeholder="5005"
             class="cfg-input"
             (focus)="setActiveInput('sonosPort')"
+            inputmode="none"
           />
           <button
             class="cfg-btn primary full"
@@ -493,6 +499,7 @@
               placeholder="Artist"
               class="lib-input"
               (focus)="setActiveInput('libraryArtist')"
+              inputmode="none"
             />
             <input
               type="text"
@@ -500,6 +507,7 @@
               placeholder="Title"
               class="lib-input"
               (focus)="setActiveInput('libraryTitle')"
+              inputmode="none"
             />
             <button
               class="lib-add-btn"
@@ -603,6 +611,7 @@
             placeholder="Enter current PIN"
             class="cfg-input"
             (focus)="setActiveInput('currentPin')"
+            inputmode="none"
           />
           <label class="cfg-label">New PIN (4-12 digits)</label>
           <input
@@ -612,6 +621,7 @@
             placeholder="Enter new PIN"
             class="cfg-input"
             (focus)="setActiveInput('newPin')"
+            inputmode="none"
           />
           <label class="cfg-label">Confirm New PIN</label>
           <input
@@ -621,6 +631,7 @@
             placeholder="Confirm new PIN"
             class="cfg-input"
             (focus)="setActiveInput('confirmPin')"
+            inputmode="none"
           />
           <button
             class="cfg-btn primary full"
