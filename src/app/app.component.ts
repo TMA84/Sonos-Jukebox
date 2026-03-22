@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { AlarmNotificationService } from './alarm-notification.service';
+import { KioskService } from './kiosk.service';
 
 @Component({
   selector: 'app-root',
@@ -10,17 +11,25 @@ import { AlarmNotificationService } from './alarm-notification.service';
 export class AppComponent {
   constructor(
     private platform: Platform,
-    private alarmNotificationService: AlarmNotificationService
+    private alarmNotificationService: AlarmNotificationService,
+    private kioskService: KioskService
   ) {
     this.initializeApp();
   }
 
   initializeApp() {
     this.platform.ready().then(() => {
-      // Modern Ionic handles status bar and splash screen automatically
-
       // Start monitoring for active alarms
       this.alarmNotificationService.startMonitoring();
+
+      // Watch for kiosk mode changes and apply body class
+      this.kioskService.kioskMode.subscribe(enabled => {
+        if (enabled) {
+          document.body.classList.add('kiosk-mode');
+        } else {
+          document.body.classList.remove('kiosk-mode');
+        }
+      });
     });
   }
 }
