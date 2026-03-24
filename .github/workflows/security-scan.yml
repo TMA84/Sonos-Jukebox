@@ -38,8 +38,10 @@ jobs:
           npm audit --audit-level=moderate || true >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
+      # Pinned to SHA for supply chain safety (v0.35.0 / trivy v0.69.3)
+      # See: https://www.aquasec.com/blog/trivy-supply-chain-attack-what-you-need-to-know/
       - name: Run Trivy vulnerability scanner (filesystem)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -94,9 +96,10 @@ jobs:
           fi
         continue-on-error: true
 
+      # Pinned to SHA for supply chain safety (v0.35.0 / trivy v0.69.3)
       - name: Run Trivy vulnerability scanner on Docker image
         if: steps.check_image.outputs.image_exists == 'true'
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
         with:
           image-ref: ghcr.io/${{ steps.repo_lowercase.outputs.REPO_LOWER }}:${{ steps.get_tag.outputs.tag }}
           format: 'sarif'
@@ -120,9 +123,10 @@ jobs:
           sarif_file: 'trivy-docker-results.sarif'
           category: 'docker-image'
 
+      # Pinned to SHA for supply chain safety (v0.35.0 / trivy v0.69.3)
       - name: Run Trivy (detailed report)
         if: steps.check_image.outputs.image_exists == 'true'
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
         with:
           image-ref: ghcr.io/${{ steps.repo_lowercase.outputs.REPO_LOWER }}:${{ steps.get_tag.outputs.tag }}
           format: 'table'

@@ -98,37 +98,39 @@ jobs:
           echo "Waiting for Docker image to be available..."
           sleep 30
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'ghcr.io/${{ steps.repo_lowercase.outputs.REPO_LOWER }}:${{ steps.get_version.outputs.VERSION }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-        continue-on-error: true
-
-      - name: Check if SARIF file exists
-        id: check_sarif
-        run: |
-          if [ -f trivy-results.sarif ]; then
-            echo "sarif_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "sarif_exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Upload Trivy results to GitHub Security
-        if: steps.check_sarif.outputs.sarif_exists == 'true'
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: Run Trivy vulnerability scanner (table output)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'ghcr.io/${{ steps.repo_lowercase.outputs.REPO_LOWER }}:${{ steps.get_version.outputs.VERSION }}'
-          format: 'table'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-        continue-on-error: true
+      # Pinned to SHA for supply chain safety (v0.35.0 / trivy v0.69.3)
+      # See: https://www.aquasec.com/blog/trivy-supply-chain-attack-what-you-need-to-know/
+      # - name: Run Trivy vulnerability scanner
+      #   uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+      #   with:
+      #     image-ref: 'ghcr.io/${{ steps.repo_lowercase.outputs.REPO_LOWER }}:${{ steps.get_version.outputs.VERSION }}'
+      #     format: 'sarif'
+      #     output: 'trivy-results.sarif'
+      #     severity: 'CRITICAL,HIGH'
+      #   continue-on-error: true
+      #
+      # - name: Check if SARIF file exists
+      #   id: check_sarif
+      #   run: |
+      #     if [ -f trivy-results.sarif ]; then
+      #       echo "sarif_exists=true" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "sarif_exists=false" >> $GITHUB_OUTPUT
+      #     fi
+      #
+      # - name: Upload Trivy results to GitHub Security
+      #   if: steps.check_sarif.outputs.sarif_exists == 'true'
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: 'trivy-results.sarif'
+      #
+      # - name: Run Trivy vulnerability scanner (table output)
+      #   uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+      #   with:
+      #     image-ref: 'ghcr.io/${{ steps.repo_lowercase.outputs.REPO_LOWER }}:${{ steps.get_version.outputs.VERSION }}'
+      #     format: 'table'
+      #     severity: 'CRITICAL,HIGH,MEDIUM'
+      #   continue-on-error: true
 
       - name: Docker image summary
         run: |
