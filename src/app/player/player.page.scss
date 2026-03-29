@@ -1,8 +1,12 @@
 .modern-toolbar {
-  --background: rgba(15, 15, 26, 0.9);
+  --background: #0f0f1a;
   --color: var(--text-primary);
-  backdrop-filter: var(--blur-background);
-  -webkit-backdrop-filter: var(--blur-background);
+
+  @supports (backdrop-filter: blur(1px)) {
+    --background: rgba(15, 15, 26, 0.9);
+    backdrop-filter: var(--blur-background);
+    -webkit-backdrop-filter: var(--blur-background);
+  }
 }
 
 .modern-select {

@@ -135,13 +135,17 @@ ion-label {
 }
 
 .modern-toolbar {
-  --background: rgba(15, 15, 26, 0.85);
+  --background: #0f0f1a;
   --color: var(--text-primary);
   --border-width: 0;
   --border-color: transparent;
-  backdrop-filter: var(--blur-background);
-  -webkit-backdrop-filter: var(--blur-background);
   border-bottom: 1px solid var(--border-color);
+
+  @supports (backdrop-filter: blur(1px)) {
+    --background: rgba(15, 15, 26, 0.85);
+    backdrop-filter: var(--blur-background);
+    -webkit-backdrop-filter: var(--blur-background);
+  }
 }
 
 .modern-title {

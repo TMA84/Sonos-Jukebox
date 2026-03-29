@@ -132,8 +132,11 @@ ion-content.keyboard-visible {
   --border-radius: var(--radius-lg);
   --box-shadow: var(--shadow-large);
   border: 1px solid var(--border-color);
-  backdrop-filter: var(--blur-background);
-  -webkit-backdrop-filter: var(--blur-background);
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: var(--blur-background);
+    -webkit-backdrop-filter: var(--blur-background);
+  }
 
   .popover-content {
     --background: transparent;
@@ -496,4 +499,18 @@ ion-content.keyboard-visible {
       }
     }
   }
+}
+
+/* ─── Touch Scroll Fix for Kiosk Browsers ──────────────────────── */
+ion-content {
+  --overflow: auto;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+ion-content::part(scroll) {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
