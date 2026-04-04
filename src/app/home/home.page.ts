@@ -331,16 +331,12 @@ export class HomePage implements OnInit, AfterViewInit {
   }
 
   async openContentSearch() {
-    if (this.category === 'radio') {
-      return this.openRadioSearch();
-    }
-
     const mode = this.getSearchMode();
     const modal = await this.modalController.create({
       component: UnifiedSearchComponent,
       componentProps: {
         mode: mode,
-        source: 'spotify',
+        source: this.category === 'radio' ? 'tunein' : 'spotify',
         category: this.category,
       },
     });
@@ -349,36 +345,26 @@ export class HomePage implements OnInit, AfterViewInit {
 
     const { data: result } = await modal.onDidDismiss();
     if (result) {
-      await this.addToLibrary({
-        title: result.title || result.name,
-        artist: result.artist || result.artists?.[0]?.name || '',
-        type: 'spotify',
-        category: this.category,
-        cover: result.cover || result.image,
-        id: result.id,
-        contentType: mode === 'podcast' ? 'show' : mode === 'audiobook' ? 'audiobook' : 'album',
-      });
-    }
-  }
-
-  private async openRadioSearch() {
-    const modal = await this.modalController.create({
-      component: RadioSearchComponent,
-      cssClass: 'radio-search-modal',
-    });
-
-    await modal.present();
-
-    const { data: station } = await modal.onDidDismiss();
-    if (station) {
-      await this.addToLibrary({
-        title: station.name,
-        artist: station.genre || 'Radio',
-        type: 'tunein',
-        category: 'radio',
-        cover: station.image,
-        id: station.id,
-      });
+      if (this.category === 'radio') {
+        await this.addToLibrary({
+          title: result.name || result.title,
+          artist: result.genre || 'Radio',
+          type: 'tunein',
+          category: 'radio',
+          cover: result.image,
+          id: result.id,
+        });
+      } else {
+        await this.addToLibrary({
+          title: result.title || result.name,
+          artist: result.artist || result.artists?.[0]?.name || '',
+          type: 'spotify',
+          category: this.category,
+          cover: result.cover || result.image,
+          id: result.id,
+          contentType: mode === 'podcast' ? 'show' : mode === 'audiobook' ? 'audiobook' : 'album',
+        });
+      }
     }
   }
 

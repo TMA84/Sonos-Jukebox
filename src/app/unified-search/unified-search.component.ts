@@ -66,7 +66,12 @@ export class UnifiedSearchComponent implements OnInit {
     public kioskService: KioskService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Auto-show virtual keyboard in kiosk mode
+    if (this.kioskService.isKioskMode) {
+      this.showKeyboard = true;
+    }
+  }
 
   onSearchInput() {
     clearTimeout(this.searchTimeout);

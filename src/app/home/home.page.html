@@ -6,19 +6,31 @@
       </ion-button>
     </ion-buttons>
     <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
-      <ion-segment-button *ngIf="availableCategories.includes('audiobook')" value="audiobook">
+      <ion-segment-button
+        *ngIf="availableCategories.includes('audiobook') || enableContentSearch"
+        value="audiobook"
+      >
         <ion-icon name="book-outline"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button *ngIf="availableCategories.includes('music')" value="music">
+      <ion-segment-button
+        *ngIf="availableCategories.includes('music') || enableContentSearch"
+        value="music"
+      >
         <ion-icon name="musical-notes-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button *ngIf="availableCategories.includes('playlist')" value="playlist">
         <ion-icon name="document-text-outline"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button *ngIf="availableCategories.includes('radio')" value="radio">
+      <ion-segment-button
+        *ngIf="availableCategories.includes('radio') || enableContentSearch"
+        value="radio"
+      >
         <ion-icon name="radio-outline"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button *ngIf="availableCategories.includes('podcast')" value="podcast">
+      <ion-segment-button
+        *ngIf="availableCategories.includes('podcast') || enableContentSearch"
+        value="podcast"
+      >
         <ion-icon name="mic-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button *ngIf="availableCategories.includes('radioplay')" value="radioplay">
