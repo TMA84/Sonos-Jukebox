@@ -7,13 +7,13 @@
     </ion-buttons>
     <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
       <ion-segment-button
-        *ngIf="availableCategories.includes('audiobook') || enableContentSearch"
+        *ngIf="availableCategories.includes('audiobook') || (enableContentSearch && spotifyConfigured)"
         value="audiobook"
       >
         <ion-icon name="book-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button
-        *ngIf="availableCategories.includes('music') || enableContentSearch"
+        *ngIf="availableCategories.includes('music') || (enableContentSearch && spotifyConfigured)"
         value="music"
       >
         <ion-icon name="musical-notes-outline"></ion-icon>
@@ -28,7 +28,7 @@
         <ion-icon name="radio-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button
-        *ngIf="availableCategories.includes('podcast') || enableContentSearch"
+        *ngIf="availableCategories.includes('podcast') || (enableContentSearch && spotifyConfigured)"
         value="podcast"
       >
         <ion-icon name="mic-outline"></ion-icon>
@@ -69,7 +69,10 @@
 </ion-header>
 
 <ion-content [class.keyboard-visible]="showKeyboard">
-  <div class="radio-search-bar" *ngIf="enableContentSearch">
+  <div
+    class="radio-search-bar"
+    *ngIf="enableContentSearch && (category === 'radio' || spotifyConfigured)"
+  >
     <button class="radio-search-btn" (click)="openContentSearch()">
       <ion-icon name="add-circle-outline"></ion-icon>
       <span>Add {{ getSearchLabel() }}</span>

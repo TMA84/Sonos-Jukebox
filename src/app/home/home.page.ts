@@ -42,6 +42,7 @@ export class HomePage implements OnInit, AfterViewInit {
   clientName = '';
   enableAlarmClock = true;
   enableContentSearch = false;
+  spotifyConfigured = false;
   hasMoreArtists = true;
   currentPage = 0;
   pageSize = 12;
@@ -484,7 +485,7 @@ export class HomePage implements OnInit, AfterViewInit {
       console.log('Loaded client display name:', name);
     });
 
-    // Load alarm clock setting
+    // Load client settings
     const clientId = this.clientService.getClientId();
     this.http
       .get<any>(`${environment.apiUrl}/config/client`, {
@@ -495,6 +496,11 @@ export class HomePage implements OnInit, AfterViewInit {
         this.enableContentSearch = !!config.enableContentSearch;
         this.kioskService.setKioskMode(!!config.kioskMode);
       });
+
+    // Load spotify config status
+    this.http.get<any>(`${environment.apiUrl}/config/full`).subscribe(config => {
+      this.spotifyConfigured = !!(config.spotify?.clientId && config.spotify?.clientSecret);
+    });
   }
 
   goToPlayer() {
