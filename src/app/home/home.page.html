@@ -57,6 +57,13 @@
 </ion-header>
 
 <ion-content [class.keyboard-visible]="showKeyboard">
+  <div class="radio-search-bar" *ngIf="enableRadioSearch && category === 'radio'">
+    <button class="radio-search-btn" (click)="openRadioSearch()">
+      <ion-icon name="search-outline"></ion-icon>
+      <span>Search Radio Stations</span>
+    </button>
+  </div>
+
   <app-virtual-grid
     [items]="filteredArtists"
     [covers]="covers"

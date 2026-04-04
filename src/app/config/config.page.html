@@ -64,7 +64,8 @@
             placeholder="Client name"
             class="cfg-input"
             (focus)="setActiveInput('clientName')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <button class="cfg-btn primary" (click)="saveClientName()" [disabled]="!clientName">
             Save
@@ -110,7 +111,8 @@
             placeholder="New client name"
             class="cfg-input"
             (focus)="setActiveInput('newClientName')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <button class="cfg-btn primary" (click)="createNewClient()" [disabled]="!newClientName">
             <ion-icon name="add"></ion-icon> Create
@@ -128,6 +130,22 @@
         </div>
         <span class="cfg-hint"
           >Blocks system keyboard and auto-opens virtual keyboard on focus</span
+        >
+      </div>
+
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">User Permissions</span>
+        </div>
+        <div class="cfg-toggle-row">
+          <span>Allow Radio Search</span>
+          <ion-toggle
+            [(ngModel)]="enableRadioSearch"
+            (ionChange)="saveRadioSearchSetting()"
+          ></ion-toggle>
+        </div>
+        <span class="cfg-hint"
+          >Allows users to search and play radio stations from the home screen</span
         >
       </div>
     </div>
@@ -302,7 +320,8 @@
             placeholder="Enter Spotify Client ID"
             class="cfg-input"
             (focus)="setActiveInput('spotifyClientId')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <label class="cfg-label">Client Secret</label>
           <input
@@ -311,7 +330,8 @@
             placeholder="Enter Spotify Client Secret"
             class="cfg-input"
             (focus)="setActiveInput('spotifyClientSecret')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <button
             class="cfg-btn primary full"
@@ -347,7 +367,8 @@
             placeholder="127.0.0.1"
             class="cfg-input"
             (focus)="setActiveInput('sonosServer')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <label class="cfg-label">Port</label>
           <input
@@ -356,7 +377,8 @@
             placeholder="5005"
             class="cfg-input"
             (focus)="setActiveInput('sonosPort')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <button
             class="cfg-btn primary full"
@@ -512,7 +534,8 @@
               placeholder="Artist"
               class="lib-input"
               (focus)="setActiveInput('libraryArtist')"
-              [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+              [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+              [readonly]="kioskService.isKioskMode"
             />
             <input
               type="text"
@@ -520,7 +543,8 @@
               placeholder="Title"
               class="lib-input"
               (focus)="setActiveInput('libraryTitle')"
-              [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+              [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+              [readonly]="kioskService.isKioskMode"
             />
             <button
               class="lib-add-btn"
@@ -624,7 +648,8 @@
             placeholder="Enter current PIN"
             class="cfg-input"
             (focus)="setActiveInput('currentPin')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <label class="cfg-label">New PIN (4-12 digits)</label>
           <input
@@ -634,7 +659,8 @@
             placeholder="Enter new PIN"
             class="cfg-input"
             (focus)="setActiveInput('newPin')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <label class="cfg-label">Confirm New PIN</label>
           <input
@@ -644,7 +670,8 @@
             placeholder="Confirm new PIN"
             class="cfg-input"
             (focus)="setActiveInput('confirmPin')"
-            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+            [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+            [readonly]="kioskService.isKioskMode"
           />
           <button
             class="cfg-btn primary full"

@@ -13,6 +13,7 @@ import { AlarmManagerComponent } from '../alarm-manager/alarm-manager.component'
 import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
 import { AlarmService } from '../alarm.service';
 import { KioskService } from '../kiosk.service';
+import { RadioSearchComponent } from '../radio-search/radio-search.component';
 import { Artist } from '../artist';
 import { Media } from '../media';
 
@@ -39,6 +40,7 @@ export class HomePage implements OnInit, AfterViewInit {
   filteredMedia: Media[] = [];
   clientName = '';
   enableAlarmClock = true;
+  enableRadioSearch = false;
   hasMoreArtists = true;
   currentPage = 0;
   pageSize = 12;
@@ -303,6 +305,38 @@ export class HomePage implements OnInit, AfterViewInit {
     this.router.navigate(['/config']);
   }
 
+  async openRadioSearch() {
+    const modal = await this.modalController.create({
+      component: RadioSearchComponent,
+      cssClass: 'radio-search-modal',
+    });
+
+    await modal.present();
+
+    const { data: station } = await modal.onDidDismiss();
+    if (station) {
+      // Build a Media object from the selected station and play it
+      const media: Media = {
+        title: station.name,
+        artist: station.genre || 'Radio',
+        type: 'tunein',
+        category: 'radio',
+        cover: station.image,
+        id: station.id,
+      } as Media;
+
+      this.playerService.playMedia(media);
+
+      const navigationExtras: NavigationExtras = {
+        state: {
+          media: media,
+          fromShortcut: false,
+        },
+      };
+      this.router.navigate(['/player'], navigationExtras);
+    }
+  }
+
   loadAvailableCategories() {
     // Load from server API
     const clientId = this.getClientId();
@@ -403,6 +437,7 @@ export class HomePage implements OnInit, AfterViewInit {
       })
       .subscribe(config => {
         this.enableAlarmClock = config.enableAlarmClock !== false;
+        this.enableRadioSearch = !!config.enableRadioSearch;
         this.kioskService.setKioskMode(!!config.kioskMode);
       });
   }

@@ -49,6 +49,7 @@ export class ConfigPage implements OnInit {
   enableSpeakerSelection = true;
   enableAlarmClock = true;
   kioskMode = false;
+  enableRadioSearch = false;
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
@@ -957,6 +958,7 @@ export class ConfigPage implements OnInit {
         this.enableAlarmClock = config.enableAlarmClock !== false;
         this.kioskMode = !!config.kioskMode;
         this.kioskService.setKioskMode(this.kioskMode);
+        this.enableRadioSearch = !!config.enableRadioSearch;
       });
   }
   async saveSpeakerSelectionSetting() {
@@ -1051,6 +1053,37 @@ export class ConfigPage implements OnInit {
           console.error('Failed to save kiosk mode setting:', err);
           const toast = await this.toastController.create({
             message: 'Failed to save kiosk mode setting',
+            duration: 2000,
+            color: 'danger',
+          });
+          toast.present();
+        },
+      });
+  }
+
+  async saveRadioSearchSetting() {
+    const saveUrl = `${environment.apiUrl}/config/client`;
+    this.http
+      .post(
+        saveUrl,
+        {
+          clientId: this.clientId,
+          enableRadioSearch: this.enableRadioSearch,
+        },
+        { responseType: 'text' }
+      )
+      .subscribe({
+        next: async response => {
+          const toast = await this.toastController.create({
+            message: this.enableRadioSearch ? 'Radio search enabled' : 'Radio search disabled',
+            duration: 2000,
+            color: 'success',
+          });
+          toast.present();
+        },
+        error: async err => {
+          const toast = await this.toastController.create({
+            message: 'Failed to save radio search setting',
             duration: 2000,
             color: 'danger',
           });

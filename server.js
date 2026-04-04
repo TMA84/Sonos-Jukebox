@@ -57,6 +57,7 @@ async function initializeDatabase() {
             enableSpeakerSelection INTEGER DEFAULT 1,
             enableAlarmClock INTEGER DEFAULT 1,
             kioskMode INTEGER DEFAULT 0,
+            enableRadioSearch INTEGER DEFAULT 0,
             sleepTimer INTEGER DEFAULT 0,
             isActive INTEGER DEFAULT 1,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -149,6 +150,7 @@ async function migrateClientsSchema() {
     const hasSleepTimer = tableInfo.some(col => col.name === 'sleepTimer');
     const hasUpdatedAt = tableInfo.some(col => col.name === 'updatedAt');
     const hasKioskMode = tableInfo.some(col => col.name === 'kioskMode');
+    const hasEnableRadioSearch = tableInfo.some(col => col.name === 'enableRadioSearch');
 
     if (!hasEnableSpeakerSelection) {
       console.log('Adding enableSpeakerSelection column to clients table...');
@@ -173,6 +175,11 @@ async function migrateClientsSchema() {
     if (!hasKioskMode) {
       console.log('Adding kioskMode column to clients table...');
       await dbRun('ALTER TABLE clients ADD COLUMN kioskMode INTEGER DEFAULT 0');
+    }
+
+    if (!hasEnableRadioSearch) {
+      console.log('Adding enableRadioSearch column to clients table...');
+      await dbRun('ALTER TABLE clients ADD COLUMN enableRadioSearch INTEGER DEFAULT 0');
     }
 
     console.log('Clients table migration completed successfully');
@@ -1453,6 +1460,7 @@ app.get('/api/config/client', async (req, res) => {
       enableSpeakerSelection: !!client.enableSpeakerSelection,
       enableAlarmClock: client.enableAlarmClock !== 0,
       kioskMode: !!client.kioskMode,
+      enableRadioSearch: !!client.enableRadioSearch,
     });
   } catch (error) {
     console.error('Error getting client config:', error);
@@ -1462,7 +1470,15 @@ app.get('/api/config/client', async (req, res) => {
 
 app.post('/api/config/client', async (req, res) => {
   try {
-    const { clientId, name, room, enableSpeakerSelection, enableAlarmClock, kioskMode } = req.body;
+    const {
+      clientId,
+      name,
+      room,
+      enableSpeakerSelection,
+      enableAlarmClock,
+      kioskMode,
+      enableRadioSearch,
+    } = req.body;
 
     if (!clientId) {
       return res.status(400).json({ error: 'Client ID required' });
@@ -1501,6 +1517,11 @@ app.post('/api/config/client', async (req, res) => {
     if (kioskMode !== undefined) {
       updates.push('kioskMode = ?');
       values.push(kioskMode ? 1 : 0);
+    }
+
+    if (enableRadioSearch !== undefined) {
+      updates.push('enableRadioSearch = ?');
+      values.push(enableRadioSearch ? 1 : 0);
     }
 
     if (updates.length === 0) {

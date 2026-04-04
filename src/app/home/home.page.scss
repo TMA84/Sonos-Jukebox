@@ -79,3 +79,32 @@ ion-content {
 ion-infinite-scroll-content {
   --color: var(--text-secondary);
 }
+
+.radio-search-bar {
+  padding: 8px 12px 4px;
+
+  .radio-search-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    ion-icon {
+      font-size: 18px;
+      color: var(--primary-light);
+    }
+
+    &:active {
+      background: var(--surface-hover);
+    }
+  }
+}
