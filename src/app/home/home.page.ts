@@ -349,14 +349,23 @@ export class HomePage implements OnInit, AfterViewInit {
 
     const { data: result } = await modal.onDidDismiss();
     if (result) {
+      // Map search mode to contentType for playMedia
+      const contentTypeMap: Record<string, string> = {
+        album: 'album',
+        artist: 'album',
+        audiobook: 'audiobook',
+        podcast: 'show',
+      };
+
       const media: Media = {
         title: result.title || result.name,
         artist: result.artist || result.artists?.[0]?.name || '',
         type: 'spotify',
         category: this.category,
         cover: result.cover || result.image,
-        id: result.id || result.uri,
-      } as Media;
+        id: result.id,
+        contentType: contentTypeMap[mode] || 'album',
+      };
 
       this.playerService.playMedia(media);
 
@@ -380,7 +389,6 @@ export class HomePage implements OnInit, AfterViewInit {
 
     const { data: station } = await modal.onDidDismiss();
     if (station) {
-      // Build a Media object from the selected station and play it
       const media: Media = {
         title: station.name,
         artist: station.genre || 'Radio',
@@ -388,7 +396,8 @@ export class HomePage implements OnInit, AfterViewInit {
         category: 'radio',
         cover: station.image,
         id: station.id,
-      } as Media;
+        metadata: JSON.stringify({ id: station.id }),
+      };
 
       this.playerService.playMedia(media);
 
