@@ -349,33 +349,15 @@ export class HomePage implements OnInit, AfterViewInit {
 
     const { data: result } = await modal.onDidDismiss();
     if (result) {
-      // Map search mode to contentType for playMedia
-      const contentTypeMap: Record<string, string> = {
-        album: 'album',
-        artist: 'album',
-        audiobook: 'audiobook',
-        podcast: 'show',
-      };
-
-      const media: Media = {
+      await this.addToLibrary({
         title: result.title || result.name,
         artist: result.artist || result.artists?.[0]?.name || '',
         type: 'spotify',
         category: this.category,
         cover: result.cover || result.image,
         id: result.id,
-        contentType: contentTypeMap[mode] || 'album',
-      };
-
-      this.playerService.playMedia(media);
-
-      const navigationExtras: NavigationExtras = {
-        state: {
-          media: media,
-          fromShortcut: false,
-        },
-      };
-      this.router.navigate(['/player'], navigationExtras);
+        contentType: mode === 'podcast' ? 'show' : mode === 'audiobook' ? 'audiobook' : 'album',
+      });
     }
   }
 
@@ -389,26 +371,39 @@ export class HomePage implements OnInit, AfterViewInit {
 
     const { data: station } = await modal.onDidDismiss();
     if (station) {
-      const media: Media = {
+      await this.addToLibrary({
         title: station.name,
         artist: station.genre || 'Radio',
         type: 'tunein',
         category: 'radio',
         cover: station.image,
         id: station.id,
-        metadata: JSON.stringify({ id: station.id }),
-      };
-
-      this.playerService.playMedia(media);
-
-      const navigationExtras: NavigationExtras = {
-        state: {
-          media: media,
-          fromShortcut: false,
-        },
-      };
-      this.router.navigate(['/player'], navigationExtras);
+      });
     }
+  }
+
+  private async addToLibrary(item: any) {
+    const clientId = this.clientService.getClientId();
+    this.http.post(`${environment.apiUrl}/add`, { ...item, clientId }).subscribe({
+      next: async () => {
+        const toast = await this.toastController.create({
+          message: `"${item.title}" added to library`,
+          duration: 2000,
+          color: 'success',
+        });
+        toast.present();
+        // Reload library to show the new item
+        this.loadLibraryData();
+      },
+      error: async () => {
+        const toast = await this.toastController.create({
+          message: 'Failed to add to library',
+          duration: 2000,
+          color: 'danger',
+        });
+        toast.present();
+      },
+    });
   }
 
   loadAvailableCategories() {
