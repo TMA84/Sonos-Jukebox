@@ -14,6 +14,7 @@ import { AlarmEditComponent } from '../alarm-edit/alarm-edit.component';
 import { AlarmService } from '../alarm.service';
 import { KioskService } from '../kiosk.service';
 import { RadioSearchComponent } from '../radio-search/radio-search.component';
+import { UnifiedSearchComponent, SearchMode } from '../unified-search/unified-search.component';
 import { Artist } from '../artist';
 import { Media } from '../media';
 
@@ -305,7 +306,71 @@ export class HomePage implements OnInit, AfterViewInit {
     this.router.navigate(['/config']);
   }
 
-  async openRadioSearch() {
+  getSearchLabel(): string {
+    const labels: Record<string, string> = {
+      radio: 'Radio Stations',
+      music: 'Music',
+      audiobook: 'Audiobooks',
+      podcast: 'Podcasts',
+      playlist: 'Playlists',
+      radioplay: 'Radio Plays',
+    };
+    return labels[this.category] || 'Content';
+  }
+
+  private getSearchMode(): SearchMode {
+    const modes: Record<string, SearchMode> = {
+      radio: 'radio',
+      music: 'album',
+      audiobook: 'audiobook',
+      podcast: 'podcast',
+      playlist: 'album',
+      radioplay: 'album',
+    };
+    return modes[this.category] || 'album';
+  }
+
+  async openContentSearch() {
+    if (this.category === 'radio') {
+      return this.openRadioSearch();
+    }
+
+    const mode = this.getSearchMode();
+    const modal = await this.modalController.create({
+      component: UnifiedSearchComponent,
+      componentProps: {
+        mode: mode,
+        source: 'spotify',
+        category: this.category,
+      },
+    });
+
+    await modal.present();
+
+    const { data: result } = await modal.onDidDismiss();
+    if (result) {
+      const media: Media = {
+        title: result.title || result.name,
+        artist: result.artist || result.artists?.[0]?.name || '',
+        type: 'spotify',
+        category: this.category,
+        cover: result.cover || result.image,
+        id: result.id || result.uri,
+      } as Media;
+
+      this.playerService.playMedia(media);
+
+      const navigationExtras: NavigationExtras = {
+        state: {
+          media: media,
+          fromShortcut: false,
+        },
+      };
+      this.router.navigate(['/player'], navigationExtras);
+    }
+  }
+
+  private async openRadioSearch() {
     const modal = await this.modalController.create({
       component: RadioSearchComponent,
       cssClass: 'radio-search-modal',

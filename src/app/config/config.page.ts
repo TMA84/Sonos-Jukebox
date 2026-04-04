@@ -1075,7 +1075,7 @@ export class ConfigPage implements OnInit {
       .subscribe({
         next: async response => {
           const toast = await this.toastController.create({
-            message: this.enableRadioSearch ? 'Radio search enabled' : 'Radio search disabled',
+            message: this.enableRadioSearch ? 'Content search enabled' : 'Content search disabled',
             duration: 2000,
             color: 'success',
           });
