@@ -49,7 +49,7 @@ export class ConfigPage implements OnInit {
   enableSpeakerSelection = true;
   enableAlarmClock = true;
   kioskMode = false;
-  enableRadioSearch = false;
+  enableContentSearch = false;
   selectedClientId = '';
   serviceConfigured = {
     spotify: false,
@@ -958,7 +958,7 @@ export class ConfigPage implements OnInit {
         this.enableAlarmClock = config.enableAlarmClock !== false;
         this.kioskMode = !!config.kioskMode;
         this.kioskService.setKioskMode(this.kioskMode);
-        this.enableRadioSearch = !!config.enableRadioSearch;
+        this.enableContentSearch = !!config.enableContentSearch;
       });
   }
   async saveSpeakerSelectionSetting() {
@@ -1061,21 +1061,21 @@ export class ConfigPage implements OnInit {
       });
   }
 
-  async saveRadioSearchSetting() {
+  async saveContentSearchSetting() {
     const saveUrl = `${environment.apiUrl}/config/client`;
     this.http
       .post(
         saveUrl,
         {
           clientId: this.clientId,
-          enableRadioSearch: this.enableRadioSearch,
+          enableContentSearch: this.enableContentSearch,
         },
         { responseType: 'text' }
       )
       .subscribe({
         next: async response => {
           const toast = await this.toastController.create({
-            message: this.enableRadioSearch ? 'Content search enabled' : 'Content search disabled',
+            message: this.enableContentSearch ? 'Content search enabled' : 'Content search disabled',
             duration: 2000,
             color: 'success',
           });

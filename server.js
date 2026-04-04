@@ -57,7 +57,7 @@ async function initializeDatabase() {
             enableSpeakerSelection INTEGER DEFAULT 1,
             enableAlarmClock INTEGER DEFAULT 1,
             kioskMode INTEGER DEFAULT 0,
-            enableRadioSearch INTEGER DEFAULT 0,
+            enableContentSearch INTEGER DEFAULT 0,
             sleepTimer INTEGER DEFAULT 0,
             isActive INTEGER DEFAULT 1,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -150,7 +150,8 @@ async function migrateClientsSchema() {
     const hasSleepTimer = tableInfo.some(col => col.name === 'sleepTimer');
     const hasUpdatedAt = tableInfo.some(col => col.name === 'updatedAt');
     const hasKioskMode = tableInfo.some(col => col.name === 'kioskMode');
-    const hasEnableRadioSearch = tableInfo.some(col => col.name === 'enableRadioSearch');
+    const hasEnableContentSearch = tableInfo.some(col => col.name === 'enableContentSearch');
+    const hasOldRadioSearch = tableInfo.some(col => col.name === 'enableRadioSearch');
 
     if (!hasEnableSpeakerSelection) {
       console.log('Adding enableSpeakerSelection column to clients table...');
@@ -177,9 +178,16 @@ async function migrateClientsSchema() {
       await dbRun('ALTER TABLE clients ADD COLUMN kioskMode INTEGER DEFAULT 0');
     }
 
-    if (!hasEnableRadioSearch) {
-      console.log('Adding enableRadioSearch column to clients table...');
-      await dbRun('ALTER TABLE clients ADD COLUMN enableRadioSearch INTEGER DEFAULT 0');
+    if (!hasEnableContentSearch) {
+      if (hasOldRadioSearch) {
+        // Rename old column by adding new and copying data
+        console.log('Migrating enableRadioSearch to enableContentSearch...');
+        await dbRun('ALTER TABLE clients ADD COLUMN enableContentSearch INTEGER DEFAULT 0');
+        await dbRun('UPDATE clients SET enableContentSearch = enableRadioSearch');
+      } else {
+        console.log('Adding enableContentSearch column to clients table...');
+        await dbRun('ALTER TABLE clients ADD COLUMN enableContentSearch INTEGER DEFAULT 0');
+      }
     }
 
     console.log('Clients table migration completed successfully');
@@ -1460,7 +1468,7 @@ app.get('/api/config/client', async (req, res) => {
       enableSpeakerSelection: !!client.enableSpeakerSelection,
       enableAlarmClock: client.enableAlarmClock !== 0,
       kioskMode: !!client.kioskMode,
-      enableRadioSearch: !!client.enableRadioSearch,
+      enableContentSearch: !!client.enableContentSearch,
     });
   } catch (error) {
     console.error('Error getting client config:', error);
@@ -1477,7 +1485,7 @@ app.post('/api/config/client', async (req, res) => {
       enableSpeakerSelection,
       enableAlarmClock,
       kioskMode,
-      enableRadioSearch,
+      enableContentSearch,
     } = req.body;
 
     if (!clientId) {
@@ -1519,9 +1527,9 @@ app.post('/api/config/client', async (req, res) => {
       values.push(kioskMode ? 1 : 0);
     }
 
-    if (enableRadioSearch !== undefined) {
-      updates.push('enableRadioSearch = ?');
-      values.push(enableRadioSearch ? 1 : 0);
+    if (enableContentSearch !== undefined) {
+      updates.push('enableContentSearch = ?');
+      values.push(enableContentSearch ? 1 : 0);
     }
 
     if (updates.length === 0) {

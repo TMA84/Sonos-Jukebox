@@ -57,7 +57,7 @@
 </ion-header>
 
 <ion-content [class.keyboard-visible]="showKeyboard">
-  <div class="radio-search-bar" *ngIf="enableRadioSearch">
+  <div class="radio-search-bar" *ngIf="enableContentSearch">
     <button class="radio-search-btn" (click)="openContentSearch()">
       <ion-icon name="search-outline"></ion-icon>
       <span>Search {{ getSearchLabel() }}</span>

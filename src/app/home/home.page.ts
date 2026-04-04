@@ -41,7 +41,7 @@ export class HomePage implements OnInit, AfterViewInit {
   filteredMedia: Media[] = [];
   clientName = '';
   enableAlarmClock = true;
-  enableRadioSearch = false;
+  enableContentSearch = false;
   hasMoreArtists = true;
   currentPage = 0;
   pageSize = 12;
@@ -502,7 +502,7 @@ export class HomePage implements OnInit, AfterViewInit {
       })
       .subscribe(config => {
         this.enableAlarmClock = config.enableAlarmClock !== false;
-        this.enableRadioSearch = !!config.enableRadioSearch;
+        this.enableContentSearch = !!config.enableContentSearch;
         this.kioskService.setKioskMode(!!config.kioskMode);
       });
   }
