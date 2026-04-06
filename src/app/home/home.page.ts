@@ -177,6 +177,10 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   artistCoverClicked(clickedArtist: Artist) {
+    // Check schedule restrictions
+    const category = clickedArtist.coverMedia?.category || this.category;
+    if (this.blockedCategories.includes(category)) return;
+
     // Check if this is a radio station
     if (clickedArtist.coverMedia?.category === 'radio') {
       // For radio stations, navigate directly to player without calling playMedia here
@@ -218,6 +222,9 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   mediaCoverClicked(clickedMedia: Media) {
+    // Check schedule restrictions
+    if (this.blockedCategories.includes(clickedMedia.category)) return;
+
     // Start playing immediately
     this.playerService.playMedia(clickedMedia);
 

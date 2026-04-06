@@ -20,6 +20,7 @@ export class PlayerPage implements OnInit {
   playing = true;
   currentTrack: any = null;
   statusInterval: any;
+  scheduleCheckInterval: any;
   selectedSpeaker = '';
   availableSpeakers: string[] = [];
   enableSpeakerSelection = true;
@@ -83,6 +84,9 @@ export class PlayerPage implements OnInit {
   }
 
   async ionViewWillEnter() {
+    // Start schedule enforcement check
+    this.startScheduleCheck();
+
     if (this.media) {
       console.log('Auto-playing media:', this.media.title, 'by', this.media.artist);
 
@@ -158,6 +162,7 @@ export class PlayerPage implements OnInit {
 
   ionViewWillLeave() {
     this.stopStatusPolling();
+    this.stopScheduleCheck();
   }
 
   volUp() {
@@ -296,6 +301,34 @@ export class PlayerPage implements OnInit {
     if (this.statusInterval) {
       clearInterval(this.statusInterval);
     }
+  }
+
+  private startScheduleCheck() {
+    this.checkScheduleNow();
+    this.scheduleCheckInterval = setInterval(() => this.checkScheduleNow(), 60000);
+  }
+
+  private stopScheduleCheck() {
+    if (this.scheduleCheckInterval) {
+      clearInterval(this.scheduleCheckInterval);
+    }
+  }
+
+  private checkScheduleNow() {
+    if (!this.media?.category) return;
+
+    const clientId = this.clientService.getClientId();
+    this.http
+      .get<any>(`${environment.apiUrl}/schedules/available`, { params: { clientId } })
+      .subscribe(result => {
+        const blocked = result.blocked || [];
+        if (blocked.includes(this.media.category)) {
+          // Stop playback and go back to home
+          this.playerService.sendCmd(PlayerCmds.PAUSE);
+          this.stopStatusPolling();
+          this.router.navigate(['/home']);
+        }
+      });
   }
 
   loadAvailableSpeakers() {
