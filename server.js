@@ -2342,6 +2342,33 @@ async function triggerAlarm(alarm) {
       return;
     }
 
+    // Check if the media's category is allowed by schedule
+    const schedule = await dbGet(
+      'SELECT * FROM category_schedules WHERE clientId = ? AND category = ? AND enabled = 1',
+      [alarm.clientId, mediaItem.category]
+    );
+    if (schedule) {
+      const now = new Date();
+      const currentTime =
+        now.getHours().toString().padStart(2, '0') +
+        ':' +
+        now.getMinutes().toString().padStart(2, '0');
+      const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const currentDay = dayNames[now.getDay()];
+      const days = (schedule.days || '').split(',').map(d => d.trim());
+
+      if (
+        !days.includes(currentDay) ||
+        currentTime < schedule.startTime ||
+        currentTime >= schedule.endTime
+      ) {
+        console.log(
+          `[Trigger Alarm] Blocked by schedule - category "${mediaItem.category}" not allowed at ${currentTime} on ${currentDay}`
+        );
+        return;
+      }
+    }
+
     console.log(
       `[Trigger Alarm] Found media: ${mediaItem.title} by ${mediaItem.artist}, type: ${mediaItem.type}`
     );
