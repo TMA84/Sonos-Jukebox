@@ -17,6 +17,9 @@
       <ion-segment-button value="alarms">
         <ion-icon name="alarm-outline"></ion-icon>
       </ion-segment-button>
+      <ion-segment-button value="schedules">
+        <ion-icon name="time-outline"></ion-icon>
+      </ion-segment-button>
       <ion-segment-button value="services">
         <ion-icon name="settings-outline"></ion-icon>
       </ion-segment-button>
@@ -29,7 +32,7 @@
       <div class="header-end">
         <button
           class="client-dropdown-btn"
-          *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library' || selectedTab === 'alarms')"
+          *ngIf="availableClients.length > 1 && (selectedTab === 'clients' || selectedTab === 'speakers' || selectedTab === 'library' || selectedTab === 'alarms' || selectedTab === 'schedules')"
           (click)="openClientPicker()"
         >
           <span>{{ getClientName(selectedClientId) }}</span>
@@ -273,6 +276,70 @@
         </div>
 
         <div class="cfg-empty" *ngIf="alarms.length === 0">No alarms configured</div>
+      </div>
+    </div>
+
+    <!-- Schedules Tab -->
+    <div *ngSwitchCase="'schedules'">
+      <div class="tab-section">
+        <div class="section-header">
+          <span class="section-label">Content Schedules</span>
+        </div>
+        <span class="cfg-hint"
+          >Set time windows when categories are available. Categories without a schedule are always
+          available.</span
+        >
+      </div>
+
+      <div class="tab-section" *ngFor="let cat of allCategories">
+        <div class="section-header">
+          <span class="section-label">
+            <ion-icon [name]="getCategoryIcon(cat)"></ion-icon>
+            {{ getCategoryLabel(cat) }}
+          </span>
+          <button
+            class="cfg-btn primary compact"
+            *ngIf="!getSchedule(cat)"
+            (click)="addSchedule(cat)"
+          >
+            <ion-icon name="add"></ion-icon> Add
+          </button>
+          <button
+            class="cfg-btn compact"
+            style="color: var(--danger)"
+            *ngIf="getSchedule(cat)"
+            (click)="removeSchedule(cat)"
+          >
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </div>
+        <div *ngIf="getSchedule(cat)" class="schedule-row">
+          <div class="time-inputs">
+            <input
+              type="time"
+              [value]="getSchedule(cat).startTime"
+              (change)="updateScheduleTime(cat, 'startTime', $event)"
+              class="cfg-input time-input"
+            />
+            <span class="time-separator">–</span>
+            <input
+              type="time"
+              [value]="getSchedule(cat).endTime"
+              (change)="updateScheduleTime(cat, 'endTime', $event)"
+              class="cfg-input time-input"
+            />
+          </div>
+          <div class="days-row">
+            <button
+              *ngFor="let day of weekDayOptions"
+              class="day-btn"
+              [class.selected]="isScheduleDaySelected(cat, day.value)"
+              (click)="toggleScheduleDay(cat, day.value)"
+            >
+              {{ day.label }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 

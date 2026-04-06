@@ -43,6 +43,7 @@ export class HomePage implements OnInit, AfterViewInit {
   enableAlarmClock = true;
   enableContentSearch = false;
   spotifyConfigured = false;
+  blockedCategories: string[] = [];
   hasMoreArtists = true;
   currentPage = 0;
   pageSize = 12;
@@ -307,6 +308,10 @@ export class HomePage implements OnInit, AfterViewInit {
     this.router.navigate(['/config']);
   }
 
+  isCategoryAvailable(cat: string): boolean {
+    return !this.blockedCategories.includes(cat);
+  }
+
   getSearchLabel(): string {
     const labels: Record<string, string> = {
       radio: 'Radio Stations',
@@ -501,6 +506,13 @@ export class HomePage implements OnInit, AfterViewInit {
     this.http.get<any>(`${environment.apiUrl}/config/full`).subscribe(config => {
       this.spotifyConfigured = !!(config.spotify?.clientId && config.spotify?.clientSecret);
     });
+
+    // Load schedule restrictions
+    this.http
+      .get<any>(`${environment.apiUrl}/schedules/available`, { params: { clientId } })
+      .subscribe(result => {
+        this.blockedCategories = result.blocked || [];
+      });
   }
 
   goToPlayer() {

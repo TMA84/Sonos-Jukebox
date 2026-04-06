@@ -102,6 +102,20 @@ async function initializeDatabase() {
             FOREIGN KEY (clientId) REFERENCES clients(id)
         )`);
 
+    // Create category_schedules table for time-based content restrictions
+    await dbRun(`CREATE TABLE IF NOT EXISTS category_schedules (
+            id TEXT PRIMARY KEY,
+            clientId TEXT NOT NULL,
+            category TEXT NOT NULL,
+            startTime TEXT NOT NULL,
+            endTime TEXT NOT NULL,
+            days TEXT DEFAULT 'mon,tue,wed,thu,fri,sat,sun',
+            enabled INTEGER DEFAULT 1,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (clientId) REFERENCES clients(id),
+            UNIQUE(clientId, category)
+        )`);
+
     console.log('Database tables initialized successfully');
 
     // Migrate clients table to add missing columns
@@ -1262,6 +1276,106 @@ app.get('/api/alarms/active', async (req, res) => {
     }
   } catch (error) {
     console.error('Error getting active alarm:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── Category Schedule Endpoints ─────────────────────────────────
+
+// Get schedules for client
+app.get('/api/schedules', async (req, res) => {
+  try {
+    const { clientId } = req.query;
+    if (!clientId) return res.status(400).json({ error: 'Client ID required' });
+
+    const schedules = await dbAll(
+      'SELECT * FROM category_schedules WHERE clientId = ? ORDER BY category',
+      [clientId]
+    );
+    res.json(schedules);
+  } catch (error) {
+    console.error('Error getting schedules:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Create or update schedule
+app.post('/api/schedules', async (req, res) => {
+  try {
+    const { clientId, category, startTime, endTime, days, enabled } = req.body;
+    if (!clientId || !category || !startTime || !endTime) {
+      return res.status(400).json({ error: 'clientId, category, startTime and endTime required' });
+    }
+
+    const id = `${clientId}_${category}`;
+    await dbRun(
+      `INSERT OR REPLACE INTO category_schedules (id, clientId, category, startTime, endTime, days, enabled)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        clientId,
+        category,
+        startTime,
+        endTime,
+        days || 'mon,tue,wed,thu,fri,sat,sun',
+        enabled !== false ? 1 : 0,
+      ]
+    );
+
+    const schedule = await dbGet('SELECT * FROM category_schedules WHERE id = ?', [id]);
+    res.json(schedule);
+  } catch (error) {
+    console.error('Error saving schedule:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete schedule
+app.delete('/api/schedules/:clientId/:category', async (req, res) => {
+  try {
+    const id = `${req.params.clientId}_${req.params.category}`;
+    await dbRun('DELETE FROM category_schedules WHERE id = ?', [id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting schedule:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Check which categories are currently available for a client
+app.get('/api/schedules/available', async (req, res) => {
+  try {
+    const { clientId } = req.query;
+    if (!clientId) return res.status(400).json({ error: 'Client ID required' });
+
+    const schedules = await dbAll(
+      'SELECT * FROM category_schedules WHERE clientId = ? AND enabled = 1',
+      [clientId]
+    );
+
+    const now = new Date();
+    const currentTime =
+      now.getHours().toString().padStart(2, '0') +
+      ':' +
+      now.getMinutes().toString().padStart(2, '0');
+    const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const currentDay = dayNames[now.getDay()];
+
+    const blocked = [];
+    for (const schedule of schedules) {
+      const days = (schedule.days || '').split(',').map(d => d.trim());
+      if (!days.includes(currentDay)) {
+        blocked.push(schedule.category);
+        continue;
+      }
+      if (currentTime < schedule.startTime || currentTime >= schedule.endTime) {
+        blocked.push(schedule.category);
+      }
+    }
+
+    res.json({ blocked });
+  } catch (error) {
+    console.error('Error checking schedule availability:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

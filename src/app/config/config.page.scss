@@ -1048,3 +1048,54 @@ ion-item {
     display: block;
   }
 }
+
+// ─── Schedule Styles ─────────────────────────────────────────────
+
+.schedule-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .time-input {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 16px;
+  }
+
+  .time-separator {
+    color: var(--text-secondary);
+    font-size: 18px;
+  }
+}
+
+.days-row {
+  display: flex;
+  gap: 4px;
+
+  .day-btn {
+    flex: 1;
+    padding: 6px 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+
+    &.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+  }
+}

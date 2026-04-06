@@ -7,33 +7,39 @@
     </ion-buttons>
     <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
       <ion-segment-button
-        *ngIf="availableCategories.includes('audiobook') || (enableContentSearch && spotifyConfigured)"
+        *ngIf="isCategoryAvailable('audiobook') && (availableCategories.includes('audiobook') || (enableContentSearch && spotifyConfigured))"
         value="audiobook"
       >
         <ion-icon name="book-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button
-        *ngIf="availableCategories.includes('music') || (enableContentSearch && spotifyConfigured)"
+        *ngIf="isCategoryAvailable('music') && (availableCategories.includes('music') || (enableContentSearch && spotifyConfigured))"
         value="music"
       >
         <ion-icon name="musical-notes-outline"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button *ngIf="availableCategories.includes('playlist')" value="playlist">
+      <ion-segment-button
+        *ngIf="isCategoryAvailable('playlist') && availableCategories.includes('playlist')"
+        value="playlist"
+      >
         <ion-icon name="document-text-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button
-        *ngIf="availableCategories.includes('radio') || enableContentSearch"
+        *ngIf="isCategoryAvailable('radio') && (availableCategories.includes('radio') || enableContentSearch)"
         value="radio"
       >
         <ion-icon name="radio-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button
-        *ngIf="availableCategories.includes('podcast') || (enableContentSearch && spotifyConfigured)"
+        *ngIf="isCategoryAvailable('podcast') && (availableCategories.includes('podcast') || (enableContentSearch && spotifyConfigured))"
         value="podcast"
       >
         <ion-icon name="mic-outline"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button *ngIf="availableCategories.includes('radioplay')" value="radioplay">
+      <ion-segment-button
+        *ngIf="isCategoryAvailable('radioplay') && availableCategories.includes('radioplay')"
+        value="radioplay"
+      >
         <ion-icon name="play-circle-outline"></ion-icon>
       </ion-segment-button>
     </ion-segment>

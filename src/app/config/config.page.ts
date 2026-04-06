@@ -56,6 +56,17 @@ export class ConfigPage implements OnInit {
     tunein: true, // TuneIn doesn't need configuration
   };
   alarms: Alarm[] = [];
+  schedules: any[] = [];
+  allCategories = ['audiobook', 'music', 'playlist', 'podcast', 'radioplay', 'radio'];
+  weekDayOptions = [
+    { value: 'mon', label: 'Mo' },
+    { value: 'tue', label: 'Tu' },
+    { value: 'wed', label: 'We' },
+    { value: 'thu', label: 'Th' },
+    { value: 'fri', label: 'Fr' },
+    { value: 'sat', label: 'Sa' },
+    { value: 'sun', label: 'Su' },
+  ];
   showManualAdd = false;
   libraryFilter = 'all';
   libCovers: { [key: string]: string } = {};
@@ -82,6 +93,7 @@ export class ConfigPage implements OnInit {
     this.loadLibraryItems();
     this.loadSpeakerSelectionSetting();
     this.loadAlarms();
+    this.loadSchedules();
     this.findSpeakers(); // Automatically load speakers on page load
   }
 
@@ -318,6 +330,7 @@ export class ConfigPage implements OnInit {
     this.loadClientName();
     this.loadLibraryItems(); // Reload library for new client
     this.loadSpeakerSelectionSetting(); // Reload speaker setting for new client
+    this.loadSchedules(); // Reload schedules for new client
 
     const toast = await this.toastController.create({
       message: 'Client switched successfully',
@@ -1075,7 +1088,9 @@ export class ConfigPage implements OnInit {
       .subscribe({
         next: async response => {
           const toast = await this.toastController.create({
-            message: this.enableContentSearch ? 'Content search enabled' : 'Content search disabled',
+            message: this.enableContentSearch
+              ? 'Content search enabled'
+              : 'Content search disabled',
             duration: 2000,
             color: 'success',
           });
@@ -1090,6 +1105,99 @@ export class ConfigPage implements OnInit {
           toast.present();
         },
       });
+  }
+
+  // ─── Schedule Methods ──────────────────────────────────────────
+
+  loadSchedules() {
+    this.http
+      .get<
+        any[]
+      >(`${environment.apiUrl}/schedules`, { params: { clientId: this.selectedClientId || this.clientId } })
+      .subscribe(schedules => {
+        this.schedules = schedules;
+      });
+  }
+
+  getSchedule(category: string): any {
+    return this.schedules.find(s => s.category === category);
+  }
+
+  addSchedule(category: string) {
+    const schedule = {
+      clientId: this.selectedClientId || this.clientId,
+      category,
+      startTime: '08:00',
+      endTime: '20:00',
+      days: 'mon,tue,wed,thu,fri,sat,sun',
+    };
+    this.http.post(`${environment.apiUrl}/schedules`, schedule).subscribe(() => {
+      this.loadSchedules();
+    });
+  }
+
+  removeSchedule(category: string) {
+    const clientId = this.selectedClientId || this.clientId;
+    this.http.delete(`${environment.apiUrl}/schedules/${clientId}/${category}`).subscribe(() => {
+      this.loadSchedules();
+    });
+  }
+
+  updateScheduleTime(category: string, field: string, event: any) {
+    const schedule = this.getSchedule(category);
+    if (!schedule) return;
+    schedule[field] = event.target.value;
+    this.saveSchedule(schedule);
+  }
+
+  toggleScheduleDay(category: string, day: string) {
+    const schedule = this.getSchedule(category);
+    if (!schedule) return;
+    const days = (schedule.days || '').split(',').filter(d => d);
+    const idx = days.indexOf(day);
+    if (idx >= 0) {
+      days.splice(idx, 1);
+    } else {
+      days.push(day);
+    }
+    schedule.days = days.join(',');
+    this.saveSchedule(schedule);
+  }
+
+  isScheduleDaySelected(category: string, day: string): boolean {
+    const schedule = this.getSchedule(category);
+    if (!schedule) return false;
+    return (schedule.days || '').split(',').includes(day);
+  }
+
+  private saveSchedule(schedule: any) {
+    this.http.post(`${environment.apiUrl}/schedules`, schedule).subscribe(() => {
+      this.loadSchedules();
+    });
+  }
+
+  getCategoryIcon(cat: string): string {
+    const icons = {
+      audiobook: 'book',
+      music: 'musical-notes',
+      playlist: 'list',
+      podcast: 'mic',
+      radioplay: 'play-circle',
+      radio: 'radio',
+    };
+    return icons[cat] || 'folder';
+  }
+
+  getCategoryLabel(cat: string): string {
+    const labels = {
+      audiobook: 'Audiobooks',
+      music: 'Music',
+      playlist: 'Playlists',
+      podcast: 'Podcasts',
+      radioplay: 'Radio Plays',
+      radio: 'Radio',
+    };
+    return labels[cat] || cat;
   }
 
   clientSelectionChanged(event: any) {
