@@ -19,8 +19,13 @@ describe('HomePage', () => {
 
     fixture = TestBed.createComponent(HomePage);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    // Don't call detectChanges — ngOnInit starts intervals and HTTP calls
   }));
+
+  afterEach(() => {
+    // Clean up any intervals to prevent test zone timeout
+    component.ngOnDestroy();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();
