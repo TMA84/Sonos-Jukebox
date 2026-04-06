@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
@@ -23,8 +23,9 @@ import { Media } from '../media';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit, AfterViewInit {
+export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('scrollTrigger', { read: ElementRef }) scrollTrigger: ElementRef;
+  private scheduleCheckInterval: any;
   category = 'audiobook';
   artists: Artist[] = [];
   media: Media[] = [];
@@ -67,6 +68,15 @@ export class HomePage implements OnInit, AfterViewInit {
     this.loadClientName();
     this.loadDefaultSpeaker();
     this.loadLibraryData();
+
+    // Check schedule restrictions every minute
+    this.scheduleCheckInterval = setInterval(() => this.checkScheduleRestrictions(), 60000);
+  }
+
+  ngOnDestroy() {
+    if (this.scheduleCheckInterval) {
+      clearInterval(this.scheduleCheckInterval);
+    }
   }
 
   loadDefaultSpeaker() {
@@ -508,10 +518,26 @@ export class HomePage implements OnInit, AfterViewInit {
     });
 
     // Load schedule restrictions
+    this.checkScheduleRestrictions();
+  }
+
+  private checkScheduleRestrictions() {
+    const clientId = this.clientService.getClientId();
     this.http
       .get<any>(`${environment.apiUrl}/schedules/available`, { params: { clientId } })
       .subscribe(result => {
-        this.blockedCategories = result.blocked || [];
+        const newBlocked = result.blocked || [];
+        const wasBlocked = this.blockedCategories;
+        this.blockedCategories = newBlocked;
+
+        // If current category just got blocked, switch to first available
+        if (newBlocked.includes(this.category) && !wasBlocked.includes(this.category)) {
+          const available = this.availableCategories.filter(c => !newBlocked.includes(c));
+          if (available.length > 0) {
+            this.category = available[0];
+            this.loadLibraryData();
+          }
+        }
       });
   }
 
