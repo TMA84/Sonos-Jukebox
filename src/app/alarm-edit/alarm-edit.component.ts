@@ -1,7 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
 import { Alarm } from '../alarm.service';
 import { KioskService } from '../kiosk.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-alarm-edit',
@@ -21,6 +23,8 @@ export class AlarmEditComponent implements OnInit {
   };
   @Input() libraryItems: any[] = [];
 
+  schedules: any[] = [];
+
   selectedHour = '07';
   selectedMinute = '00';
   hours: string[] = [];
@@ -38,6 +42,8 @@ export class AlarmEditComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
+    private toastController: ToastController,
+    private http: HttpClient,
     public kioskService: KioskService
   ) {}
 
@@ -59,6 +65,15 @@ export class AlarmEditComponent implements OnInit {
 
     if (!this.alarm.name) {
       this.alarm.name = this.generateAlarmName();
+    }
+
+    // Load schedules for this client
+    if (this.alarm.clientId) {
+      this.http
+        .get<
+          any[]
+        >(`${environment.apiUrl}/schedules`, { params: { clientId: this.alarm.clientId } })
+        .subscribe(s => (this.schedules = s));
     }
   }
 
@@ -145,10 +160,64 @@ export class AlarmEditComponent implements OnInit {
     return false;
   }
 
-  saveAlarm() {
+  async saveAlarm() {
     if (!this.alarm.name) {
       this.alarm.name = this.generateAlarmName();
     }
+
+    // Validate: check if selected content is allowed at alarm time
+    const selectedItem = this.libraryItems.find(
+      item => (item.id || item.title) === this.alarm.mediaId
+    );
+    if (selectedItem && this.schedules.length > 0) {
+      const schedule = this.schedules.find(s => s.category === selectedItem.category && s.enabled);
+      if (schedule) {
+        const alarmTime = this.alarm.time;
+        const alarmDays = this.alarm.days || [];
+        const scheduleDays = (schedule.days || '').split(',').map(d => d.trim());
+        const dayMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+        // Check if any alarm day + time falls outside the schedule
+        const blocked = alarmDays.some(dayNum => {
+          const dayName = dayMap[dayNum];
+          return (
+            !scheduleDays.includes(dayName) ||
+            alarmTime < schedule.startTime ||
+            alarmTime >= schedule.endTime
+          );
+        });
+
+        // Also check if no days selected (one-time alarm) — use current day
+        if (alarmDays.length === 0) {
+          const now = new Date();
+          const dayName = dayMap[now.getDay()];
+          const blocked2 =
+            !scheduleDays.includes(dayName) ||
+            alarmTime < schedule.startTime ||
+            alarmTime >= schedule.endTime;
+          if (blocked2) {
+            const toast = await this.toastController.create({
+              message: `"${selectedItem.category}" is not available at ${alarmTime}. Allowed: ${schedule.startTime}–${schedule.endTime}`,
+              duration: 3000,
+              color: 'warning',
+            });
+            toast.present();
+            return;
+          }
+        }
+
+        if (blocked) {
+          const toast = await this.toastController.create({
+            message: `"${selectedItem.category}" is not available at ${alarmTime}. Allowed: ${schedule.startTime}–${schedule.endTime}`,
+            duration: 3000,
+            color: 'warning',
+          });
+          toast.present();
+          return;
+        }
+      }
+    }
+
     this.alarm.enabled = true;
     this.modalController.dismiss(this.alarm);
   }
