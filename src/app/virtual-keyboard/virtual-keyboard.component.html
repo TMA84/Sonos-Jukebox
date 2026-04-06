@@ -35,7 +35,7 @@
     <button class="key" (click)="onKeyPress('J')">J</button>
     <button class="key" (click)="onKeyPress('K')">K</button>
     <button class="key" (click)="onKeyPress('L')">L</button>
-    <button class="key key-backspace" (click)="onBackspace()">⌫</button>
+    <button class="key" (click)="onKeyPress('Ü')">Ü</button>
   </div>
 
   <div class="keyboard-row">
@@ -46,16 +46,16 @@
     <button class="key" (click)="onKeyPress('B')">B</button>
     <button class="key" (click)="onKeyPress('N')">N</button>
     <button class="key" (click)="onKeyPress('M')">M</button>
-    <button class="key" (click)="onKeyPress('Ü')">Ü</button>
     <button class="key" (click)="onKeyPress('Ö')">Ö</button>
     <button class="key" (click)="onKeyPress('Ä')">Ä</button>
+    <button class="key" (click)="onKeyPress('.')">.</button>
   </div>
 
   <div class="keyboard-row">
     <button class="key key-special" (click)="onKeyPress('-')">-</button>
-    <button class="key key-special" (click)="onKeyPress('.')">.</button>
-    <button class="key key-space" (click)="onKeyPress(' ')">Space</button>
     <button class="key key-special" (click)="onKeyPress('&')">&amp;</button>
+    <button class="key key-space" (click)="onKeyPress(' ')">Space</button>
+    <button class="key key-backspace" (click)="onBackspace()">⌫</button>
     <button class="key key-hide" (click)="onHide()">✓</button>
   </div>
 </div>
