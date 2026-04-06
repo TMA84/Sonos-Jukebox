@@ -514,3 +514,14 @@ ion-content::part(scroll) {
   touch-action: pan-y;
   overscroll-behavior: contain;
 }
+
+/* ─── Allow virtual keyboard to render above modals ────────────── */
+ion-modal {
+  --overflow: visible;
+
+  .ion-page,
+  .modal-wrapper {
+    overflow: visible !important;
+    contain: none !important;
+  }
+}

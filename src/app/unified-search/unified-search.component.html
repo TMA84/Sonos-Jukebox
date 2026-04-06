@@ -32,7 +32,8 @@
   </div>
 
   <!-- Results -->
-  <div class="results-area">
+  <div class="results-area" [class.keyboard-open]="showKeyboard">
+    >
     <!-- Loading -->
     <div class="search-status" *ngIf="isSearching">
       <ion-spinner></ion-spinner>

@@ -11,6 +11,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  // Ensure keyboard is not clipped by modal containers
+  transform: translateZ(0);
 }
 
 .keyboard-row {
@@ -46,7 +48,6 @@
 }
 
 .key-num {
-  background: var(--surface);
   font-size: 15px;
 }
 
@@ -104,7 +105,7 @@
   .key-num {
     min-width: 30px;
     height: 26px;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .key-special {

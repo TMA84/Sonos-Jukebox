@@ -134,6 +134,12 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 10px;
+  transition: padding-bottom 0.2s ease;
+}
+
+:host-context(.keyboard-open) .results-area,
+.results-area.keyboard-open {
+  padding-bottom: 220px;
 }
 
 .result-list {
