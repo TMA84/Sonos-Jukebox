@@ -323,7 +323,8 @@ export class PlayerPage implements OnInit {
       .subscribe(result => {
         const blocked = result.blocked || [];
         if (blocked.includes(this.media.category)) {
-          // Stop playback and go back to home
+          // Stop playback, clear queue and go back to home
+          this.playerService.clearQueue();
           this.playerService.sendCmd(PlayerCmds.PAUSE);
           this.stopStatusPolling();
           this.router.navigate(['/home']);
