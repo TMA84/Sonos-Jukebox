@@ -24,7 +24,7 @@
       (input)="onSearchInput()"
       [placeholder]="placeholder"
       class="search-input"
-      [attr.inputmode]="kioskService.isKioskMode ? 'none' : null" [readonly]="kioskService.isKioskMode"
+      [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
     />
     <button class="clear-btn" *ngIf="searchTerm" (click)="clearSearch()">
       <ion-icon name="close-circle"></ion-icon>
