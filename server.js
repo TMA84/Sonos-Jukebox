@@ -1373,10 +1373,17 @@ app.get('/api/schedules/available', async (req, res) => {
         blocked.push(schedule.category);
         continue;
       }
-      if (currentTime < schedule.startTime || currentTime >= schedule.endTime) {
+      // Normalize times to HH:MM for reliable string comparison
+      const start = (schedule.startTime || '00:00').padStart(5, '0');
+      const end = (schedule.endTime || '23:59').padStart(5, '0');
+      if (currentTime < start || currentTime >= end) {
         blocked.push(schedule.category);
       }
     }
+
+    console.log(
+      `[Schedule] Client: ${clientId}, Time: ${currentTime}, Day: ${currentDay}, Blocked: [${blocked.join(', ')}]`
+    );
 
     res.json({ blocked });
   } catch (error) {
