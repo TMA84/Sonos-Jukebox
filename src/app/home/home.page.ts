@@ -532,19 +532,25 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     const clientId = this.clientService.getClientId();
     this.http
       .get<any>(`${environment.apiUrl}/schedules/available`, { params: { clientId } })
-      .subscribe(result => {
-        const newBlocked = result.blocked || [];
-        const wasBlocked = this.blockedCategories;
-        this.blockedCategories = newBlocked;
+      .subscribe({
+        next: result => {
+          const newBlocked = result.blocked || [];
+          const wasBlocked = this.blockedCategories;
+          this.blockedCategories = newBlocked;
 
-        // If current category just got blocked, switch to first available
-        if (newBlocked.includes(this.category) && !wasBlocked.includes(this.category)) {
-          const available = this.availableCategories.filter(c => !newBlocked.includes(c));
-          if (available.length > 0) {
-            this.category = available[0];
-            this.loadLibraryData();
+          // If current category just got blocked, switch to first available
+          if (newBlocked.includes(this.category) && !wasBlocked.includes(this.category)) {
+            const available = this.availableCategories.filter(c => !newBlocked.includes(c));
+            if (available.length > 0) {
+              this.category = available[0];
+              this.loadLibraryData();
+            }
           }
-        }
+        },
+        error: () => {
+          // On error, don't block anything
+          this.blockedCategories = [];
+        },
       });
   }
 
