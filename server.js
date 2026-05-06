@@ -1363,7 +1363,12 @@ app.get('/api/schedules/available', async (req, res) => {
 
     const blocked = [];
     for (const schedule of schedules) {
-      const days = (schedule.days || '').split(',').map(d => d.trim());
+      const days = (schedule.days || '')
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => d);
+      // If no days configured, treat as "all days allowed"
+      if (days.length === 0) continue;
       if (!days.includes(currentDay)) {
         blocked.push(schedule.category);
         continue;
@@ -2355,17 +2360,23 @@ async function triggerAlarm(alarm) {
         now.getMinutes().toString().padStart(2, '0');
       const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
       const currentDay = dayNames[now.getDay()];
-      const days = (schedule.days || '').split(',').map(d => d.trim());
+      const days = (schedule.days || '')
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => d);
 
-      if (
-        !days.includes(currentDay) ||
-        currentTime < schedule.startTime ||
-        currentTime >= schedule.endTime
-      ) {
-        console.log(
-          `[Trigger Alarm] Blocked by schedule - category "${mediaItem.category}" not allowed at ${currentTime} on ${currentDay}`
-        );
-        return;
+      // If days are configured, check if current day/time is allowed
+      if (days.length > 0) {
+        if (
+          !days.includes(currentDay) ||
+          currentTime < schedule.startTime ||
+          currentTime >= schedule.endTime
+        ) {
+          console.log(
+            `[Trigger Alarm] Blocked by schedule - category "${mediaItem.category}" not allowed at ${currentTime} on ${currentDay}`
+          );
+          return;
+        }
       }
     }
 
