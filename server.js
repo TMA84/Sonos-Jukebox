@@ -18,7 +18,7 @@ function hashPin(pin) {
 function verifyPin(inputPin, hashedPin) {
   return hashPin(inputPin) === hashedPin;
 }
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Create database directory
 const dbDir = './server/data';
