@@ -538,13 +538,17 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
           const wasBlocked = this.blockedCategories;
           this.blockedCategories = newBlocked;
 
-          // If current category just got blocked, switch to first available
-          if (newBlocked.includes(this.category) && !wasBlocked.includes(this.category)) {
-            const available = this.availableCategories.filter(c => !newBlocked.includes(c));
+          // If current category is blocked, switch to first available
+          if (newBlocked.includes(this.category)) {
+            const allCats =
+              this.availableCategories.length > 0
+                ? this.availableCategories
+                : ['audiobook', 'music', 'playlist', 'radio', 'podcast', 'radioplay'];
+            const available = allCats.filter(c => !newBlocked.includes(c));
             if (available.length > 0) {
               this.category = available[0];
-              this.loadLibraryData();
             }
+            this.loadLibraryData();
           }
         },
         error: () => {
