@@ -67,7 +67,6 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     this.loadAvailableCategories();
     this.loadClientName();
     this.loadDefaultSpeaker();
-    this.loadLibraryData();
 
     // Check schedule restrictions every minute
     this.scheduleCheckInterval = setInterval(() => this.checkScheduleRestrictions(), 60000);
@@ -118,8 +117,7 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
 
   ionViewWillEnter() {
     console.log('Home page entering, reloading data');
-    // Always reload data when entering home page
-    this.loadLibraryData();
+    // Reload categories (which triggers loadLibraryData when done)
     this.loadAvailableCategories();
     this.loadClientName();
     this.needsUpdate = false;
@@ -435,6 +433,9 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
       if (!this.availableCategories.includes(this.category)) {
         this.category = this.availableCategories[0];
       }
+
+      // Load library data after categories are known
+      this.loadLibraryData();
     });
   }
 
