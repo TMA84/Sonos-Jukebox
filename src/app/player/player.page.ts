@@ -249,6 +249,13 @@ export class PlayerPage implements OnInit {
         return;
       }
 
+      // If paused by user, don't autoplay
+      if (currentStatus?.playbackState === 'PAUSED_PLAYBACK') {
+        console.log('Playback paused by user, skipping autoplay');
+        this.isCheckingForNext = false;
+        return;
+      }
+
       // If repeat is enabled, replay the current media
       if (this.repeatEnabled && this.media) {
         console.log('Repeat enabled: replaying current media:', this.media.title);
