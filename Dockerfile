@@ -8,13 +8,10 @@ WORKDIR /app
 RUN apk add --no-cache python3 py3-setuptools make g++ linux-headers
 
 # Only install the packages the server actually needs
+# Try prebuilt binaries first, fall back to building from source
 RUN npm init -y && \
-    npm install --build-from-source \
-      express@^4.21.1 \
-      cors@^2.8.5 \
-      sqlite3@^5.1.7 \
-      spotify-web-api-node@^5.0.2 \
-      uuid@^11.0.3
+    (npm install express@^4.21.1 cors@^2.8.5 sqlite3@^5.1.7 spotify-web-api-node@^5.0.2 uuid@^11.0.3 || \
+     npm install --build-from-source express@^4.21.1 cors@^2.8.5 sqlite3@^5.1.7 spotify-web-api-node@^5.0.2 uuid@^11.0.3)
 
 # Stage 2: Production image
 FROM node:18-alpine
