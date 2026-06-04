@@ -54,15 +54,8 @@
             <ion-col size="4" class="ion-text-center">
               <ion-button class="modern-button primary" (click)="playPause()">
                 <ion-icon
-                  *ngIf="playing"
                   slot="icon-only"
-                  name="pause"
-                  class="small-icon"
-                ></ion-icon>
-                <ion-icon
-                  *ngIf="!playing"
-                  slot="icon-only"
-                  name="play"
+                  [name]="playing ? 'pause' : 'play'"
                   class="small-icon"
                 ></ion-icon>
               </ion-button>
