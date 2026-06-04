@@ -47,12 +47,12 @@
         <ion-grid>
           <ion-row class="play-controls">
             <ion-col size="4" class="ion-text-center">
-              <ion-button class="modern-button secondary" (click)="skipPrev()">
+              <ion-button class="modern-button secondary" fill="clear" (click)="skipPrev()">
                 <ion-icon slot="icon-only" name="play-back" class="small-icon"></ion-icon>
               </ion-button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button class="modern-button primary" (click)="playPause()">
+              <ion-button class="modern-button primary" fill="clear" (click)="playPause()">
                 <ion-icon
                   *ngIf="playing"
                   slot="icon-only"
@@ -68,7 +68,7 @@
               </ion-button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button class="modern-button secondary" (click)="skipNext()">
+              <ion-button class="modern-button secondary" fill="clear" (click)="skipNext()">
                 <ion-icon slot="icon-only" name="play-forward" class="small-icon"></ion-icon>
               </ion-button>
             </ion-col>
@@ -76,17 +76,17 @@
 
           <ion-row class="volume-controls">
             <ion-col size="4" class="ion-text-center">
-              <ion-button (click)="volDown()" color="light">
+              <ion-button (click)="volDown()" fill="clear">
                 <ion-icon slot="icon-only" name="remove" class="small-icon"></ion-icon>
               </ion-button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button color="light" class="indicator-button">
+              <ion-button fill="clear" class="indicator-button">
                 <ion-icon slot="icon-only" name="volume-medium" class="small-icon"></ion-icon>
               </ion-button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button (click)="volUp()" color="light">
+              <ion-button (click)="volUp()" fill="clear">
                 <ion-icon slot="icon-only" name="add" class="small-icon"></ion-icon>
               </ion-button>
             </ion-col>
@@ -123,15 +123,15 @@
             </ion-col>
           </ion-row>
 
-          <ion-row *ngIf="currentTrack" class="now-playing">
+          <ion-row class="now-playing" *ngIf="currentTrack || media">
             <ion-col size="12">
               <ion-card>
                 <ion-card-header>
                   <ion-card-title>Now Playing</ion-card-title>
                 </ion-card-header>
                 <ion-card-content>
-                  <h2>{{currentTrack?.title}}</h2>
-                  <p>{{currentTrack?.artist}}</p>
+                  <h2>{{currentTrack?.title || media?.title}}</h2>
+                  <p>{{currentTrack?.artist || media?.artist}}</p>
                   <p *ngIf="currentTrack?.album">{{currentTrack.album}}</p>
                 </ion-card-content>
               </ion-card>
