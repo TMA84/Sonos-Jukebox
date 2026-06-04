@@ -93,13 +93,12 @@ export class PlayerPage implements OnInit {
       // Store last played media
       localStorage.setItem('lastPlayedMedia', JSON.stringify(this.media));
 
-      // Build autoplay queue
-      await this.autoplayService.buildQueue(this.media);
-
-      // Start playing immediately
+      // Start playing immediately - don't wait for queue
       this.playerService.playMedia(this.media);
       this.playing = true;
-      this.playing = true;
+
+      // Build autoplay queue in background (non-blocking)
+      this.autoplayService.buildQueue(this.media);
     } else {
       // Load actual current status from player
       this.playerService.getCurrentTrack().subscribe(track => {

@@ -26,7 +26,10 @@ export class PlayerService {
   private sleepTimers: Map<string, any> = new Map(); // Track timers per client
   private sleepTimerInfo: Map<string, { startTime: number; durationMs: number }> = new Map(); // Track timer info per client
 
-  constructor(private http: HttpClient, private clientService: ClientService) {}
+  constructor(
+    private http: HttpClient,
+    private clientService: ClientService
+  ) {}
 
   getConfig() {
     // Observable with caching:
@@ -56,6 +59,11 @@ export class PlayerService {
   }
 
   private async getClientRoom(): Promise<string> {
+    // Return cached room if available (invalidated on speaker change)
+    const cachedRoom =
+      sessionStorage.getItem('tempSelectedSpeaker') || localStorage.getItem('selectedSpeaker');
+    if (cachedRoom) return cachedRoom;
+
     const clientId = this.clientService.getClientId();
     if (!clientId) {
       return 'Living Room';
@@ -71,20 +79,12 @@ export class PlayerService {
         })
         .toPromise();
 
-      // If speaker selection is disabled, use client's configured room
-      if (!config.enableSpeakerSelection && config.room) {
-        return config.room;
-      }
-
-      // If speaker selection is enabled, use temporary or stored selection
-      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-      return tempSpeaker || defaultSpeaker || config.room || 'Living Room';
+      const room = config.room || 'Living Room';
+      localStorage.setItem('selectedSpeaker', room);
+      return room;
     } catch (error) {
       console.error('Failed to get client config:', error);
-      const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
-      const defaultSpeaker = localStorage.getItem('selectedSpeaker');
-      return tempSpeaker || defaultSpeaker || 'Living Room';
+      return 'Living Room';
     }
   }
 
@@ -93,40 +93,25 @@ export class PlayerService {
 
     switch (cmd) {
       case PlayerCmds.PLAY:
-        this.http
-          .post(
-            `${environment.apiUrl}/sonos/play`,
-            { room }
-          )
-          .subscribe({
-            next: () => {
-              console.log('Play command sent');
-              this.startSleepTimer();
-            },
-            error: error => console.error('Failed to send play command:', error),
-          });
+        this.http.post(`${environment.apiUrl}/sonos/play`, { room }).subscribe({
+          next: () => {
+            console.log('Play command sent');
+            this.startSleepTimer();
+          },
+          error: error => console.error('Failed to send play command:', error),
+        });
         break;
       case PlayerCmds.PAUSE:
-        this.http
-          .post(
-            `${environment.apiUrl}/sonos/pause`,
-            { room }
-          )
-          .subscribe({
-            next: () => console.log('Pause command sent'),
-            error: error => console.error('Failed to send pause command:', error),
-          });
+        this.http.post(`${environment.apiUrl}/sonos/pause`, { room }).subscribe({
+          next: () => console.log('Pause command sent'),
+          error: error => console.error('Failed to send pause command:', error),
+        });
         break;
       case PlayerCmds.NEXT:
-        this.http
-          .post(
-            `${environment.apiUrl}/sonos/next`,
-            { room }
-          )
-          .subscribe({
-            next: () => console.log('Next command sent'),
-            error: error => console.error('Failed to send next command:', error),
-          });
+        this.http.post(`${environment.apiUrl}/sonos/next`, { room }).subscribe({
+          next: () => console.log('Next command sent'),
+          error: error => console.error('Failed to send next command:', error),
+        });
         break;
       case PlayerCmds.PREVIOUS:
         this.http
@@ -196,9 +181,7 @@ export class PlayerService {
   }
 
   private async getSpotifyToken(): Promise<string> {
-    const response = await fetch(
-      `${environment.apiUrl}/token`
-    );
+    const response = await fetch(`${environment.apiUrl}/token`);
     const data = await response.json();
     return data.access_token;
   }
@@ -212,13 +195,8 @@ export class PlayerService {
 
     console.log('Playing media:', media.title, 'Type:', media.contentType);
 
-    // Clear the queue before playing new media
-    try {
-      await this.clearQueue();
-      console.log('Queue cleared, now playing new media');
-    } catch (error) {
-      console.warn('Failed to clear queue, continuing anyway:', error);
-    }
+    // Clear the queue in background - don't block playback
+    this.clearQueue().catch(err => console.warn('Failed to clear queue:', err));
 
     let uri: string;
 
