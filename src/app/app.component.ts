@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Platform } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { AlarmNotificationService } from './alarm-notification.service';
 import { KioskService } from './kiosk.service';
 
@@ -11,6 +12,7 @@ import { KioskService } from './kiosk.service';
 export class AppComponent {
   constructor(
     private platform: Platform,
+    private router: Router,
     private alarmNotificationService: AlarmNotificationService,
     private kioskService: KioskService
   ) {
@@ -19,6 +21,9 @@ export class AppComponent {
 
   initializeApp() {
     this.platform.ready().then(() => {
+      // Always start on home page (important after server restart)
+      this.router.navigateByUrl('/home');
+
       // Start monitoring for active alarms
       this.alarmNotificationService.startMonitoring();
 
