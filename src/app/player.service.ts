@@ -59,16 +59,21 @@ export class PlayerService {
   }
 
   private async getClientRoom(): Promise<string> {
-    // Return cached room if available (invalidated on speaker change)
-    const cachedRoom =
-      sessionStorage.getItem('tempSelectedSpeaker') || localStorage.getItem('selectedSpeaker');
-    if (cachedRoom) return cachedRoom;
-
     const clientId = this.clientService.getClientId();
     if (!clientId) {
       return 'Living Room';
     }
 
+    // Check temp speaker first (user changed speaker during session)
+    const tempSpeaker = sessionStorage.getItem('tempSelectedSpeaker');
+    if (tempSpeaker) return tempSpeaker;
+
+    // Check cached room for this specific client
+    const cacheKey = `selectedSpeaker_${clientId}`;
+    const cachedRoom = localStorage.getItem(cacheKey);
+    if (cachedRoom) return cachedRoom;
+
+    // Fallback: load from server
     try {
       const configUrl = environment.production
         ? '../api/config/client'
@@ -80,11 +85,11 @@ export class PlayerService {
         .toPromise();
 
       const room = config.room || 'Living Room';
-      localStorage.setItem('selectedSpeaker', room);
+      localStorage.setItem(cacheKey, room);
       return room;
     } catch (error) {
       console.error('Failed to get client config:', error);
-      return 'Living Room';
+      return localStorage.getItem('selectedSpeaker') || 'Living Room';
     }
   }
 

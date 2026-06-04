@@ -79,14 +79,16 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadDefaultSpeaker() {
+    const clientId = this.getClientId();
     const configUrl = `${environment.apiUrl}/config`;
     this.http
       .get<any>(configUrl, {
-        params: { clientId: this.getClientId() },
+        params: { clientId },
       })
       .subscribe(config => {
-        if (config.currentRoom) {
-          localStorage.setItem('selectedSpeaker', config.currentRoom);
+        if (config.room) {
+          localStorage.setItem(`selectedSpeaker_${clientId}`, config.room);
+          localStorage.setItem('selectedSpeaker', config.room);
         }
       });
   }

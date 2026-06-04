@@ -138,7 +138,8 @@ export class ConfigPage implements OnInit {
   selectSpeaker(speaker: string) {
     this.selectedSpeaker = speaker;
 
-    // Save to localStorage for home page access
+    // Save to localStorage for home page access (client-specific)
+    localStorage.setItem(`selectedSpeaker_${this.clientId}`, speaker);
     localStorage.setItem('selectedSpeaker', speaker);
 
     const saveUrl = `${environment.apiUrl}/config/speaker`;
