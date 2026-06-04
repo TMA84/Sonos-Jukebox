@@ -1272,7 +1272,7 @@ app.get('/api/alarms/active', async (req, res) => {
     if (activeAlarm) {
       res.json({ alarm: activeAlarm });
     } else {
-      res.status(404).json({ error: 'No active alarm' });
+      res.json({ alarm: null });
     }
   } catch (error) {
     console.error('Error getting active alarm:', error);
