@@ -28,6 +28,7 @@ export class PlayerPage implements OnInit {
   fromShortcut = false;
   autoplayEnabled = true;
   repeatEnabled = false;
+  private ignoreStatusUntil = 0;
   lastTrackUri = '';
   isCheckingForNext = false;
 
@@ -186,6 +187,9 @@ export class PlayerPage implements OnInit {
       return;
     }
 
+    // Ignore status polling for 4 seconds so button doesn't flicker
+    this.ignoreStatusUntil = Date.now() + 4000;
+
     if (this.playing) {
       this.playing = false;
       this.playerService.sendCmd(PlayerCmds.PAUSE);
@@ -200,7 +204,11 @@ export class PlayerPage implements OnInit {
       this.playerService.getCurrentTrack().subscribe(track => {
         const previousTrackUri = this.lastTrackUri;
         this.currentTrack = track;
-        this.playing = track?.playbackState === 'PLAYING';
+
+        // Only update playing state if not in user-action grace period
+        if (Date.now() > this.ignoreStatusUntil) {
+          this.playing = track?.playbackState === 'PLAYING';
+        }
 
         // Store the track URI
         if (track?.trackUri) {
