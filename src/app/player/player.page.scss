@@ -54,52 +54,57 @@
   }
 }
 
-.modern-button {
-  --border-radius: var(--radius-round);
-  --box-shadow: none;
-  --padding-start: 0;
-  --padding-end: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  --background-activated: transparent;
-  --background-focused: transparent;
-  --background-hover: transparent;
-  --background-activated-opacity: 0;
-  --background-focused-opacity: 0;
-  --background-hover-opacity: 0;
-  --ripple-color: transparent;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  width: 52px;
-  height: 52px;
+.player-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
 
-  &::part(native) {
-    border-radius: 50%;
-    box-shadow: none;
+  ion-icon {
+    font-size: 24px;
+  }
+
+  &:active {
+    transform: scale(0.88);
   }
 
   &.primary {
-    --background: var(--primary);
-    --color: white;
     width: 60px;
     height: 60px;
+    background: var(--primary);
+    color: white;
+    box-shadow: var(--shadow-glow);
 
-    &::part(native) {
-      box-shadow: var(--shadow-glow);
-    }
-
-    &:active {
-      transform: scale(0.92);
+    ion-icon {
+      font-size: 28px;
     }
   }
 
   &.secondary {
-    --background: var(--surface-elevated);
-    --color: var(--text-primary);
-    --box-shadow: none;
+    width: 48px;
+    height: 48px;
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+  }
 
-    &:active {
-      transform: scale(0.92);
+  &.vol {
+    width: 44px;
+    height: 44px;
+    background: var(--surface-elevated);
+    color: var(--text-secondary);
+
+    &.indicator {
+      background: transparent;
+      color: var(--primary-light);
+      cursor: default;
+
+      &:active {
+        transform: none;
+      }
     }
   }
 }
@@ -113,28 +118,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-}
-
-.volume-controls {
-  ion-button {
-    --border-radius: var(--radius-round);
-    --background: var(--surface-elevated);
-    --color: var(--text-secondary);
-    --box-shadow: none;
-    width: 44px;
-    height: 44px;
-
-    &:hover {
-      --color: var(--primary-light);
-    }
-  }
-
-  .indicator-button {
-    --background: transparent;
-    --color: var(--primary-light);
-    --box-shadow: none;
-    cursor: default;
   }
 }
 

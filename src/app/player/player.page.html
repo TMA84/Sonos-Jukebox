@@ -47,41 +47,37 @@
         <ion-grid>
           <ion-row class="play-controls">
             <ion-col size="4" class="ion-text-center">
-              <ion-button class="modern-button secondary" (click)="skipPrev()">
-                <ion-icon slot="icon-only" name="play-back" class="small-icon"></ion-icon>
-              </ion-button>
+              <button class="player-btn secondary" (click)="skipPrev()">
+                <ion-icon name="play-back"></ion-icon>
+              </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button class="modern-button primary" (click)="playPause()">
-                <ion-icon
-                  slot="icon-only"
-                  [name]="playing ? 'pause' : 'play'"
-                  class="small-icon"
-                ></ion-icon>
-              </ion-button>
+              <button class="player-btn primary" (click)="playPause()">
+                <ion-icon [name]="playing ? 'pause' : 'play'"></ion-icon>
+              </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button class="modern-button secondary" (click)="skipNext()">
-                <ion-icon slot="icon-only" name="play-forward" class="small-icon"></ion-icon>
-              </ion-button>
+              <button class="player-btn secondary" (click)="skipNext()">
+                <ion-icon name="play-forward"></ion-icon>
+              </button>
             </ion-col>
           </ion-row>
 
           <ion-row class="volume-controls">
             <ion-col size="4" class="ion-text-center">
-              <ion-button (click)="volDown()">
-                <ion-icon slot="icon-only" name="remove" class="small-icon"></ion-icon>
-              </ion-button>
+              <button class="player-btn vol" (click)="volDown()">
+                <ion-icon name="remove"></ion-icon>
+              </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button class="indicator-button">
-                <ion-icon slot="icon-only" name="volume-medium" class="small-icon"></ion-icon>
-              </ion-button>
+              <button class="player-btn vol indicator">
+                <ion-icon name="volume-medium"></ion-icon>
+              </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <ion-button (click)="volUp()">
-                <ion-icon slot="icon-only" name="add" class="small-icon"></ion-icon>
-              </ion-button>
+              <button class="player-btn vol" (click)="volUp()">
+                <ion-icon name="add"></ion-icon>
+              </button>
             </ion-col>
           </ion-row>
 
