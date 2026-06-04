@@ -57,17 +57,29 @@
 .modern-button {
   --border-radius: var(--radius-round);
   --box-shadow: none;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
   font-weight: 600;
   transition: all 0.2s ease;
   width: 52px;
   height: 52px;
+
+  &::part(native) {
+    border-radius: 50%;
+    box-shadow: none;
+  }
 
   &.primary {
     --background: var(--primary);
     --color: white;
     width: 60px;
     height: 60px;
-    box-shadow: var(--shadow-glow);
+
+    &::part(native) {
+      box-shadow: var(--shadow-glow);
+    }
 
     &:hover {
       transform: scale(1.05);
@@ -77,9 +89,6 @@
   &.secondary {
     --background: var(--surface-elevated);
     --color: var(--text-primary);
-    --border-color: var(--border-color);
-    --border-width: 1px;
-    --border-style: solid;
     --box-shadow: none;
 
     &:hover {
