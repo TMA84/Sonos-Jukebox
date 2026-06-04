@@ -1,6 +1,6 @@
 {
   "name": "Sonos-Jukebox",
-  "version": "2.6.6",
+  "version": "2.7.0",
   "author": "Tobias Wiedenmann",
   "homepage": "https://github.com/TMA84/sonos-jukebox",
   "scripts": {
