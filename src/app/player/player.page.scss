@@ -61,6 +61,13 @@
   --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 0;
+  --background-activated: transparent;
+  --background-focused: transparent;
+  --background-hover: transparent;
+  --background-activated-opacity: 0;
+  --background-focused-opacity: 0;
+  --background-hover-opacity: 0;
+  --ripple-color: transparent;
   font-weight: 600;
   transition: all 0.2s ease;
   width: 52px;
@@ -81,8 +88,8 @@
       box-shadow: var(--shadow-glow);
     }
 
-    &:hover {
-      transform: scale(1.05);
+    &:active {
+      transform: scale(0.92);
     }
   }
 
@@ -91,8 +98,8 @@
     --color: var(--text-primary);
     --box-shadow: none;
 
-    &:hover {
-      --background: var(--surface-hover);
+    &:active {
+      transform: scale(0.92);
     }
   }
 }
