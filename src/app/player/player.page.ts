@@ -29,6 +29,7 @@ export class PlayerPage implements OnInit {
   autoplayEnabled = true;
   repeatEnabled = false;
   private ignoreStatusUntil = 0;
+  private userPaused = false;
   lastTrackUri = '';
   isCheckingForNext = false;
 
@@ -95,6 +96,7 @@ export class PlayerPage implements OnInit {
       localStorage.setItem('lastPlayedMedia', JSON.stringify(this.media));
 
       // Start playing immediately - don't wait for queue
+      this.userPaused = false;
       this.playerService.playMedia(this.media);
       this.playing = true;
 
@@ -192,9 +194,11 @@ export class PlayerPage implements OnInit {
 
     if (this.playing) {
       this.playing = false;
+      this.userPaused = true;
       this.playerService.sendCmd(PlayerCmds.PAUSE);
     } else {
       this.playing = true;
+      this.userPaused = false;
       this.playerService.sendCmd(PlayerCmds.PLAY);
     }
   }
@@ -225,6 +229,11 @@ export class PlayerPage implements OnInit {
   }
 
   private async checkAndPlayNext() {
+    // Don't autoplay if user explicitly paused
+    if (this.userPaused) {
+      return;
+    }
+
     // Check if either autoplay or repeat is enabled
     if ((!this.autoplayEnabled && !this.repeatEnabled) || this.isCheckingForNext) {
       console.log('Autoplay/Repeat check skipped:', {
