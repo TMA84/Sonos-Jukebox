@@ -88,17 +88,21 @@ export class PlayerPage implements OnInit {
   async ionViewWillEnter() {
     // Start schedule enforcement check
     this.startScheduleCheck();
+    // Restart polling if it was stopped when leaving the view
+    if (!this.statusInterval) {
+      this.startStatusPolling();
+    }
 
     if (this.media) {
-      console.log('Auto-playing media:', this.media.title, 'by', this.media.artist);
-
       // Store last played media
       localStorage.setItem('lastPlayedMedia', JSON.stringify(this.media));
 
-      // Start playing immediately - don't wait for queue
-      this.userPaused = false;
-      this.playerService.playMedia(this.media);
-      this.playing = true;
+      if (!this.userPaused) {
+        // Only auto-play if user hasn't explicitly paused
+        console.log('Auto-playing media:', this.media.title, 'by', this.media.artist);
+        this.playerService.playMedia(this.media);
+        this.playing = true;
+      }
 
       // Build autoplay queue in background (non-blocking)
       this.autoplayService.buildQueue(this.media);
@@ -323,6 +327,7 @@ export class PlayerPage implements OnInit {
   stopStatusPolling() {
     if (this.statusInterval) {
       clearInterval(this.statusInterval);
+      this.statusInterval = null;
     }
   }
 

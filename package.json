@@ -1,6 +1,6 @@
 {
   "name": "Sonos-Jukebox",
-  "version": "2.7.3",
+  "version": "2.7.4",
   "author": "Tobias Wiedenmann",
   "homepage": "https://github.com/TMA84/sonos-jukebox",
   "scripts": {
@@ -23,6 +23,7 @@
     "@ionic/angular": "^8.0.0",
     "@nx/angular": "22.2.7",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
     "express": "^4.21.1",
     "jsonfile": "^6.1.0",
     "node-cache": "^5.1.2",
