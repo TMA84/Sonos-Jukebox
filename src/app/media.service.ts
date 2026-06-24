@@ -20,6 +20,7 @@ export class MediaService {
   private backgroundLoading = false;
 
   private rawMediaSubject = new Subject<Media[]>();
+  private cachedRawMedia: Media[] | null = null;
 
   private artistSubject = new Subject<Media[]>();
   private mediaSubject = new Subject<Media[]>();
@@ -44,6 +45,7 @@ export class MediaService {
     this.http.get<Media[]>(url, {
       params: { clientId: this.clientService.getClientId() }
     }).subscribe(media => {
+        this.cachedRawMedia = media;
         this.rawMediaSubject.next(media);
         // Disabled background loading to prevent rate limiting
         // this.preloadAllCategories(media);
@@ -83,6 +85,7 @@ export class MediaService {
   private clearCache() {
     this.mediaCache.clear();
     this.cacheExpiry.clear();
+    this.cachedRawMedia = null;
   }
 
   private isCacheValid(key: string): boolean {
@@ -247,10 +250,12 @@ export class MediaService {
   // Get all artists for the current category (optimized - no album loading)
   getArtists(): Observable<Artist[]> {
     const url = (environment.production) ? '../api/data' : 'http://localhost:8200/api/data';
-    
-    return this.http.get<Media[]>(url, {
-      params: { clientId: this.clientService.getClientId() }
-    }).pipe(
+
+    const source: Observable<Media[]> = this.cachedRawMedia
+      ? of(this.cachedRawMedia)
+      : this.http.get<Media[]>(url, { params: { clientId: this.clientService.getClientId() } });
+
+    return source.pipe(
       map(rawMedia => {
         // Filter for current category
         const items = rawMedia

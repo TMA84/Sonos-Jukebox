@@ -576,29 +576,26 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     const endIndex = this.pageSize;
     this.filteredArtists = this.artists.slice(startIndex, endIndex);
     this.hasMoreArtists = this.artists.length > endIndex;
-    this.loadArtistArtworkBatch(this.filteredArtists.slice(0, 6));
+    this.loadArtistArtworkBatch(this.filteredArtists);
 
     // Set up scroll observer after initial load
     setTimeout(() => this.setupScrollObserver(), 100);
   }
 
   loadMoreArtists(event?: any) {
-    setTimeout(() => {
-      this.currentPage++;
-      const startIndex = this.currentPage * this.pageSize;
-      const endIndex = startIndex + this.pageSize;
-      const newArtists = this.artists.slice(startIndex, endIndex);
+    this.currentPage++;
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    const newArtists = this.artists.slice(startIndex, endIndex);
 
-      this.filteredArtists = [...this.filteredArtists, ...newArtists];
-      this.hasMoreArtists = this.artists.length > endIndex;
+    this.filteredArtists = [...this.filteredArtists, ...newArtists];
+    this.hasMoreArtists = this.artists.length > endIndex;
 
-      // Load artwork for new artists
-      this.loadArtistArtworkBatch(newArtists);
+    this.loadArtistArtworkBatch(newArtists);
 
-      if (event) {
-        event.target.complete();
-      }
-    }, 500);
+    if (event) {
+      event.target.complete();
+    }
   }
 
   nextInput() {
