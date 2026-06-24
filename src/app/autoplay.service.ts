@@ -156,46 +156,52 @@ export class AutoplayService {
         rawData.filter(item => (item.category || 'audiobook') === this.currentCategory).length
       );
 
-      const artistEntry = rawData.find(
+      const artistItems = rawData.filter(
         item =>
           item.artist === media.artist && (item.category || 'audiobook') === this.currentCategory
       );
 
-      if (!artistEntry) {
-        console.warn('Artist not found in library, trying to use media artistid or search Spotify');
-
-        // Try to use the artistid from the current media if available
+      if (artistItems.length === 0) {
+        console.warn('Artist not found in library, trying to use artistid from current media');
         if ((media as any).artistid) {
-          console.log('Using artistid from current media:', (media as any).artistid);
           await this.fetchArtistAlbums((media as any).artistid, media.artist);
-          return;
+        } else {
+          console.warn('No artistid available, cannot build autoplay queue');
         }
-
-        // If no artistid, we can't build a queue
-        console.warn('No artistid available, cannot build autoplay queue');
         return;
       }
 
+      const firstItem = artistItems[0];
+
       // Handle different content types
-      if (artistEntry.contentType === 'show' && artistEntry.id) {
+      if (firstItem.contentType === 'show' && firstItem.id) {
         // Fetch all episodes for podcast/show
-        await this.fetchShowEpisodes(artistEntry.id, media.artist);
-      } else if (artistEntry.contentType === 'audiobook' && artistEntry.id) {
-        // For audiobooks, add the audiobook itself
-        this.currentArtistQueue = [
-          {
-            id: artistEntry.id,
-            title: artistEntry.title,
-            artist: artistEntry.artist,
-            cover: artistEntry.cover,
-            category: artistEntry.category,
-            type: artistEntry.type,
-            contentType: 'audiobook',
-          },
-        ];
-      } else if (artistEntry.artistid) {
-        // Fetch all albums for music artist
-        await this.fetchArtistAlbums(artistEntry.artistid, media.artist);
+        await this.fetchShowEpisodes(firstItem.id, media.artist);
+      } else if (firstItem.contentType === 'audiobook' && firstItem.id) {
+        this.currentArtistQueue = artistItems.map(item => ({
+          id: item.id,
+          title: item.title,
+          artist: item.artist,
+          cover: item.cover,
+          category: item.category,
+          type: item.type,
+          contentType: item.contentType,
+        }));
+      } else if (firstItem.contentType === 'artist' && (firstItem as any).artistid) {
+        // Artist entry with Spotify artistid → fetch all albums from Spotify
+        await this.fetchArtistAlbums((firstItem as any).artistid, media.artist);
+      } else {
+        // Album entries → use all library albums for this artist as queue
+        this.currentArtistQueue = artistItems.map(item => ({
+          id: item.id,
+          title: item.title,
+          artist: item.artist,
+          cover: item.cover,
+          category: item.category,
+          type: item.type,
+          contentType: item.contentType,
+        }));
+        console.log(`Built queue with ${this.currentArtistQueue.length} library albums for ${media.artist}`);
       }
     } catch (error) {
       console.error('Failed to fetch artist content:', error);
