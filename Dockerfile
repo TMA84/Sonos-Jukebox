@@ -1,26 +1,21 @@
-# Stage 1: Install server dependencies with build tools
-FROM node:18-alpine AS deps
+# Stage 1: Install server dependencies
+# node:18-slim (Debian/glibc) has pre-built sqlite3 ARM64 binaries — no compilation needed
+FROM node:18-slim AS deps
 
 WORKDIR /app
 
-# Install build tools for native modules (sqlite3 on ARM)
-# py3-setuptools provides distutils (removed in Python 3.12+, needed by node-gyp)
-RUN apk add --no-cache python3 py3-setuptools make g++ linux-headers
-
-# Copy package.json so Docker can cache this layer when dependencies don't change
 COPY package-server.json package.json
 
 # npm cache mount avoids re-downloading tarballs on rebuild
 RUN --mount=type=cache,target=/root/.npm \
-    npm install && \
-    npm install --build-from-source sqlite3@^5.1.7
+    npm install
 
 # Stage 2: Production image
-FROM node:18-alpine
+FROM node:18-slim
 
 WORKDIR /app
 
-# Copy node_modules from build stage (includes compiled native modules)
+# Copy node_modules from build stage
 COPY --from=deps /app/node_modules ./node_modules
 
 # Copy built application
