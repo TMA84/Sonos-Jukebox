@@ -8,5 +8,8 @@
     "uuid": "^11.0.3",
     "dotenv": "^16.0.0",
     "sqlite3": "^5.1.7"
+  },
+  "overrides": {
+    "superagent": "^8.1.2"
   }
 }
