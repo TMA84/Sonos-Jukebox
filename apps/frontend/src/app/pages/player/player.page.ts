@@ -192,20 +192,23 @@ export class PlayerPage implements OnInit, OnDestroy {
       this.currentRoom.set(room);
 
       if (mediaId && clientId) {
-        const items = await firstValueFrom(this.api.getMedia(clientId));
-        const found = items.find((i) => i.id === mediaId) ?? null;
+        // Use already-loaded item from store; fall back to fetching only on direct URL access
+        let found = this.playerStore.currentMediaItem();
+        if (!found || found.id !== mediaId) {
+          const items = await firstValueFrom(this.api.getMedia(clientId));
+          found = items.find((i) => i.id === mediaId) ?? null;
+          this.playerStore.currentMediaItem.set(found);
+        }
         this.mediaItem.set(found);
-        this.playerStore.currentMediaItem.set(found);
 
         if (found && room) {
-          await this.playerStore.loadSpeakers();
           this.playerStore.startPolling(room);
-
           const uri = found.spotifyUri ?? this.buildTuneInUri(found);
-
-          if (uri) {
-            await this.playerStore.play({ room, uri });
-          }
+          // Fire speakers load and play in parallel — they don't depend on each other
+          await Promise.all([
+            this.playerStore.loadSpeakers(),
+            uri ? this.playerStore.play({ room, uri }) : Promise.resolve(),
+          ]);
         }
       } else if (room) {
         await this.playerStore.loadSpeakers();

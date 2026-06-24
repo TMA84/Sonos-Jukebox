@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { PlayerStore } from '../../stores/player.store';
 import {
   IonContent,
   IonHeader,
@@ -125,6 +126,7 @@ const CATEGORY_TABS: { label: string; value: string | null }[] = [
 export class HomePage {
   protected readonly mediaStore = inject(MediaStore);
   private readonly clientStore = inject(ClientStore);
+  private readonly playerStore = inject(PlayerStore);
   private readonly router = inject(Router);
 
   protected readonly categoryTabs = CATEGORY_TABS;
@@ -170,6 +172,7 @@ export class HomePage {
   }
 
   onMediaItemTap(item: MediaItem): void {
+    this.playerStore.currentMediaItem.set(item);
     this.router.navigate(['/player'], {
       queryParams: { mediaId: item.id, clientId: item.clientId },
     });
