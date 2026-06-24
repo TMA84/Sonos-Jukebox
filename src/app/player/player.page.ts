@@ -30,7 +30,7 @@ export class PlayerPage implements OnInit {
   repeatEnabled = false;
   private ignoreStatusUntil = 0;
   private get userPaused(): boolean { return sessionStorage.getItem('userPaused') === 'true'; }
-  private set userPaused(v: boolean) { v ? sessionStorage.setItem('userPaused', 'true') : sessionStorage.removeItem('userPaused'); }
+  private set userPaused(v: boolean) { if (v) { sessionStorage.setItem('userPaused', 'true'); } else { sessionStorage.removeItem('userPaused'); } }
   lastTrackUri = '';
   isCheckingForNext = false;
   private stoppedPollCount = 0;
