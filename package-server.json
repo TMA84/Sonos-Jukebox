@@ -1,0 +1,12 @@
+{
+  "name": "sonos-jukebox-server",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.21.1",
+    "cors": "^2.8.5",
+    "spotify-web-api-node": "^5.0.2",
+    "uuid": "^11.0.3",
+    "dotenv": "^16.0.0",
+    "sqlite3": "^5.1.7"
+  }
+}

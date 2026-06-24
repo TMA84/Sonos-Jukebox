@@ -7,10 +7,12 @@ WORKDIR /app
 # py3-setuptools provides distutils (removed in Python 3.12+, needed by node-gyp)
 RUN apk add --no-cache python3 py3-setuptools make g++ linux-headers
 
-# Only install the packages the server actually needs
-# Install pure-JS packages first, then build sqlite3 from source for ARM compatibility
-RUN npm init -y && \
-    npm install express@^4.21.1 cors@^2.8.5 spotify-web-api-node@^5.0.2 uuid@^11.0.3 dotenv@^16.0.0 && \
+# Copy package.json so Docker can cache this layer when dependencies don't change
+COPY package-server.json package.json
+
+# npm cache mount avoids re-downloading tarballs on rebuild
+RUN --mount=type=cache,target=/root/.npm \
+    npm install && \
     npm install --build-from-source sqlite3@^5.1.7
 
 # Stage 2: Production image
