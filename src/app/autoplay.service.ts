@@ -9,7 +9,7 @@ import { environment } from '../environments/environment';
   providedIn: 'root',
 })
 export class AutoplayService {
-  private autoplayEnabled = new BehaviorSubject<boolean>(false); // Default OFF
+  private autoplayEnabled = new BehaviorSubject<boolean>(true); // Default ON
   private repeatEnabled = new BehaviorSubject<boolean>(false); // Default OFF
   private currentArtistQueue: Media[] = [];
   private currentIndex = 0;
@@ -89,10 +89,6 @@ export class AutoplayService {
       this.currentArtistQueue.length === 0
     ) {
       console.log('Artist or category changed (or queue empty), fetching new content...');
-
-      // Disable autoplay when manually selecting new media
-      this.setEnabled(false);
-      console.log('Autoplay disabled for new media selection');
 
       this.currentArtist = currentMedia.artist;
       this.currentCategory = currentMedia.category || 'audiobook';
