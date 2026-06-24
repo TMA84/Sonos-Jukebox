@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const SpotifyWebApi = require('spotify-web-api-node');
 const { v4: uuidv4 } = require('uuid');
 
@@ -30,7 +30,7 @@ if (!fs.existsSync(dbDir)) {
 // Initialize SQLite database
 const dbPath = process.env.DB_PATH || './server/data/database.sqlite';
 console.log(`[Database] Using database path: ${dbPath}`);
-const db = new sqlite3.Database(dbPath);
+const db = new Database(dbPath);
 
 // Initialize database tables
 async function cleanupNestedMetadata() {
@@ -573,32 +573,30 @@ async function initializeFromEnvironment() {
   }
 }
 
-// Database helper functions
+// Database helper functions (sync better-sqlite3 wrapped in Promise for API compatibility)
 const dbGet = (sql, params = []) => {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
+  try {
+    return Promise.resolve(db.prepare(sql).get(params));
+  } catch (err) {
+    return Promise.reject(err);
+  }
 };
 
 const dbAll = (sql, params = []) => {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
+  try {
+    return Promise.resolve(db.prepare(sql).all(params));
+  } catch (err) {
+    return Promise.reject(err);
+  }
 };
 
 const dbRun = (sql, params = []) => {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve({ id: this.lastID, changes: this.changes });
-    });
-  });
+  try {
+    const result = db.prepare(sql).run(params);
+    return Promise.resolve({ id: result.lastInsertRowid, changes: result.changes });
+  } catch (err) {
+    return Promise.reject(err);
+  }
 };
 
 // Initialize Spotify API
@@ -1998,34 +1996,17 @@ app.get('/api/tunein/search/stations', async (req, res) => {
 app.post('/api/fix-radio-images', async (req, res) => {
   try {
     // Get all radio stations with placeholder or missing covers
-    const stations = await new Promise((resolve, reject) => {
-      db.all(
-        `SELECT id, cover FROM media_items WHERE type = 'tunein' OR contentType = 'radio'`,
-        (err, rows) => {
-          if (err) reject(err);
-          else resolve(rows || []);
-        }
-      );
-    });
+    const stations = await dbAll(
+      `SELECT id, cover FROM media_items WHERE type = 'tunein' OR contentType = 'radio'`
+    );
 
     let updated = 0;
-    for (const station of stations) {
+    for (const station of stations || []) {
       // If cover is a data: URI (SVG placeholder) or empty, replace with TuneIn logo
       if (!station.cover || station.cover.startsWith('data:')) {
         const logoUrl = `https://cdn-radiotime-logos.tunein.com/${station.id}q.png`;
-        await new Promise((resolve, reject) => {
-          db.run(
-            'UPDATE media_items SET cover = ? WHERE id = ?',
-            [logoUrl, station.id],
-            function (err) {
-              if (err) reject(err);
-              else {
-                updated += this.changes;
-                resolve();
-              }
-            }
-          );
-        });
+        const result = await dbRun('UPDATE media_items SET cover = ? WHERE id = ?', [logoUrl, station.id]);
+        updated += result.changes;
       }
     }
 
@@ -2039,16 +2020,7 @@ app.post('/api/fix-radio-images', async (req, res) => {
 // Clean up all radio stations (temporary fix)
 app.post('/api/cleanup-radio', async (req, res) => {
   try {
-    await new Promise((resolve, reject) => {
-      db.run(
-        'DELETE FROM media WHERE category = ? AND type = ?',
-        ['radio', 'tunein'],
-        function (err) {
-          if (err) reject(err);
-          else resolve({ changes: this.changes });
-        }
-      );
-    });
+    await dbRun('DELETE FROM media WHERE category = ? AND type = ?', ['radio', 'tunein']);
 
     res.json({ message: 'Cleaned up all radio stations', success: true });
   } catch (error) {

@@ -7,7 +7,7 @@
     "spotify-web-api-node": "^5.0.2",
     "uuid": "^11.0.3",
     "dotenv": "^16.0.0",
-    "sqlite3": "^5.1.7"
+    "better-sqlite3": "^11.0.0"
   },
   "overrides": {
     "superagent": "^8.1.2"
