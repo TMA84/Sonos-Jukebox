@@ -473,11 +473,16 @@ export class MedialistPage implements OnInit, AfterViewInit {
         const itemToUpdate = rawMedia.find(item => item.artist === artistName && !item.artistid);
 
         if (itemToUpdate) {
-          // Update the item with artistid
           const addUrl = `${environment.apiUrl}/add`;
           await this.http
             .post(addUrl, {
-              ...itemToUpdate,
+              id: itemToUpdate.id,
+              title: itemToUpdate.title,
+              artist: itemToUpdate.artist,
+              cover: itemToUpdate.cover,
+              type: itemToUpdate.type,
+              category: itemToUpdate.category,
+              contentType: itemToUpdate.contentType,
               artistid: artist.id,
               clientId,
             })

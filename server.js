@@ -820,7 +820,9 @@ app.post('/api/add', async (req, res) => {
     }
 
     const id = req.body.id || uuidv4(); // Use provided ID (for Spotify content) or generate UUID
-    const metadata = JSON.stringify(req.body);
+    // Exclude `metadata` to prevent exponential growth when re-posting DB rows
+    const { metadata: _existing, ...bodyForMetadata } = req.body;
+    const metadata = JSON.stringify(bodyForMetadata);
 
     await dbRun(
       `INSERT OR REPLACE INTO media_items 
