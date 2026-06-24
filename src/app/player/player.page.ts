@@ -29,9 +29,11 @@ export class PlayerPage implements OnInit {
   autoplayEnabled = true;
   repeatEnabled = false;
   private ignoreStatusUntil = 0;
-  private userPaused = false;
+  private get userPaused(): boolean { return sessionStorage.getItem('userPaused') === 'true'; }
+  private set userPaused(v: boolean) { v ? sessionStorage.setItem('userPaused', 'true') : sessionStorage.removeItem('userPaused'); }
   lastTrackUri = '';
   isCheckingForNext = false;
+  private stoppedPollCount = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -47,6 +49,8 @@ export class PlayerPage implements OnInit {
         const state = this.router.getCurrentNavigation().extras.state;
         this.media = state.media;
         this.fromShortcut = state.fromShortcut || false;
+        // New album selected explicitly — clear pause state
+        this.userPaused = false;
       }
     });
   }
@@ -223,9 +227,16 @@ export class PlayerPage implements OnInit {
           this.lastTrackUri = track.trackUri;
         }
 
-        // Check if playback stopped (album/show ended) - ONLY trigger on STOPPED state
-        if (previousTrackUri && track?.playbackState === 'STOPPED' && !this.isCheckingForNext) {
-          // Playback stopped - check if we should autoplay next
+        // Debounce STOPPED detection: require 3 consecutive polls (~6s) to avoid
+        // triggering on brief STOPPED states between tracks within an album
+        if (track?.playbackState === 'STOPPED') {
+          this.stoppedPollCount++;
+        } else {
+          this.stoppedPollCount = 0;
+        }
+
+        if (previousTrackUri && this.stoppedPollCount >= 3 && !this.isCheckingForNext) {
+          this.stoppedPollCount = 0;
           this.checkAndPlayNext();
         }
       });
