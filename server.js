@@ -172,7 +172,7 @@ async function initializeDatabase() {
 
     // Log final Sonos configuration for debugging
     const finalSonosConfig = await dbAll(
-      'SELECT key, value FROM config WHERE key LIKE "%sonos%" ORDER BY key'
+      "SELECT key, value FROM config WHERE key LIKE '%sonos%' ORDER BY key"
     );
     console.log('=== Final Sonos Configuration ===');
     finalSonosConfig.forEach(row => {
@@ -2620,7 +2620,7 @@ process.on('SIGINT', () => {
 app.get('/api/debug/sonos-config', async (req, res) => {
   try {
     const allSonosConfig = await dbAll(
-      'SELECT key, value FROM config WHERE key LIKE "%sonos%" ORDER BY key'
+      "SELECT key, value FROM config WHERE key LIKE '%sonos%' ORDER BY key"
     );
     const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
     const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
