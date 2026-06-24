@@ -55,3 +55,10 @@ server/config/clientName_*
 server/config/enableSpeakerSelection_*
 
 server/config/pin.json
+
+# NX monorepo
+.nx/
+tmp/
+
+# Local env (use .env.example as template)
+.env

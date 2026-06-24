@@ -1,0 +1,59 @@
+{
+  "name": "frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/frontend/src",
+  "prefix": "app",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/frontend",
+        "index": "apps/frontend/src/index.html",
+        "browser": "apps/frontend/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/frontend/tsconfig.app.json",
+        "assets": [
+          { "glob": "**/*", "input": "apps/frontend/src/assets", "output": "assets" },
+          { "glob": "**/*.svg", "input": "node_modules/ionicons/dist/ionicons/svg", "output": "svg" }
+        ],
+        "styles": ["apps/frontend/src/global.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            { "type": "initial", "maximumWarning": "2mb", "maximumError": "5mb" },
+            { "type": "anyComponentStyle", "maximumWarning": "2kb", "maximumError": "4kb" }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "frontend:build",
+        "port": 4200,
+        "proxyConfig": "apps/frontend/proxy.conf.json"
+      },
+      "configurations": {
+        "production": { "buildTarget": "frontend:build:production" },
+        "development": { "buildTarget": "frontend:build:development" }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}
