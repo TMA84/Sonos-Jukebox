@@ -33,6 +33,33 @@ console.log(`[Database] Using database path: ${dbPath}`);
 const db = new sqlite3.Database(dbPath);
 
 // Initialize database tables
+async function cleanupNestedMetadata() {
+  try {
+    const items = await dbAll('SELECT id, metadata FROM media_items WHERE metadata IS NOT NULL');
+    let fixed = 0;
+    for (const item of items) {
+      try {
+        const parsed = JSON.parse(item.metadata);
+        if ('metadata' in parsed) {
+          const { metadata: _nested, ...clean } = parsed;
+          await dbRun('UPDATE media_items SET metadata = ? WHERE id = ?', [
+            JSON.stringify(clean),
+            item.id,
+          ]);
+          fixed++;
+        }
+      } catch (_) {
+        // unparseable metadata — leave it alone
+      }
+    }
+    if (fixed > 0) {
+      console.log(`Cleaned up nested metadata in ${fixed} media item(s)`);
+    }
+  } catch (error) {
+    console.error('Error cleaning up nested metadata:', error);
+  }
+}
+
 async function initializeDatabase() {
   try {
     // Create config table
@@ -139,6 +166,9 @@ async function initializeDatabase() {
 
     // Create default client if none exist
     await createDefaultClientIfNeeded();
+
+    // Remove exponentially grown metadata caused by old re-save bug
+    await cleanupNestedMetadata();
 
     // Log final Sonos configuration for debugging
     const finalSonosConfig = await dbAll(
