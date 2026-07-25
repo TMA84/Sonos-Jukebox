@@ -328,19 +328,14 @@ export class MediaService {
     private getRadioStationImage(metadata: string): string | null {
       try {
         const meta = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
-        const stationId = meta.id?.replace('s', '');
-        
-        // Try various image fields from metadata
-        if (meta.image) return meta.image;
+        // cover is set by addRadioStationFromSearch and holds the correct CDN URL
+        if (meta.cover && !meta.cover.startsWith('data:')) return meta.cover;
+        if (meta.image && !meta.image.startsWith('data:')) return meta.image;
         if (meta.logo) return meta.logo;
         if (meta.artwork) return meta.artwork;
         if (meta.albumArtUri) return meta.albumArtUri;
-        
-        // Generate TuneIn station image URL if we have a station ID
-        if (stationId) {
-          return `https://cdn-profiles.tunein.com/s${stationId}/images/logod.jpg`;
-        }
-        
+        // Fallback: construct from station id — id already has 's' prefix (e.g. 's24908')
+        if (meta.id) return `https://cdn-radiotime-logos.tunein.com/${meta.id}q.png`;
         return null;
       } catch (e) {
         console.warn('Failed to parse radio station metadata for image:', e);

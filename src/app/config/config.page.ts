@@ -600,11 +600,10 @@ export class ConfigPage implements OnInit {
   private getRadioCover(metadata: string): string | null {
     try {
       const meta = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
+      if (meta.cover && !meta.cover.startsWith('data:')) return meta.cover;
       if (meta.image && !meta.image.startsWith('data:')) return meta.image;
       if (meta.logo) return meta.logo;
-      if (meta.cover && !meta.cover.startsWith('data:')) return meta.cover;
-      const stationId = meta.id?.replace('s', '');
-      if (stationId) return `https://cdn-profiles.tunein.com/s${stationId}/images/logod.jpg`;
+      if (meta.id) return `https://cdn-radiotime-logos.tunein.com/${meta.id}q.png`;
       return null;
     } catch {
       return null;
@@ -934,7 +933,7 @@ export class ConfigPage implements OnInit {
       category: this.libraryCategory,
       cover:
         this.librarySource === 'tunein' && content.id
-          ? content.cover || `https://cdn-profiles.tunein.com/${content.id}/images/logod.jpg`
+          ? content.cover || `https://cdn-radiotime-logos.tunein.com/${content.id}q.png`
           : content.cover,
       id: content.id,
       contentType:
@@ -1280,9 +1279,8 @@ export class ConfigPage implements OnInit {
   }
 
   private getTuneInStationImage(stationId: string): string {
-    const id = stationId?.replace('s', '');
-    return id
-      ? `https://cdn-radiotime-logos.tunein.com/${id}q.png`
+    return stationId
+      ? `https://cdn-radiotime-logos.tunein.com/${stationId}q.png`
       : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
   }
 
