@@ -806,16 +806,23 @@ export class ConfigPage implements OnInit {
 
   getSearchTypeLabel(): string {
     switch (this.searchType) {
-      case 'album':
-        return 'Albums';
-      case 'artist':
-        return 'Artists';
-      case 'podcast':
-        return 'Podcasts';
-      case 'audiobook':
-        return 'Audiobooks';
-      default:
-        return 'Content';
+      case 'album':    return 'Albums';
+      case 'artist':   return 'Artists';
+      case 'podcast':  return 'Podcasts';
+      case 'audiobook': return 'Audiobooks';
+      default:         return 'Content';
+    }
+  }
+
+  getAddButtonLabel(): string {
+    switch (this.libraryCategory) {
+      case 'audiobook': return 'Hörbuch suchen';
+      case 'music':     return 'Musik suchen';
+      case 'radio':     return 'Radio suchen';
+      case 'podcast':   return 'Podcast suchen';
+      case 'radioplay': return 'Hörspiel suchen';
+      case 'playlist':  return 'Playlist suchen';
+      default:          return 'Suchen';
     }
   }
 
