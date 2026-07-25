@@ -792,8 +792,11 @@ export class ConfigPage implements OnInit {
     } else if (category === 'music') {
       if (this.librarySource === 'tunein') this.librarySource = 'spotify';
       this.searchType = 'album';
+    } else if (category === 'radioplay') {
+      if (this.librarySource === 'tunein') this.librarySource = 'spotify';
+      this.searchType = 'album';
     } else {
-      // playlist / radioplay / other — tunein makes no sense here
+      // playlist / other — tunein makes no sense here
       if (this.librarySource === 'tunein') this.librarySource = 'library';
     }
   }
