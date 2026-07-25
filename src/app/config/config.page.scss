@@ -77,6 +77,8 @@ ion-segment {
   margin: 2px 4px;
   border: 1px solid var(--border-color);
   min-height: 32px;
+  width: max-content;
+  max-width: 100%;
 
   ion-segment-button {
     --color: var(--text-tertiary);
