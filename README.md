@@ -2,219 +2,6 @@
 
 *This enhanced version builds upon the original work by [Thyraz](https://github.com/Thyraz/Sonos-Kids-Controller) with significant performance improvements, new features, and bug fixes.*
 
-## What's New in Version 2.2.9
-
-### 🐛 Bug Fixes
-- **Sleep timer display** - Fixed sleep timer not showing saved value in config page
-- **PIN security** - Added PIN encryption (SHA256) and fixed environment override issue
-- **PIN persistence** - Custom PINs now persist after addon rebuilds instead of reverting to default
-
-## What's New in Version 2.2.8
-
-### 🐛 Bug Fixes
-- **Multi-client content sharing** - Fixed UNIQUE constraint error preventing same content from being added to different clients
-- **Database schema** - Changed primary key from single `id` to composite `(id, clientId)` to allow content sharing across clients
-
-## What's New in Version 2.2.7
-
-### 🐛 Bug Fixes
-- **Database schema** - Added all missing columns (enableSpeakerSelection, sleepTimer, spotifyUri, spotifyId, artistid, updatedAt)
-- **Complete table structure** - Fixed clients, media_items, and users tables to match application requirements
-
-## What's New in Version 2.2.6
-
-### 🐛 Bug Fixes
-- **Database schema** - Fixed remaining config table column errors for Spotify configuration
-- **Configuration API** - Removed description column references from all config operations
-
-## What's New in Version 2.2.5
-
-### 🐛 Bug Fixes
-- **Database schema** - Fixed config table column mismatch causing Sonos configuration errors
-- **Configuration saving** - Resolved INSERT errors when updating Sonos API settings
-
-## What's New in Version 2.2.4
-
-### 🐛 Bug Fixes
-- **Syntax error** - Fixed missing catch block causing server startup failure
-- **Code quality** - Removed extra closing brace in migration function
-
-## What's New in Version 2.2.3
-
-### 🐛 Bug Fixes
-- **Database initialization** - Added missing users table for PIN authentication
-- **Home Assistant addon** - Fixed configuration not being saved from addon settings
-- **Environment variables** - Added proper initialization from HA addon environment
-- **Default PIN** - Ensures admin user with PIN 1234 is created on first startup
-
-## What's New in Version 2.2.2
-
-### 🐛 Bug Fixes
-- **Home Assistant addon** - Fixed directory creation order preventing symlink errors
-- **Docker deployment** - Resolved "No such file or directory" error during container startup
-
-## What's New in Version 2.2.1
-
-### 🔄 Migration & Upgrade Features
-- **Automatic migration from JSON to SQLite** - Seamless upgrade path for existing users
-- **Legacy data preservation** - All library items, clients, and settings automatically migrated
-- **Zero-downtime upgrades** - Migration happens during normal server startup
-- **Safe migration process** - Uses INSERT OR REPLACE to prevent data duplication
-- **Comprehensive migration support** - Handles config.json, pin.json, and all client data files
-
-### 🛡️ Backward Compatibility
-- **Automatic detection** of legacy JSON configuration files
-- **Graceful error handling** for malformed or missing legacy files
-- **Migration logging** for debugging and verification
-- **Home Assistant addon support** - Seamless upgrade for HA users
-
-## What's New in Version 2.2.0
-
-### 🎧 Complete Audiobook Support
-- **Spotify audiobook integration** - Search, add, and play audiobooks directly from Spotify
-- **Chapter-based playback** - Audiobooks are treated like podcasts with individual chapters
-- **Unified search interface** - Combined search for Albums, Artists, Podcasts, and Audiobooks
-- **Automatic chapter fetching** - First chapter plays automatically with proper Sonos compatibility
-
-### 📻 TuneIn Radio Integration
-- **Live radio station search** - Find stations by name, genre, or location
-- **Real-time search results** - Instant station discovery as you type
-- **Sonos-compatible playback** - Direct radio streaming through your Sonos speakers
-- **Default radio icons** - Consistent visual experience for all radio stations
-- **No configuration required** - Works out of the box without API keys
-
-### ✏️ Library Management
-- **Edit existing items** - Modify artist, title, category, and source of saved content
-- **In-place editing** - Edit directly from the library list in config page
-- **Dynamic form handling** - Same interface for adding new items and editing existing ones
-- **Cancel functionality** - Easy way to abort edits and return to normal mode
-
-### 🗄️ Modern Database Architecture
-- **SQLite database** - Migrated from JSON files to robust SQLite storage
-- **Single server file** - Simplified architecture with server.js handling everything
-- **Improved performance** - Faster data access and better concurrent user support
-- **Data integrity** - ACID compliance and better error handling
-
-### 🎵 Enhanced Content Support
-- **Podcast episodes** - View and play individual podcast episodes instead of just show info
-- **Multiple content types** - Support for albums, tracks, episodes, audiobooks, and radio
-- **Smart URI handling** - Automatic detection and proper formatting for different media types
-- **Improved search** - Content-type specific search with better results
-
-### 🔧 Technical Improvements
-- **Repository cleanup** - Removed 4,900+ lines of obsolete code and files
-- **Streamlined deployment** - Single `npm start` command runs the complete application
-- **Better error handling** - More informative error messages and graceful failures
-- **API consistency** - Unified endpoints for all media operations
-
-## What's New in Version 2.1.7
-
-### 🎨 Modern Search Experience
-- **Redesigned search components** - Album, artist, and service search now use modern card-based layouts
-- **Enhanced visual hierarchy** - Improved typography, spacing, and hover effects across all search interfaces
-- **Consistent styling** - All search modals now match the config page's modern design system
-- **Better user feedback** - Smooth transitions and modern loading states
-
-### 🔧 API Integration & Configuration
-- **Amazon Music API** - Added search endpoint with mock implementation ready for integration
-- **Apple Music API** - Added search endpoint with mock implementation ready for integration  
-- **TuneIn Radio API** - Added search endpoint with mock implementation ready for integration
-- **Smart source management** - Library sources are automatically disabled when API credentials are missing
-- **Visual feedback** - Disabled sources show clear visual indicators and prevent user errors
-
-### 🖱️ Enhanced Dropdown Experience
-- **Modern dropdown styling** - All select menus now feature backdrop blur, shadows, and smooth animations
-- **Consistent popover design** - Unified look across client selectors and service dropdowns
-- **Improved accessibility** - Better hover states and selection feedback
-
-### 🎵 Player Interface Improvements
-- **Reorganized layout** - "Now Playing" information moved directly under player controls for better flow
-- **Cleaner interface** - More logical grouping of player elements
-
-### ⚙️ Configuration Management
-- **Streamlined client selection** - Client dropdown moved to header for easier access
-- **Context-aware display** - Shows client selector on relevant tabs, client name on global settings
-- **Consistent spacing** - Proper layout spacing maintained across all configuration tabs
-
-### 🛠️ Build & Performance Optimizations
-- **Resolved build warnings** - Updated TypeScript target to ES2022
-- **Optimized dependencies** - Properly configured CommonJS dependencies
-- **Cleaner compilation** - Excluded unused files from TypeScript compilation
-- **Updated Angular configuration** - Removed deprecated settings
-
-## What's New in Version 2.1.6
-
-### 🎨 Modern Design & UX Overhaul
-- **iPad-styled virtual keyboard** - German QWERTZ layout with ü, ö, ä, ß support across all pages
-- **Modern design system** - Comprehensive styling with backdrop blur, shadows, and animations
-- **Enhanced speaker management** - Client-specific default speakers with temporary session changes
-- **Centralized client names** - Server-side storage with consistent display across all pages
-- **Improved search experience** - Modern keyboard in album and artist search components
-
-## What's New in Version 2.1.5
-
-### 🔧 Cache Management Fix
-- **Fixed library updates** - Home page now immediately shows newly added albums and artists
-- **Cache clearing** - Automatic cache invalidation when adding or deleting library content
-- **Data consistency** - Ensures fresh data loading after library modifications
-- **Improved user experience** - No more need to refresh page after adding content
-
-## What's New in Version 2.1.4
-
-### 🔧 Bug Fixes & Stability
-- **Fixed infinite scrolling** - Resolved visibility conditions for proper album loading in medialist page
-- **Improved loading states** - Albums grid now remains visible during loading for better user experience
-- **Enhanced error handling** - Better handling of simultaneous requests with proper disabled states
-- **Optimized pagination** - Prevents multiple API calls during scroll loading
-
-## What's New in Version 2.1.3
-
-### 🚀 Performance & UX Improvements
-- **Infinite scrolling** - Smooth browsing through large artist and album collections
-- **Optimized Spotify rate limiting** - Prevents API rate limits with smart loading strategies
-- **On-demand album loading** - Albums load only when artists are selected, reducing startup time
-- **Enhanced pagination** - Better handling of large content libraries with progressive loading
-
-## What's New in Version 2.1.2
-
-### 🎯 Enhanced User Experience
-- **Direct artist loading** - Shows artists immediately on app start for all content categories
-- **Improved navigation** - Faster access to content with optimized loading flow
-- **Better performance** - Streamlined data loading for quicker app startup
-
-## What's New in Version 2.1.1
-
-### 🧹 Code Quality Improvements
-- **Clean console output** - Removed verbose debug logging for cleaner browser console
-- **Optimized logging** - Kept essential error logging while removing development noise
-- **Better user experience** - Cleaner debugging environment for production use
-
-## What's New in Version 2.1.0
-
-### 🚀 Performance Enhancements
-- **24-hour caching** with background preloading for instant category switching
-- **Fixed stream processing** that handles empty results gracefully
-- **Improved Spotify rate limiting** using Retry-After headers
-- **Cross-browser compatibility** with server-side data storage
-
-### 🎯 Multi-Client Support
-- **Client management** - Create and manage multiple user profiles
-- **Cookie-based persistence** - Reliable client switching across browsers
-- **URL client loading** - Direct access via `?client=name` parameter
-- **Per-client configurations** - Individual speaker and library settings
-
-### 🔧 Enhanced User Experience
-- **Automatic speaker loading** from client configuration
-- **Improved error handling** for failed artist loading
-- **Better token refresh** mechanism for uninterrupted playback
-- **Robust data loading** that works consistently across all browsers
-
-### 🛠️ Technical Improvements
-- **Modern Angular 18** and Ionic 8 framework
-- **115+ security vulnerabilities** fixed (reduced to 11 low-risk)
-- **Optimized build process** with better dependency management
-- **Enhanced API endpoints** for client and configuration management
-
 ## Quick Start
 
 ### Prerequisites
@@ -237,7 +24,7 @@ npm start
 
 ### First Time Setup
 1. Open `http://localhost:8200` in your browser
-2. Click the settings button (⚙️) and enter PIN (default: 1234)
+2. Tap the clock display 5 times to open the hidden settings menu, then enter PIN (default: 1234)
 3. Configure your Sonos speakers and Spotify credentials (TuneIn Radio works automatically)
 4. Create your first client profile
 5. Add music content using the search functionality
@@ -246,16 +33,24 @@ npm start
 
 ### Getting Started
 
+#### Accessing the Settings (Hidden Config Menu)
+
+The settings menu has no visible button — this keeps the interface clean for children.
+
+**To open settings:** Tap the clock display in the top bar **5 times in quick succession** (within 3 seconds). The PIN prompt will appear.
+
+- Default PIN: `1234`
+- The tap count resets automatically after 3 seconds if not completed
+
 #### Creating Your First Profile
-1. **Access Settings**: Click the gear icon (⚙️) in the top-right corner
-2. **Enter PIN**: Use the default PIN `1234` (you can change this later)
-3. **Create Client**: Click "Create New Client" and give it a name (e.g., "Kids Room")
-4. **Select Speaker**: Choose which Sonos speaker this profile should use
+1. **Access Settings**: Tap the clock 5 times and enter PIN (default: `1234`)
+2. **Create Client**: Click "Create New Client" and give it a name (e.g., "Kids Room")
+3. **Select Speaker**: Choose which Sonos speaker this profile should use
 
 #### Adding Music Content
 
-##### Unified Search Interface (New in 2.2.0)
-1. **Access Config**: Click the settings button (⚙️) and enter PIN
+##### Unified Search Interface
+1. **Access Config**: Tap the clock 5 times and enter PIN
 2. **Library Tab**: Navigate to the Library tab
 3. **Content Types**: Choose from Audiobook, Music, Playlist, Radio, Podcast, or Radio Play
 4. **Search Sources**: Select Spotify, Local, or TuneIn Radio
@@ -267,7 +62,7 @@ npm start
    - **TuneIn Radio**: Search for live radio stations by name or genre
    - **Manual Entry**: Add specific content with custom artwork URLs
 
-##### Edit Existing Content (New in 2.2.0)
+##### Edit Existing Content
 1. **Library Items List**: View all your saved content in the Library tab
 2. **Edit Button**: Click the pencil icon next to any item
 3. **Modify Details**: Change artist, title, category, source, or content type
@@ -326,9 +121,10 @@ npm start
 ### Advanced Features
 
 #### PIN Security
+- **Open settings**: Tap the clock display 5 times (within 3 seconds)
 - **Change PIN**: Go to settings → Security → Change PIN
 - **Default PIN**: 1234 (change this for security)
-- **Access Control**: PIN protects configuration changes from children
+- **Access Control**: PIN protects configuration changes from children; the hidden entry gesture keeps the UI distraction-free
 
 #### Client Management
 - **Multiple Profiles**: Create separate profiles for different family members
