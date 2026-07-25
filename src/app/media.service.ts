@@ -270,16 +270,12 @@ export class MediaService {
             artistMap.set(item.artist, {
               name: item.category === 'radio' ? item.title : item.artist,
               albumCount: '0', // Will be loaded on-demand
-              cover: item.category === 'radio' && item.metadata ? 
-                this.getRadioStationImage(item.metadata) || item.cover || '../assets/images/nocover.png' :
-                item.cover || '../assets/images/nocover.png',
+              cover: this.resolveItemCover(item),
               coverMedia: {
                 id: item.id || '',
                 artist: item.artist,
                 title: item.title || item.artist,
-                cover: item.category === 'radio' && item.metadata ? 
-                  this.getRadioStationImage(item.metadata) || item.cover || '../assets/images/nocover.png' :
-                  item.cover || '../assets/images/nocover.png',
+                cover: this.resolveItemCover(item),
                 type: item.type || 'spotify',
                 category: item.category,
                 ...(item.category === 'radio' && item.metadata ? { metadata: item.metadata } : {})
@@ -323,6 +319,18 @@ export class MediaService {
     // Choose which media category should be displayed in the app
     setCategory(category: string) {
       this.category = category;
+    }
+
+    private resolveItemCover(item: any): string {
+      // DB cover column is authoritative — it's updated by fix-radio-images and add endpoints.
+      // Only fall back to metadata derivation when the column is empty or a placeholder.
+      if (item.cover && !item.cover.startsWith('data:') && !item.cover.startsWith('../')) {
+        return item.cover;
+      }
+      if (item.category === 'radio' && item.metadata) {
+        return this.getRadioStationImage(item.metadata) || item.cover || '../assets/images/nocover.png';
+      }
+      return item.cover || '../assets/images/nocover.png';
     }
 
     private getRadioStationImage(metadata: string): string | null {

@@ -2067,11 +2067,23 @@ app.get('/api/tunein/search/stations', async (req, res) => {
 app.post('/api/fix-radio-images', async (req, res) => {
   try {
     const stations = await dbAll(
-      `SELECT id, title, cover FROM media_items WHERE type = 'tunein' OR contentType = 'radio'`
+      `SELECT id, title, cover, metadata FROM media_items WHERE type = 'tunein' OR contentType = 'radio'`
     );
 
     let updated = 0;
     for (const station of stations || []) {
+      // Sync metadata.cover → cover column when they differ (covers a previous partial fix)
+      if (station.cover && station.metadata) {
+        try {
+          const meta = JSON.parse(station.metadata);
+          if (meta.cover && meta.cover !== station.cover) {
+            meta.cover = station.cover;
+            await dbRun('UPDATE media_items SET metadata = ? WHERE id = ?', [JSON.stringify(meta), station.id]);
+            updated++;
+          }
+        } catch { /* ignore */ }
+      }
+
       // Re-fetch from TuneIn OPML for stations missing a cover, using a placeholder, or
       // using the cdn-radiotime-logos PNG path (which 403s for many stations)
       const needsFix =
@@ -2090,7 +2102,17 @@ app.post('/api/fix-radio-images', async (req, res) => {
           const imgMatch = xml.match(stationPattern) || xml.match(idPatternAlt);
           if (imgMatch?.[1]) {
             const logoUrl = imgMatch[1].replace(/^http:\/\//, 'https://');
-            const result = await dbRun('UPDATE media_items SET cover = ? WHERE id = ?', [logoUrl, station.id]);
+            // Update both the cover column and the cover field inside the metadata JSON
+            let newMetadata = station.metadata;
+            try {
+              const meta = JSON.parse(station.metadata || '{}');
+              meta.cover = logoUrl;
+              newMetadata = JSON.stringify(meta);
+            } catch { /* keep original metadata on parse error */ }
+            const result = await dbRun(
+              'UPDATE media_items SET cover = ?, metadata = ? WHERE id = ?',
+              [logoUrl, newMetadata, station.id]
+            );
             updated += result.changes;
           }
         } catch {
