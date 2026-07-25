@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { MediaService } from '../media.service';
 import { Media } from '../media';
 
@@ -9,10 +10,11 @@ import { Media } from '../media';
   templateUrl: './edit.page.html',
   styleUrls: ['./edit.page.scss'],
 })
-export class EditPage implements OnInit {
+export class EditPage implements OnInit, OnDestroy {
 
   media: Media[] = [];
   showKeyboard = false;
+  private mediaSub: Subscription;
   isUpperCase = false;
   keyboardRows = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -27,13 +29,14 @@ export class EditPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Subscribe
-    this.mediaService.getRawMediaObservable().subscribe(media => {
+    this.mediaSub = this.mediaService.getRawMediaObservable().subscribe(media => {
       this.media = media;
     });
-
-    // Retreive data through subscription above
     this.mediaService.updateRawMedia();
+  }
+
+  ngOnDestroy() {
+    this.mediaSub?.unsubscribe();
   }
 
   async deleteButtonPressed(index: number) {

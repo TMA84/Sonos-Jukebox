@@ -30,6 +30,7 @@
         <ion-card class="cover-card modern-card" *ngIf="!errorMessage">
           <img
             src="{{this.cover || 'assets/default-cover.png'}} "
+            [alt]="media?.title || 'Cover'"
             draggable="false"
             style="-moz-user-select: none"
             ondragstart="return false;"
@@ -47,17 +48,17 @@
         <ion-grid>
           <ion-row class="play-controls">
             <ion-col size="4" class="ion-text-center">
-              <button class="player-btn secondary" (click)="skipPrev()">
+              <button class="player-btn secondary" (click)="skipPrev()" aria-label="Vorheriger Titel">
                 <ion-icon name="play-back"></ion-icon>
               </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <button class="player-btn primary" (click)="playPause()">
+              <button class="player-btn primary" (click)="playPause()" [attr.aria-label]="playing ? 'Pause' : 'Abspielen'">
                 <ion-icon [name]="playing ? 'pause' : 'play'"></ion-icon>
               </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <button class="player-btn secondary" (click)="skipNext()">
+              <button class="player-btn secondary" (click)="skipNext()" aria-label="Nächster Titel">
                 <ion-icon name="play-forward"></ion-icon>
               </button>
             </ion-col>
@@ -65,17 +66,17 @@
 
           <ion-row class="volume-controls">
             <ion-col size="4" class="ion-text-center">
-              <button class="player-btn vol" (click)="volDown()">
+              <button class="player-btn vol" (click)="volDown()" aria-label="Lautstärke verringern">
                 <ion-icon name="remove"></ion-icon>
               </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <button class="player-btn vol indicator">
+              <button class="player-btn vol indicator" aria-label="Lautstärke">
                 <ion-icon name="volume-medium"></ion-icon>
               </button>
             </ion-col>
             <ion-col size="4" class="ion-text-center">
-              <button class="player-btn vol" (click)="volUp()">
+              <button class="player-btn vol" (click)="volUp()" aria-label="Lautstärke erhöhen">
                 <ion-icon name="add"></ion-icon>
               </button>
             </ion-col>

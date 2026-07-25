@@ -192,6 +192,18 @@ export class ConfigPage implements OnInit {
   }
 
   changePin() {
+    if (this.newPin !== this.confirmPin) {
+      console.error('PINs do not match');
+      this.newPin = '';
+      this.confirmPin = '';
+      return;
+    }
+    if (!/^\d{4,8}$/.test(this.newPin)) {
+      console.error('PIN must be 4–8 digits');
+      this.newPin = '';
+      this.confirmPin = '';
+      return;
+    }
     const pinUrl = `${environment.apiUrl}/config/pin`;
 
     this.http.post(pinUrl, { currentPin: this.currentPin, newPin: this.newPin }).subscribe({

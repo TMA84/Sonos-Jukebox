@@ -7,6 +7,7 @@
       <ion-card class="media-card modern-card">
         <img
           [src]="getItemCover(item)"
+          [alt]="getItemTitle(item)"
           (click)="itemClick.emit(item)"
           loading="lazy"
           draggable="false"

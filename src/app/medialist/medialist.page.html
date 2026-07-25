@@ -59,6 +59,7 @@
         <ion-card class="media-card modern-card">
           <img
             [src]="covers[album.title] || '../assets/images/nocover.png'"
+            [alt]="album.title"
             (click)="coverClicked(album)"
             loading="lazy"
             draggable="false"
@@ -72,6 +73,12 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && !showError && media.length === 0" class="ion-text-center ion-padding">
+    <ion-icon name="musical-notes-outline" style="font-size: 48px; color: var(--text-tertiary)"></ion-icon>
+    <p style="color: var(--text-secondary)">Keine Alben gefunden</p>
+  </div>
 
   <!-- Scroll trigger for loading more albums -->
   <div #scrollTrigger style="height: 1px"></div>

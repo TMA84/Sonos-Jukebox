@@ -1,10 +1,6 @@
 <ion-header class="modern-header">
   <ion-toolbar class="modern-toolbar">
-    <ion-buttons slot="start">
-      <ion-button disabled="true" style="opacity: 0">
-        <ion-icon name=""></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <ion-title *ngIf="clientName" slot="start" class="client-name modern-title">{{clientName}}</ion-title>
     <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
       <ion-segment-button
         *ngIf="isCategoryAvailable('audiobook') && (availableCategories.includes('audiobook') || (enableContentSearch && spotifyConfigured))"
@@ -54,7 +50,6 @@
     >
     </ion-searchbar>
     <ion-buttons slot="end">
-      <ion-title *ngIf="clientName" class="client-name modern-title">{{clientName}}</ion-title>
       <ion-button *ngIf="enableAlarmClock" class="modern-button-icon" (click)="openAlarmManager()">
         <ion-icon name="alarm-outline"></ion-icon>
       </ion-button>
@@ -86,7 +81,12 @@
     </button>
   </div>
 
+  <div *ngIf="isLoadingCategories" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
   <app-virtual-grid
+    *ngIf="!isLoadingCategories"
     [items]="filteredArtists"
     [covers]="covers"
     [itemsPerPage]="12"

@@ -80,13 +80,7 @@ export class PlayerPage implements OnInit {
     this.loadAvailableSpeakers();
     this.startStatusPolling();
 
-    // Ensure auto-play starts if not already triggered
-    if (this.media && !this.playing) {
-      window.setTimeout(() => {
-        this.playerService.playMedia(this.media);
-        this.playing = true;
-      }, 1500);
-    }
+    // ionViewWillEnter handles playback — no duplicate trigger needed here
   }
 
   async ionViewWillEnter() {
@@ -343,6 +337,7 @@ export class PlayerPage implements OnInit {
   }
 
   private startScheduleCheck() {
+    if (this.scheduleCheckInterval) return;
     this.checkScheduleNow();
     this.scheduleCheckInterval = setInterval(() => this.checkScheduleNow(), 60000);
   }
@@ -350,6 +345,7 @@ export class PlayerPage implements OnInit {
   private stopScheduleCheck() {
     if (this.scheduleCheckInterval) {
       clearInterval(this.scheduleCheckInterval);
+      this.scheduleCheckInterval = null;
     }
   }
 
@@ -390,7 +386,8 @@ export class PlayerPage implements OnInit {
         const configData = localStorage.getItem('sonosConfig');
 
         if (configData) {
-          const sonosConfig = JSON.parse(configData);
+          let sonosConfig: any = {};
+          try { sonosConfig = JSON.parse(configData); } catch { /* corrupt localStorage */ }
           this.availableSpeakers = sonosConfig.rooms || [];
           this.setSelectedSpeaker();
         } else {

@@ -11,6 +11,32 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 app.use(cors());
 
+// Simple in-memory rate limiter for PIN endpoints (max 5 attempts per 15 min per IP)
+const pinAttempts = new Map();
+function checkPinRateLimit(ip) {
+  const now = Date.now();
+  const entry = pinAttempts.get(ip);
+  if (entry && now < entry.resetAt) {
+    if (entry.count >= 5) return false;
+    entry.count++;
+  } else {
+    pinAttempts.set(ip, { count: 1, resetAt: now + 15 * 60 * 1000 });
+  }
+  return true;
+}
+function resetPinRateLimit(ip) {
+  pinAttempts.delete(ip);
+}
+
+// Allowed config keys (prevent arbitrary key injection)
+const ALLOWED_CONFIG_KEYS = new Set([
+  'spotify_client_id', 'spotify_client_secret',
+  'sonos_api_host', 'sonos_api_port',
+  'tts_enabled', 'tts_voice', 'tts_language', 'tts_volume', 'tts_service',
+  'tts_aws_region', 'tts_aws_access_key', 'tts_aws_secret_key',
+  'default_room', 'app_name', 'theme',
+]);
+
 // PIN encryption functions
 function hashPin(pin) {
   return crypto.createHash('sha256').update(pin).digest('hex');
@@ -143,6 +169,11 @@ async function initializeDatabase() {
             FOREIGN KEY (clientId) REFERENCES clients(id),
             UNIQUE(clientId, category)
         )`);
+
+    // Indexes for frequent clientId lookups
+    await dbRun('CREATE INDEX IF NOT EXISTS idx_media_items_clientid ON media_items(clientId)');
+    await dbRun('CREATE INDEX IF NOT EXISTS idx_alarms_clientid ON alarms(clientId)');
+    await dbRun('CREATE INDEX IF NOT EXISTS idx_schedules_clientid ON category_schedules(clientId)');
 
     console.log('Database tables initialized successfully');
 
@@ -708,6 +739,9 @@ app.get('/api/config/full', async (req, res) => {
 app.post('/api/config', async (req, res) => {
   try {
     const { key, value } = req.body;
+    if (!key || !ALLOWED_CONFIG_KEYS.has(key)) {
+      return res.status(400).json({ error: 'Invalid configuration key' });
+    }
     await dbRun('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [key, value]);
     res.json({ success: true });
   } catch (error) {
@@ -779,7 +813,7 @@ app.post('/api/clients/delete', async (req, res) => {
       clientId,
     ]);
 
-    res.send('Client deleted successfully');
+    res.json({ message: 'Client deleted successfully' });
   } catch (error) {
     console.error('Error deleting client:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -800,7 +834,7 @@ app.post('/api/clients/create', async (req, res) => {
       [clientId, name, '', 1]
     );
 
-    res.send('Client created successfully');
+    res.json({ message: 'Client created successfully' });
   } catch (error) {
     console.error('Error creating client:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -1187,7 +1221,7 @@ app.post('/api/alarms/stop', async (req, res) => {
     // Get Sonos API configuration from database
     const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
     const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
-    const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50';
+    const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || 'localhost';
     const sonosPort = portConfig?.value || process.env.SONOS_PORT || '5005';
     const pauseUrl = `http://${sonosServer}:${sonosPort}/${encodeURIComponent(client.room)}/pause`;
 
@@ -1274,7 +1308,7 @@ app.post('/api/alarms/:id/snooze', async (req, res) => {
       // Get Sonos API configuration from database
       const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
       const portConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_port']);
-      const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50';
+      const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || 'localhost';
       const sonosPort = portConfig?.value || process.env.SONOS_PORT || '5005';
       const pauseUrl = `http://${sonosServer}:${sonosPort}/${encodeURIComponent(client.room)}/pause`;
       await fetch(pauseUrl);
@@ -1500,12 +1534,16 @@ app.get('/api/search/spotify', async (req, res) => {
 
 // PIN verification (for auth service)
 app.post('/api/auth/pin/verify', async (req, res) => {
+  const ip = req.ip;
+  if (!checkPinRateLimit(ip)) {
+    return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' });
+  }
   try {
     const { pin, clientId } = req.body;
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
     if (user && verifyPin(pin, user.pin)) {
-      // Generate a simple token (in production, use proper JWT)
+      resetPinRateLimit(ip);
       const token = Buffer.from(`${Date.now()}-${clientId}`).toString('base64');
       res.json({ token });
     } else {
@@ -1521,6 +1559,9 @@ app.post('/api/auth/pin/verify', async (req, res) => {
 app.post('/api/auth/pin/change', async (req, res) => {
   try {
     const { currentPin, newPin } = req.body;
+    if (!newPin || !/^\d{4,8}$/.test(newPin)) {
+      return res.status(400).json({ error: 'New PIN must be 4–8 digits' });
+    }
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
     if (!user || !verifyPin(currentPin, user.pin)) {
@@ -1554,6 +1595,9 @@ app.get('/api/pin', async (req, res) => {
 app.post('/api/config/pin', async (req, res) => {
   try {
     const { currentPin, newPin } = req.body;
+    if (!newPin || !/^\d{4,8}$/.test(newPin)) {
+      return res.status(400).json({ error: 'New PIN must be 4–8 digits' });
+    }
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
     if (!user || !verifyPin(currentPin, user.pin)) {
@@ -1573,11 +1617,16 @@ app.post('/api/config/pin', async (req, res) => {
 
 // PIN verification
 app.post('/api/pin/verify', async (req, res) => {
+  const ip = req.ip;
+  if (!checkPinRateLimit(ip)) {
+    return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' });
+  }
   try {
     const { pin } = req.body;
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
     if (user && verifyPin(pin, user.pin)) {
+      resetPinRateLimit(ip);
       res.json({ valid: true });
     } else {
       res.json({ valid: false });
@@ -1592,6 +1641,9 @@ app.post('/api/pin/verify', async (req, res) => {
 app.post('/api/pin/update', async (req, res) => {
   try {
     const { oldPin, newPin } = req.body;
+    if (!newPin || !/^\d{4,8}$/.test(newPin)) {
+      return res.status(400).json({ error: 'New PIN must be 4–8 digits' });
+    }
     const user = await dbGet('SELECT * FROM users WHERE username = ? AND isActive = 1', ['admin']);
 
     if (!user || !verifyPin(oldPin, user.pin)) {
@@ -2038,7 +2090,7 @@ app.post('/api/fix-radio-images', async (req, res) => {
 // Clean up all radio stations (temporary fix)
 app.post('/api/cleanup-radio', async (req, res) => {
   try {
-    await dbRun('DELETE FROM media WHERE category = ? AND type = ?', ['radio', 'tunein']);
+    await dbRun('DELETE FROM media_items WHERE category = ? AND type = ?', ['radio', 'tunein']);
 
     res.json({ message: 'Cleaned up all radio stations', success: true });
   } catch (error) {
@@ -2208,6 +2260,10 @@ app.post('/api/sonos/previous', async (req, res) => {
 app.post('/api/sonos/volume', async (req, res) => {
   try {
     const { room, change } = req.body;
+    const volumeChange = parseInt(change, 10);
+    if (isNaN(volumeChange) || volumeChange < -100 || volumeChange > 100) {
+      return res.status(400).json({ error: 'Invalid volume change value' });
+    }
 
     // Get Sonos API configuration
     const hostConfig = await dbGet('SELECT value FROM config WHERE key = ?', ['sonos_api_host']);
@@ -2217,7 +2273,7 @@ app.post('/api/sonos/volume', async (req, res) => {
     const port = portConfig?.value || '5005';
 
     const response = await fetch(
-      `http://${host}:${port}/${encodeURIComponent(room)}/volume/${change}`
+      `http://${host}:${port}/${encodeURIComponent(room)}/volume/${volumeChange}`
     );
     const result = await safeJson(response);
 
@@ -2448,7 +2504,7 @@ async function triggerAlarm(alarm) {
       portConfig
     );
 
-    const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50';
+    const sonosServer = hostConfig?.value || process.env.SONOS_SERVER || 'localhost';
     const sonosPort = portConfig?.value || process.env.SONOS_PORT || '5005';
     const sonosBaseUrl = `http://${sonosServer}:${sonosPort}`;
 
@@ -2481,8 +2537,9 @@ async function triggerAlarm(alarm) {
         // For artists, fetch their albums and play the first one
         console.log(`[Trigger Alarm] Fetching albums for artist: ${artistid}`);
         try {
+          const selfPort = process.env.PORT || 8200;
           const albumsResponse = await fetch(
-            `http://localhost:8200/api/spotify/artists/${artistid}/albums?limit=1`
+            `http://localhost:${selfPort}/api/spotify/artists/${artistid}/albums?limit=1`
           );
           const albumsData = await albumsResponse.json();
 
@@ -2629,18 +2686,19 @@ async function startServer() {
 }
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
-  console.log('Shutting down server...');
-  stopAlarmScheduler(); // Stop alarm scheduler
-  db.close(err => {
-    if (err) {
-      console.error('Error closing database:', err.message);
-    } else {
-      console.log('Database connection closed');
-    }
-    process.exit(0);
-  });
-});
+function shutdown(signal) {
+  console.log(`Shutting down server (${signal})...`);
+  stopAlarmScheduler();
+  try {
+    db.close();
+    console.log('Database connection closed');
+  } catch (err) {
+    console.error('Error closing database:', err.message);
+  }
+  process.exit(0);
+}
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 // Debug endpoint to check Sonos configuration
 app.get('/api/debug/sonos-config', async (req, res) => {
@@ -2655,7 +2713,7 @@ app.get('/api/debug/sonos-config', async (req, res) => {
       allConfig: allSonosConfig,
       hostConfig: hostConfig,
       portConfig: portConfig,
-      resolvedHost: hostConfig?.value || process.env.SONOS_SERVER || '172.30.0.50',
+      resolvedHost: hostConfig?.value || process.env.SONOS_SERVER || 'localhost',
       resolvedPort: portConfig?.value || process.env.SONOS_PORT || '5005',
       envVars: {
         SONOS_SERVER: process.env.SONOS_SERVER || 'not set',

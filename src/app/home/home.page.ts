@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { MediaService } from '../media.service';
 import { ArtworkService } from '../artwork.service';
@@ -27,7 +28,9 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('scrollTrigger', { read: ElementRef }) scrollTrigger: ElementRef;
   private scheduleCheckInterval: any;
   private clockInterval: any;
+  private categorySub: Subscription;
   currentTime = '';
+  isLoadingCategories = false;
   category = 'audiobook';
   artists: Artist[] = [];
   media: Media[] = [];
@@ -84,6 +87,7 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     if (this.clockInterval) {
       clearInterval(this.clockInterval);
     }
+    this.categorySub?.unsubscribe();
   }
 
   private updateClock() {
@@ -431,12 +435,14 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadAvailableCategories() {
-    // Load from server API
     const clientId = this.getClientId();
     console.log('Loading categories for client:', clientId);
 
+    this.isLoadingCategories = true;
+    this.categorySub?.unsubscribe();
     this.mediaService.updateRawMedia();
-    this.mediaService.getRawMediaObservable().subscribe(libraryItems => {
+    this.categorySub = this.mediaService.getRawMediaObservable().subscribe(libraryItems => {
+      this.isLoadingCategories = false;
       console.log('Categories - library items:', libraryItems.length);
 
       this.availableCategories = [
