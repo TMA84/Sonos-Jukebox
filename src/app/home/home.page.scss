@@ -47,16 +47,16 @@
   font-weight: 500;
 }
 
-.segment-toolbar {
-  --min-height: 40px;
-  --padding-top: 0;
-  --padding-bottom: 2px;
+.client-name {
+  width: 120px;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 ion-segment {
   --background: var(--surface);
   border-radius: var(--radius-md);
-  margin: 2px var(--spacing-sm) 4px;
+  margin: var(--spacing-sm);
   border: 1px solid var(--border-color);
 
   ion-segment-button {
