@@ -42,18 +42,20 @@
 }
 
 .client-name {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.client-name {
   display: inline-block;
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-light, #a29bfe);
+  letter-spacing: 0.05em;
+  background: rgba(108, 92, 231, 0.15);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  border-radius: var(--radius-sm, 8px);
+  padding: 8px 12px;
+  margin: 3px 4px;
 }
 
 ion-segment {
