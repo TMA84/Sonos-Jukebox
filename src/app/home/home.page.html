@@ -1,6 +1,29 @@
 <ion-header class="modern-header">
+  <!-- Row 1: title + action buttons -->
   <ion-toolbar class="modern-toolbar">
-    <ion-title *ngIf="clientName" slot="start" class="client-name modern-title">{{clientName}}</ion-title>
+    <ion-title *ngIf="clientName" class="client-name modern-title">{{clientName}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="enableAlarmClock" class="modern-button-icon" (click)="openAlarmManager()">
+        <ion-icon name="alarm-outline"></ion-icon>
+      </ion-button>
+      <ion-button class="modern-button-icon" (click)="goToPlayer()">
+        <ion-icon name="play-outline"></ion-icon>
+      </ion-button>
+      <ion-button class="modern-button-icon" (click)="toggleSearch()">
+        <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
+      </ion-button>
+      <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
+        <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
+      </ion-button>
+      <ion-button class="modern-button-icon" (click)="configButtonPressed()">
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+      <span class="clock-display">{{currentTime}}</span>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Row 2: category segment (full width) -->
+  <ion-toolbar class="modern-toolbar segment-toolbar">
     <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
       <ion-segment-button
         *ngIf="isCategoryAvailable('audiobook') && (availableCategories.includes('audiobook') || (enableContentSearch && spotifyConfigured))"
@@ -49,24 +72,6 @@
       [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
     >
     </ion-searchbar>
-    <ion-buttons slot="end">
-      <ion-button *ngIf="enableAlarmClock" class="modern-button-icon" (click)="openAlarmManager()">
-        <ion-icon name="alarm-outline"></ion-icon>
-      </ion-button>
-      <ion-button class="modern-button-icon" (click)="goToPlayer()">
-        <ion-icon name="play-outline"></ion-icon>
-      </ion-button>
-      <ion-button class="modern-button-icon" (click)="toggleSearch()">
-        <ion-icon name="{{showSearch ? 'close' : 'search-outline'}}"></ion-icon>
-      </ion-button>
-      <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
-        <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
-      </ion-button>
-      <ion-button class="modern-button-icon" (click)="configButtonPressed()">
-        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
-      </ion-button>
-      <span class="clock-display">{{currentTime}}</span>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
