@@ -28,6 +28,19 @@
   }
 }
 
+.clock-display {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-light, #a29bfe);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  background: rgba(108, 92, 231, 0.15);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  border-radius: var(--radius-sm, 8px);
+  padding: 8px 12px;
+  margin: 3px 4px;
+}
+
 .client-name {
   font-size: 14px;
   color: var(--text-secondary);

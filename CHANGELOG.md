@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.21] - 2026-07-25
+
+### ✨ New Features
+
+- **Clock in toolbar** - Current time displayed in the top menu bar (right side)
+  - Updates every second, HH:MM format
+  - Styled as a pill badge matching the existing design system
+
+### 🐛 Bug Fixes
+
+- **Spotify 500 errors after ~1 hour** - Token refresh no longer crashes endpoints
+  - `refreshSpotifyToken()` now returns `null` on failure instead of re-throwing
+  - All Spotify endpoints return HTTP 503 (with message "Spotify temporarily unavailable") instead of 500 when token refresh fails
+  - Frontend retry logic in medialist will handle the transient error gracefully
+- **Sonos API non-JSON responses** - Added `safeJson()` helper for all Sonos HTTP API calls
+  - `POST /api/sonos/play` and all other Sonos control endpoints no longer crash with 500 if the Sonos API returns a non-JSON response (e.g. HTML error page, empty body)
+
 ## [2.2.49] - 2026-02-04
 
 ### ✨ New Features

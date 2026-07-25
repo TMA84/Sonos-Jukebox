@@ -26,6 +26,8 @@ import { Media } from '../media';
 export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('scrollTrigger', { read: ElementRef }) scrollTrigger: ElementRef;
   private scheduleCheckInterval: any;
+  private clockInterval: any;
+  currentTime = '';
   category = 'audiobook';
   artists: Artist[] = [];
   media: Media[] = [];
@@ -70,12 +72,25 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
 
     // Check schedule restrictions every minute
     this.scheduleCheckInterval = setInterval(() => this.checkScheduleRestrictions(), 60000);
+
+    this.updateClock();
+    this.clockInterval = setInterval(() => this.updateClock(), 1000);
   }
 
   ngOnDestroy() {
     if (this.scheduleCheckInterval) {
       clearInterval(this.scheduleCheckInterval);
     }
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+    }
+  }
+
+  private updateClock() {
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    this.currentTime = `${h}:${m}`;
   }
 
   loadDefaultSpeaker() {

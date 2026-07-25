@@ -632,7 +632,7 @@ async function refreshSpotifyToken() {
     return data.body['access_token'];
   } catch (error) {
     console.error('Error refreshing Spotify token:', error.message);
-    throw error;
+    return null;
   }
 }
 
@@ -1431,6 +1431,9 @@ app.get('/api/token', async (req, res) => {
     }
 
     const token = await refreshSpotifyToken();
+    if (!token) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     res.json({ access_token: token });
   } catch (error) {
     console.error('Error getting Spotify token:', error);
@@ -1452,6 +1455,9 @@ app.get('/api/search/spotify', async (req, res) => {
     }
 
     const token = await refreshSpotifyToken();
+    if (!token) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     const searchType = type === 'show' ? 'show' : type === 'audiobook' ? 'audiobook' : 'album';
 
     const searchResults = await spotifyApi.search(query, [searchType], { limit: 20 });
@@ -1809,7 +1815,9 @@ app.get('/api/spotify/search/albums', async (req, res) => {
       return res.status(400).json({ error: 'Query parameter required' });
     }
 
-    await refreshSpotifyToken();
+    if (!await refreshSpotifyToken()) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     const result = await spotifyApi.searchAlbums(query, { limit, offset, market: 'DE' });
     res.json(result.body.albums);
   } catch (error) {
@@ -1832,7 +1840,9 @@ app.get('/api/spotify/search/artists', async (req, res) => {
       return res.status(400).json({ error: 'Query parameter required' });
     }
 
-    await refreshSpotifyToken();
+    if (!await refreshSpotifyToken()) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     const result = await spotifyApi.searchArtists(query, { limit, offset, market: 'DE' });
     res.json(result.body.artists);
   } catch (error) {
@@ -1850,7 +1860,9 @@ app.get('/api/spotify/artists/:id/albums', async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
 
-    await refreshSpotifyToken();
+    if (!await refreshSpotifyToken()) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     const result = await spotifyApi.getArtistAlbums(req.params.id, {
       include_groups: 'album,single',
       limit,
@@ -1870,7 +1882,9 @@ app.get('/api/spotify/albums/:id', async (req, res) => {
       await initializeSpotify();
     }
 
-    await refreshSpotifyToken();
+    if (!await refreshSpotifyToken()) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     const result = await spotifyApi.getAlbum(req.params.id, { market: 'DE' });
     res.json(result.body);
   } catch (error) {
@@ -1888,7 +1902,9 @@ app.get('/api/spotify/shows/:id/episodes', async (req, res) => {
     const limit = parseInt(req.query.limit) || 50;
     const offset = parseInt(req.query.offset) || 0;
 
-    await refreshSpotifyToken();
+    if (!await refreshSpotifyToken()) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     const result = await spotifyApi.getShowEpisodes(req.params.id, {
       limit,
       offset,
@@ -1915,7 +1931,9 @@ app.get('/api/spotify/search/tracks', async (req, res) => {
       return res.status(400).json({ error: 'Query parameter required' });
     }
 
-    await refreshSpotifyToken();
+    if (!await refreshSpotifyToken()) {
+      return res.status(503).json({ error: 'Spotify temporarily unavailable' });
+    }
     const result = await spotifyApi.searchTracks(query, { limit, offset, market: 'DE' });
     res.json(result.body.tracks);
   } catch (error) {
@@ -2029,6 +2047,14 @@ app.post('/api/cleanup-radio', async (req, res) => {
   }
 });
 
+async function safeJson(response) {
+  try {
+    return await response.json();
+  } catch {
+    return { status: response.ok ? 'ok' : 'error', statusCode: response.status };
+  }
+}
+
 // Sonos player control endpoints
 app.get('/api/sonos', async (req, res) => {
   try {
@@ -2050,7 +2076,7 @@ app.get('/api/sonos', async (req, res) => {
 
     // Get current state from Sonos API
     const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/state`);
-    const state = await response.json();
+    const state = await safeJson(response);
 
     res.json(state);
   } catch (error) {
@@ -2106,7 +2132,7 @@ app.post('/api/sonos/play', async (req, res) => {
 
     console.log('Playing on Sonos:', { room, uri, url });
     const response = await fetch(url);
-    const result = await response.json();
+    const result = await safeJson(response);
 
     console.log('Sonos response:', result);
     res.json(result);
@@ -2128,7 +2154,7 @@ app.post('/api/sonos/pause', async (req, res) => {
     const port = portConfig?.value || '5005';
 
     const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/pause`);
-    const result = await response.json();
+    const result = await safeJson(response);
 
     res.json(result);
   } catch (error) {
@@ -2149,7 +2175,7 @@ app.post('/api/sonos/next', async (req, res) => {
     const port = portConfig?.value || '5005';
 
     const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/next`);
-    const result = await response.json();
+    const result = await safeJson(response);
 
     res.json(result);
   } catch (error) {
@@ -2170,7 +2196,7 @@ app.post('/api/sonos/previous', async (req, res) => {
     const port = portConfig?.value || '5005';
 
     const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/previous`);
-    const result = await response.json();
+    const result = await safeJson(response);
 
     res.json(result);
   } catch (error) {
@@ -2193,7 +2219,7 @@ app.post('/api/sonos/volume', async (req, res) => {
     const response = await fetch(
       `http://${host}:${port}/${encodeURIComponent(room)}/volume/${change}`
     );
-    const result = await response.json();
+    const result = await safeJson(response);
 
     res.json(result);
   } catch (error) {
@@ -2214,7 +2240,7 @@ app.post('/api/sonos/clearqueue', async (req, res) => {
     const port = portConfig?.value || '5005';
 
     const response = await fetch(`http://${host}:${port}/${encodeURIComponent(room)}/clearqueue`);
-    const result = await response.json();
+    const result = await safeJson(response);
 
     res.json(result);
   } catch (error) {
@@ -2233,7 +2259,7 @@ app.get('/api/speakers', async (req, res) => {
     const port = portConfig?.value || '5005';
 
     const response = await fetch(`http://${host}:${port}/zones`);
-    const zones = await response.json();
+    const zones = await safeJson(response);
 
     res.json(zones);
   } catch (error) {
