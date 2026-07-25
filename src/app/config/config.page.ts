@@ -780,7 +780,7 @@ export class ConfigPage implements OnInit {
 
   setLibraryCategory(category: string) {
     this.libraryCategory = category;
-    // Smart defaults — user can still override source/searchType afterwards
+    // Always set a canonical source so openUnifiedSearch picks the right provider
     if (category === 'radio') {
       this.librarySource = 'tunein';
     } else if (category === 'audiobook') {
@@ -789,6 +789,12 @@ export class ConfigPage implements OnInit {
     } else if (category === 'podcast') {
       this.librarySource = 'spotify';
       this.searchType = 'podcast';
+    } else if (category === 'music') {
+      if (this.librarySource === 'tunein') this.librarySource = 'spotify';
+      this.searchType = 'album';
+    } else {
+      // playlist / radioplay / other — tunein makes no sense here
+      if (this.librarySource === 'tunein') this.librarySource = 'library';
     }
   }
 
