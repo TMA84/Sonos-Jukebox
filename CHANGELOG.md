@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.22] - 2026-07-25
+
+### ✨ New Features
+
+- **Geheime Einstellungen per Uhr-Tap** - 5x auf die Uhr tippen öffnet die Einstellungen; sichtbarer Einstellungs-Button entfernt
+- **Library Card-Grid** - Medienbibliothek in /config zeigt Einträge als Card-Grid statt Liste
+- **Inline-Bearbeitung in Library** - Karten können direkt auf dem Grid bearbeitet werden, kein separates Panel mehr
+- **Sticky Library-Controls** - Kategorie-Auswahl und Suchfeld in /config bleiben beim Scrollen der Medienliste sichtbar
+
+### 🐛 Bug Fixes
+
+- **Playlists/Radio in /home nicht sichtbar** - Items ohne Artist-Eintrag wurden vom Gruppierungsalgorithmus übersehen; Fix nutzt ID/Titel als Schlüssel für Playlist- und Radio-Einträge
+- **TuneIn Cover-URLs** - Stationsbilder werden korrekt aus OPML image-Attribut und TuneIn CDN geladen
+- **Radio-Cover beim Hinzufügen** - Home-Screen nutzt DB-Cover-Spalte; fix-radio-images synchronisiert Metadaten
+- **Suchfeld-Label** - Suchen-Button in /config zeigt die korrekte Kategorie auf Deutsch
+- **Kategorie-Reset** - Wechsel der Bibliothekskategorie setzt die Quelle zuverlässig zurück
+- **Radioplay Standard** - Radio-Wiedergabe startet standardmäßig mit Spotify-Suche statt Local
+
+### 🔧 Improvements
+
+- **Alarm-Modals** - Alarm-Manager und Alarm-Bearbeitung verwenden jetzt einheitliches `modern-*` Modal-Design
+- **Home Suchleiste** - Suchfeld hat eine eigene Toolbar-Zeile statt im Hauptheader zu stecken
+- **Config Tab-Breite** - Segment-Tabs nutzen die volle verfügbare Breite
+- **Client-Dropdown Abstand** - Kleiner Abstand zwischen Client-Auswahl und Tabs in /config
+- **Client-Name Styling** - Passt sich in Breite an den Inhalt an (max 120px), matcht Pill-Design der Uhr
+
 ## [2.7.21] - 2026-07-25
 
 ### ✨ New Features

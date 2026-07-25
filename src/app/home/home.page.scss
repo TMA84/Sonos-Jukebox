@@ -77,6 +77,12 @@ ion-segment {
   }
 }
 
+.search-toolbar {
+  --background: #0f0f1a;
+  --min-height: unset;
+  padding: 0;
+}
+
 ion-searchbar {
   --background: var(--surface);
   --border-radius: var(--radius-md);

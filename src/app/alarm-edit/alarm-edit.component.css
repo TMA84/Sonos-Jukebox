@@ -1,17 +1,5 @@
-ion-toolbar {
-  --background: var(--surface, #1a1a2e);
-  --color: var(--text-primary, #ffffff);
-  --border-width: 0;
-  --min-height: 40px;
-}
-
-ion-title {
-  font-weight: 700;
-  font-size: 15px;
-}
-
 ion-content {
-  --background: var(--surface, #1a1a2e);
+  --background: var(--background, #0f0f1a);
   --overflow: hidden;
 }
 

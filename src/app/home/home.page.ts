@@ -28,6 +28,8 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('scrollTrigger', { read: ElementRef }) scrollTrigger: ElementRef;
   private scheduleCheckInterval: any;
   private clockInterval: any;
+  private clockTapCount = 0;
+  private clockTapTimeout: any;
   private categorySub: Subscription;
   currentTime = '';
   isLoadingCategories = false;
@@ -338,6 +340,17 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     });
 
     return await editModal.present();
+  }
+
+  clockTapped() {
+    this.clockTapCount++;
+    clearTimeout(this.clockTapTimeout);
+    if (this.clockTapCount >= 5) {
+      this.clockTapCount = 0;
+      this.configButtonPressed();
+    } else {
+      this.clockTapTimeout = setTimeout(() => { this.clockTapCount = 0; }, 3000);
+    }
   }
 
   configButtonPressed() {

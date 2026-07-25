@@ -461,6 +461,9 @@
     <!-- Library Tab -->
     <div *ngSwitchCase="'library'">
 
+      <!-- Sticky Controls -->
+      <div class="lib-sticky-controls">
+
       <!-- Category Selector -->
       <div class="lib-cat-row">
         <button class="lib-cat-btn" [class.active]="libraryCategory === 'audiobook'" (click)="setLibraryCategory('audiobook')">
@@ -564,9 +567,11 @@
         </button>
       </div>
 
+      </div><!-- end lib-sticky-controls -->
+
       <!-- Library Card Grid -->
       <div class="lib-grid">
-        <div class="lib-card" *ngFor="let item of filteredLibraryItems">
+        <div class="lib-card" *ngFor="let item of filteredLibraryItems" [class.editing]="editingIndex === getOriginalIndex(item)">
           <div class="lib-card-cover">
             <img
               [src]="libCovers[item.id || item.title] || item.cover || 'assets/images/nocover.png'"
@@ -576,18 +581,36 @@
             />
             <span class="lib-card-badge">{{ item.category }}</span>
           </div>
-          <div class="lib-card-body">
-            <span class="lib-card-title">{{ item.title }}</span>
-            <span class="lib-card-meta" *ngIf="item.artist">{{ item.artist }}</span>
+
+          <!-- Inline Edit Form -->
+          <div class="lib-card-edit" *ngIf="editingIndex === getOriginalIndex(item)">
+            <input type="text" [(ngModel)]="libraryTitle" placeholder="Titel" class="lib-card-input" (focus)="setActiveInput('libraryTitle')" />
+            <input type="text" [(ngModel)]="libraryArtist" placeholder="Künstler" class="lib-card-input" (focus)="setActiveInput('libraryArtist')" />
+            <div class="lib-card-edit-actions">
+              <button class="lib-card-btn save" (click)="addToLibrary()" [disabled]="!libraryTitle">
+                <ion-icon name="checkmark-outline"></ion-icon>
+              </button>
+              <button class="lib-card-btn cancel" (click)="clearForm()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </div>
           </div>
-          <div class="lib-card-actions">
-            <button class="lib-card-btn edit" (click)="editLibraryItem(getOriginalIndex(item))">
-              <ion-icon name="create-outline"></ion-icon>
-            </button>
-            <button class="lib-card-btn delete" (click)="removeFromLibrary(getOriginalIndex(item))">
-              <ion-icon name="trash-outline"></ion-icon>
-            </button>
-          </div>
+
+          <!-- Normal View -->
+          <ng-container *ngIf="editingIndex !== getOriginalIndex(item)">
+            <div class="lib-card-body">
+              <span class="lib-card-title">{{ item.title }}</span>
+              <span class="lib-card-meta" *ngIf="item.artist">{{ item.artist }}</span>
+            </div>
+            <div class="lib-card-actions">
+              <button class="lib-card-btn edit" (click)="editLibraryItem(getOriginalIndex(item))">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
+              <button class="lib-card-btn delete" (click)="removeFromLibrary(getOriginalIndex(item))">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+          </ng-container>
         </div>
       </div>
 

@@ -41,16 +41,6 @@
         <ion-icon name="play-circle-outline"></ion-icon>
       </ion-segment-button>
     </ion-segment>
-    <ion-searchbar
-      *ngIf="showSearch"
-      [(ngModel)]="searchTerm"
-      (ionInput)="onSearch()"
-      (ionFocus)="setActiveInput('search'); kioskService.isKioskMode && (showKeyboard = true)"
-      placeholder="Search library..."
-      debounce="300"
-      [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
-    >
-    </ion-searchbar>
     <ion-buttons slot="end">
       <ion-button *ngIf="enableAlarmClock" class="modern-button-icon" (click)="openAlarmManager()">
         <ion-icon name="alarm-outline"></ion-icon>
@@ -64,11 +54,19 @@
       <ion-button class="modern-button-icon" (click)="toggleKeyboard()">
         <ion-icon name="{{showKeyboard ? 'keypad' : 'keypad-outline'}}"></ion-icon>
       </ion-button>
-      <ion-button class="modern-button-icon" (click)="configButtonPressed()">
-        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
-      </ion-button>
-      <span class="clock-display">{{currentTime}}</span>
+      <span class="clock-display" (click)="clockTapped()">{{currentTime}}</span>
     </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="showSearch" class="search-toolbar">
+    <ion-searchbar
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearch()"
+      (ionFocus)="setActiveInput('search'); kioskService.isKioskMode && (showKeyboard = true)"
+      placeholder="Search library..."
+      debounce="300"
+      [attr.inputmode]="kioskService.isKioskMode ? 'none' : null"
+    >
+    </ion-searchbar>
   </ion-toolbar>
 </ion-header>
 

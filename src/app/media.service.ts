@@ -266,10 +266,13 @@ export class MediaService {
         const artistMap = new Map<string, Artist>();
         
         items.forEach(item => {
-          if (item.artist && !artistMap.has(item.artist)) {
-            artistMap.set(item.artist, {
-              name: item.category === 'radio' ? item.title : item.artist,
-              albumCount: '0', // Will be loaded on-demand
+          const noArtist = !item.artist || item.category === 'radio' || item.category === 'playlist';
+          const key = noArtist ? (item.id || item.title) : item.artist;
+          const displayName = noArtist ? item.title : item.artist;
+          if (key && !artistMap.has(key)) {
+            artistMap.set(key, {
+              name: displayName,
+              albumCount: '0',
               cover: this.resolveItemCover(item),
               coverMedia: {
                 id: item.id || '',
@@ -278,7 +281,7 @@ export class MediaService {
                 cover: this.resolveItemCover(item),
                 type: item.type || 'spotify',
                 category: item.category,
-                ...(item.category === 'radio' && item.metadata ? { metadata: item.metadata } : {})
+                ...(item.metadata ? { metadata: item.metadata } : {})
               }
             });
           }
