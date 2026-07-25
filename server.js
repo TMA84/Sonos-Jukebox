@@ -2027,14 +2027,15 @@ app.get('/api/tunein/search/stations', async (req, res) => {
         const defaultImage =
           'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOC4yNSAxNi4yNWMtLjQxNC0uNDE0LS40MTQtMS4wODYgMC0xLjVhNS4yNSA1LjI1IDAgMCAxIDcuNSAwYy40MTQuNDE0LjQxNCAxLjA4NiAwIDEuNXMtMS4wODYuNDE0LTEuNSAwYTIuMjUgMi4yNSAwIDAgMC0zIDAgYy0uNDE0LjQxNC0xLjA4Ni40MTQtMS41IDB6IiBmaWxsPSIjMzM3M2RjIi8+CjxwYXRoIGQ9Ik02IDIwYy0uNTUyIDAtMS0uNDQ4LTEtMXMuNDQ4LTEgMS0xYzMuMzE0IDAgNi0yLjY4NiA2LTZzMi42ODYtNiA2LTZjLjU1MiAwIDEgLjQ0OCAxIDFzLS40NDggMS0xIDFjLTIuMjEgMC00IDEuNzktNCA0cy0xLjc5IDQtNCA0eiIgZmlsbD0iIzMzNzNkYyIvPgo8L3N2Zz4K';
 
-        // Build station image URL from guide_id (most reliable), then XML image attr, then fallback
+        // Prefer the XML image= attribute (TuneIn's canonical URL, always present when station
+        // has a logo). Fall back to CDN logo via guide_id, then the SVG placeholder.
+        // Convert http:// → https:// to avoid mixed-content blocks in the browser.
         const stationId = guideIdMatch[1] || `s${Date.now()}_${i}`;
         let stationImage = '';
-        if (guideIdMatch[1]) {
-          // TuneIn CDN logo - guide_id already has 's' prefix like 's12345'
+        if (imageMatch[1]) {
+          stationImage = imageMatch[1].replace(/^http:\/\//, 'https://');
+        } else if (guideIdMatch[1]) {
           stationImage = `https://cdn-radiotime-logos.tunein.com/${guideIdMatch[1]}q.png`;
-        } else if (imageMatch[1]) {
-          stationImage = imageMatch[1];
         } else {
           stationImage = defaultImage;
         }
@@ -2062,21 +2063,39 @@ app.get('/api/tunein/search/stations', async (req, res) => {
   }
 });
 
-// Fix existing radio station images - set real TuneIn logos based on station ID
+// Fix existing radio station images by re-querying TuneIn OPML for the canonical logo URL
 app.post('/api/fix-radio-images', async (req, res) => {
   try {
-    // Get all radio stations with placeholder or missing covers
     const stations = await dbAll(
-      `SELECT id, cover FROM media_items WHERE type = 'tunein' OR contentType = 'radio'`
+      `SELECT id, title, cover FROM media_items WHERE type = 'tunein' OR contentType = 'radio'`
     );
 
     let updated = 0;
     for (const station of stations || []) {
-      // If cover is a data: URI (SVG placeholder) or empty, replace with TuneIn logo
-      if (!station.cover || station.cover.startsWith('data:')) {
-        const logoUrl = `https://cdn-radiotime-logos.tunein.com/${station.id}q.png`;
-        const result = await dbRun('UPDATE media_items SET cover = ? WHERE id = ?', [logoUrl, station.id]);
-        updated += result.changes;
+      // Re-fetch from TuneIn OPML for stations missing a cover, using a placeholder, or
+      // using the cdn-radiotime-logos PNG path (which 403s for many stations)
+      const needsFix =
+        !station.cover ||
+        station.cover.startsWith('data:') ||
+        station.cover.includes('cdn-radiotime-logos.tunein.com');
+
+      if (needsFix && station.id && /^s\d+$/.test(station.id)) {
+        try {
+          const opmlUrl = `http://opml.radiotime.com/Search.ashx?query=${encodeURIComponent(station.title)}&formats=json`;
+          const opmlRes = await fetch(opmlUrl);
+          const xml = await opmlRes.text();
+          // Find the matching station outline by guide_id
+          const stationPattern = new RegExp(`guide_id="${station.id}"[^>]*image="([^"]+)"`, 'i');
+          const idPatternAlt = new RegExp(`image="([^"]+)"[^>]*guide_id="${station.id}"`, 'i');
+          const imgMatch = xml.match(stationPattern) || xml.match(idPatternAlt);
+          if (imgMatch?.[1]) {
+            const logoUrl = imgMatch[1].replace(/^http:\/\//, 'https://');
+            const result = await dbRun('UPDATE media_items SET cover = ? WHERE id = ?', [logoUrl, station.id]);
+            updated += result.changes;
+          }
+        } catch {
+          // skip individual failures
+        }
       }
     }
 
