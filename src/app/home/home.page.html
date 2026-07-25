@@ -1,6 +1,8 @@
 <ion-header class="modern-header">
   <ion-toolbar class="modern-toolbar">
-    <ion-title *ngIf="clientName" slot="start" class="client-name modern-title">{{clientName}}</ion-title>
+    <ion-buttons *ngIf="clientName" slot="start">
+      <span class="client-name modern-title">{{clientName}}</span>
+    </ion-buttons>
     <ion-segment value="{{this.category}}" (ionChange)="categoryChanged($event)" scrollable="true">
       <ion-segment-button
         *ngIf="isCategoryAvailable('audiobook') && (availableCategories.includes('audiobook') || (enableContentSearch && spotifyConfigured))"

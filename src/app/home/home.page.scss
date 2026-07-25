@@ -48,9 +48,12 @@
 }
 
 .client-name {
+  display: inline-block;
   width: 120px;
-  min-width: 0;
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 8px;
 }
 
 ion-segment {
