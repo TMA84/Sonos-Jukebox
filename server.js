@@ -2301,8 +2301,7 @@ app.post('/api/sonos/previous', async (req, res) => {
 app.post('/api/sonos/volume', async (req, res) => {
   try {
     const { room, change } = req.body;
-    const volumeChange = parseInt(change, 10);
-    if (isNaN(volumeChange) || volumeChange < -100 || volumeChange > 100) {
+    if (!/^[+-]\d+$/.test(String(change))) {
       return res.status(400).json({ error: 'Invalid volume change value' });
     }
 
@@ -2314,7 +2313,7 @@ app.post('/api/sonos/volume', async (req, res) => {
     const port = portConfig?.value || '5005';
 
     const response = await fetch(
-      `http://${host}:${port}/${encodeURIComponent(room)}/volume/${volumeChange}`
+      `http://${host}:${port}/${encodeURIComponent(room)}/volume/${change}`
     );
     const result = await safeJson(response);
 
