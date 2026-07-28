@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.23] - 2026-07-28
+
+### 🐛 Bug Fixes
+
+- **Lautstärke lässt sich nicht verstellen** - `parseInt('+5')` lieferte `5` (kein Vorzeichen), sodass der Sonos API-Aufruf `/room/volume/5` lautete (absolut auf 5% setzen) statt `/room/volume/+5` (relativ +5). Volume-Down funktionierte noch zufällig, da `-5` als Zahl das Vorzeichen behält.
+
 ## [2.7.22] - 2026-07-25
 
 ### ✨ New Features
